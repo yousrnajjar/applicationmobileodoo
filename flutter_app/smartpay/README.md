@@ -1,16 +1,9 @@
 # smartpay
 
-A new Flutter project.
+Smart Pay project.
 
-## Getting Started
+## Comment Démarer
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Pour commencer créer dans la racine un fichier `.env`.
+Il doit contenir les informations suivantes:
+* **ODOO_INSTANCE_HOST**: Represente url vers l'instance odoo. En development sa valeur est `http://10.0.2.2:8069`
