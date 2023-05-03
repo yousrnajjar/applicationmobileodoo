@@ -9,7 +9,7 @@ final kColorDarkSchema = ColorScheme.fromSeed(
   brightness: Brightness.dark,
   seedColor: const Color.fromRGBO(2, 5, 2, 1),
 );
-final theme = ThemeData().copyWith(
+final smartpayTheme = ThemeData().copyWith(
   useMaterial3: true,
   colorScheme: kColorSchema,
   textTheme: GoogleFonts.latoTextTheme(),

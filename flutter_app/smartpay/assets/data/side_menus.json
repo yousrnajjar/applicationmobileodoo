@@ -1,0 +1,28 @@
+{
+    "content": [
+        {
+            "icon": "e871",
+            "display_name": "Tableau De Bord"
+        },
+        {
+            "icon": "e8b5",
+            "display_name": "Pointage"
+        },
+        {
+            "icon": "e916",
+            "display_name": "Damande de congé"
+        },
+        {
+            "icon": "f071",
+            "display_name": "Notes De Frais"
+        },
+        {
+            "icon": "e853",
+            "display_name": "Mon compte"
+        },
+        {
+            "icon": "e9ba",
+            "display_name": "Quiter"
+        }
+    ]
+}

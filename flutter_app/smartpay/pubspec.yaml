@@ -69,6 +69,7 @@ flutter:
     - assets/images/back.jpeg
     - assets/images/logo.jpeg
     - .env
+    - assets/data/side_menus.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

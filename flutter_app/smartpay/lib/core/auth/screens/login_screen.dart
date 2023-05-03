@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // Token successfully confirmed, navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const HomeScreen(title: "SmartPay",)),
             );
           } else {
             // Token confirmation failed, show error message

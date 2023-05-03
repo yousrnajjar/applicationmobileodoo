@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/core/data/themes.dart';
-import 'package:smartpay/core/screens/auth/login_screen.dart';
+import 'package:smartpay/core/auth/screens/login_screen.dart';
+import 'package:smartpay/core/screens/home.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
 
 class SmartPay extends StatelessWidget {
   Session? session;
+  final Widget _activeScreen = const HomeScreen(title: "SmartPay");
 
   SmartPay({super.key, this.session});
 
@@ -28,12 +30,16 @@ class SmartPay extends StatelessWidget {
     this.session = session;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget _getLoginScreen() {
+    return  MaterialApp(
       title: 'SmartPay Mobile',
-      theme: theme,
+      theme: smartpayTheme,
       home: LoginScreen(onSessionChange: _changeSession),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _activeScreen;
   }
 }

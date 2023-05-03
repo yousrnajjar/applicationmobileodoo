@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:smartpay/core/data/themes.dart';
+import 'package:smartpay/core/widgets/main_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final String title;
+  const HomeScreen({super.key, required this.title});
+  
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Bienvenue");
+    return MaterialApp(
+      theme: smartpayTheme,
+      home: Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: const Text("Bienvenue"),
+        drawer: const MainDrawer(),
+      ),
+
+    );
   }
 }
