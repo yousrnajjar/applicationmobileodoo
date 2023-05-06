@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/providers/session_providers.dart';
 
-class LoginScreen extends StatefulWidget {
-  final void Function(Session session) onSessionChange;
-
-  const LoginScreen({super.key, required this.onSessionChange});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _tokenController = TextEditingController();
   final TextEditingController _databaseController = TextEditingController();
@@ -20,21 +20,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isTokenSend = false;
-  Session? _session;
 
   void _confirmToken(String token) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
+      Session session = ref.watch(sessionProvider);
       try {
-        final confirmed = await _session!.confirmToken(token);
+        final confirmed = await session.confirmToken(token);
         if (context.mounted) {
           if (confirmed) {
             // Token successfully confirmed, navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen(title: "SmartPay",)),
+              MaterialPageRoute(
+                  builder: (context) => const HomeScreen(
+                        title: "SmartPay",
+                      )),
             );
           } else {
             // Token confirmation failed, show error message
@@ -73,10 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      _session = Session(database, email, password);
-      widget.onSessionChange(_session!);
+      Session session = ref.watch(sessionProvider);
+      session.dbName = database;
+      session.email = email;
+      session.password = password;
       try {
-        final success = await _session!.sendToken();
+        final success = await session.sendToken();
         if (success && context.mounted) {
           /* Show token confirmation dialog and wait for user input
           final token = await showDialog<String>(

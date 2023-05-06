@@ -1,45 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:smartpay/api/auth/session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/auth/screens/login_screen.dart';
 import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/providers/user_info_providers.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
 
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: SmartPay()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SmartPay();
-  }
-}
-
-class SmartPay extends StatelessWidget {
-  Session? session;
-  final Widget _activeScreen = const HomeScreen(title: "SmartPay");
-
-  SmartPay({super.key, this.session});
-
-  void _changeSession(Session session) {
-    this.session = session;
-  }
-
+class SmartPay extends ConsumerWidget {
+  const SmartPay({super.key});
   Widget _getLoginScreen() {
-    return  MaterialApp(
+    return MaterialApp(
       title: 'SmartPay Mobile',
       theme: smartpayTheme,
-      home: LoginScreen(onSessionChange: _changeSession),
+      home: const LoginScreen(),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return _activeScreen;
+  Widget build(BuildContext context, WidgetRef ref) {
+    Widget activeScreen = const HomeScreen(title: "SmartPay");
+    var userInfo = ref.watch(userInfoProvider);
+    if (!userInfo.isAuthenticated()) {
+      activeScreen = _getLoginScreen();
+    }
+    return activeScreen;
   }
 }

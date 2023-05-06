@@ -22,13 +22,13 @@ class Session implements AuthInterface, CallInterface {
   String? url = dotenv.env['ODOO_INSTANCE_HOST'];
 
   /// The name of the database to authenticate against.
-  final String dbName;
+  String dbName;
 
   /// The email address of the user to authenticate with.
-  final String email;
+  String email;
 
   /// The password of the user to authenticate with.
-  final String password;
+  String password;
 
   /// The session ID returned by the Odoo server.
   String? sessionId;
@@ -105,9 +105,9 @@ class Session implements AuthInterface, CallInterface {
     try {
       await callEndpoint(
           path, {"login": email, "password": password, "db": dbName});
-    } on OdooSessionConfirmTokenException {
       return true;
+    } on Exception {
+      return false;
     }
-    return false;
   }
 }
