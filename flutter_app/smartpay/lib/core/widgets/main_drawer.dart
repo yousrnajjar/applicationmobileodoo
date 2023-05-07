@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smartpay/core/auth/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/screens/attendance.dart';
 
@@ -35,6 +36,12 @@ class _MainDrawerState extends State<MainDrawer> {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => const InOutScreen(),
+        ),
+      );
+    } else if (identifier == "login") {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => const LoginScreen(),
         ),
       );
     }
@@ -96,6 +103,24 @@ class _MainDrawerState extends State<MainDrawer> {
                   _setScreen(sideMenu.identifier);
                 },
               ),
+              Spacer(),
+              ListTile(
+                leading: Icon(
+                  Icons.login,
+                  size: 26,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+                title: Text(
+                  'Se Connecter',
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                        fontSize: 24,
+                      ),
+                ),
+                onTap: () {
+                  _setScreen("login");
+                },
+              )
           ],
         ),
       ),

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/attendance.dart';
+import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
+import 'package:smartpay/providers/models/user_info.dart';
+import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_attendance_info.dart';
+import 'package:smartpay/providers/user_info_providers.dart';
 
 class InOutScreen extends ConsumerStatefulWidget {
   const InOutScreen({super.key});
@@ -10,6 +16,14 @@ class InOutScreen extends ConsumerStatefulWidget {
 }
 
 class _InOutScreenState extends ConsumerState<InOutScreen> {
+  void _getAttendanceInfo() async {
+    UserInfo userInfo = ref.watch(userInfoProvider);
+    Session session = ref.watch(sessionProvider);
+    AttendanceAPI api = AttendanceAPI(session);
+    EmployeeAttendanceInfo attendanceInfo = await api.getInfo(userInfo.uid);
+    ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+  }
+
   int _selectedPageIndex = 0;
   late Widget _activePage;
   @override
@@ -32,7 +46,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.sync),
-          onPressed: _checkEmployeeState,
+          onPressed: _getAttendanceInfo,
         ),
       ]),
       bottomNavigationBar: BottomNavigationBar(
@@ -58,6 +72,4 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       body: _activePage,
     );
   }
-
-  void _checkEmployeeState() {}
 }

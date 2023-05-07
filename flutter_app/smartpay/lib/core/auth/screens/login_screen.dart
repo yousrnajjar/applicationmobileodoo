@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_info_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -28,14 +30,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
       Session session = ref.watch(sessionProvider);
       try {
-        final confirmed = await session.confirmToken(token);
+        final UserInfo userInfo = await session.confirmToken(token);
+        print(userInfo.info);
+        ref.read(userInfoProvider.notifier).setUserInfo(userInfo);
         if (context.mounted) {
-          if (confirmed) {
+          if (userInfo.isAuthenticated()) {
             // Token successfully confirmed, navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
           } else {
             // Token confirmation failed, show error message
@@ -79,8 +82,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       session.email = email;
       session.password = password;
       try {
-        final success = await session.sendToken();
-        if (success && context.mounted) {
+        final UserInfo info = await session.sendToken();
+        print(info.info);
+        ref.read(userInfoProvider.notifier).setUserInfo(info);
+        if (context.mounted) {
           /* Show token confirmation dialog and wait for user input
           final token = await showDialog<String>(
             context: context,

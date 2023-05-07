@@ -3,8 +3,13 @@ class UserInfo {
 
   UserInfo(this.info);
 
+  int get uid {
+    if (!info.containsKey("uid") || info["uid"] == false) return -1;
+    return info['uid'];
+  }
+
   bool isAuthenticated() {
-    return true;
+    return uid != -1;
     //return info.containsKey("uid") && (info["uid"] != null);
   }
 }

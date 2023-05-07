@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/attendance.dart';
+import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_attendance_info.dart';
 
-class CheckInOut extends StatelessWidget {
+class CheckInOut extends ConsumerStatefulWidget {
   const CheckInOut({super.key});
 
   @override
+  ConsumerState<CheckInOut> createState() => _CheckInOutState();
+}
+
+class _CheckInOutState extends ConsumerState<CheckInOut> {
+  void _updateAttendance() async {
+    EmployeeAttendanceInfo attendanceInfo = ref.watch(userAttendanceProvider);
+    Session session = ref.watch(sessionProvider);
+    AttendanceAPI api = AttendanceAPI(session);
+    attendanceInfo = await api.updateAttendance(attendanceInfo.id);
+    ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool employeeIn = true;
+    EmployeeAttendanceInfo attendanceInfo = ref.watch(userAttendanceProvider);
+    bool employeeIn = attendanceInfo.attendanceState == 'checked_in';
     double boxWith = 350;
     return Container(
       decoration: BoxDecoration(
@@ -39,14 +58,17 @@ class CheckInOut extends StatelessWidget {
                   ),
                   Center(
                     child: Container(
-                      color: Theme.of(context).colorScheme.background,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .background
+                          .withAlpha(220),
                       width: boxWith,
                       padding: const EdgeInsets.symmetric(
                           vertical: 20, horizontal: 30),
                       child: Column(
                         children: [
                           Text(
-                            "Micheal Admin",
+                            attendanceInfo.name,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge!
@@ -55,34 +77,36 @@ class CheckInOut extends StatelessWidget {
                                 ),
                           ),
                           Text(
-                            "Vous souhaitez partir?",
+                            employeeIn
+                                ? "Vous souhaitez partir?"
+                                : "Bienvenue!",
                             style: Theme.of(context)
                                 .textTheme
-                                .titleMedium!
+                                .titleSmall!
                                 .copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            "Heure de travail aujourd'hui: 05:00",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall!
-                                        .color!
-                                        .withAlpha(100)),
-                          ),
+                          if (employeeIn)
+                            Text(
+                              "Heure de travail aujourd'hui: ${attendanceInfo.hoursToday}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall!
+                                          .color!
+                                          .withAlpha(100)),
+                            ),
                           const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color:
-                                  employeeIn ? Colors.amber : Colors.redAccent,
+                              color: employeeIn ? Colors.amber : Colors.white,
                             ),
                             child: IconButton(
                               icon: (employeeIn)
@@ -90,9 +114,10 @@ class CheckInOut extends StatelessWidget {
                                       color: Colors.black, size: 50)
                                   : const Icon(Icons.login,
                                       color: Colors.black, size: 50),
-                              onPressed: _sign,
+                              onPressed: _updateAttendance,
                             ),
                           ),
+                          Text(employeeIn ? '' : "Cliquez pour entrer"),
                         ],
                       ),
                     ),
@@ -115,6 +140,4 @@ class CheckInOut extends StatelessWidget {
       ),
     );
   }
-
-  void _sign() {}
 }
