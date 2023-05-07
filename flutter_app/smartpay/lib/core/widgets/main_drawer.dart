@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartpay/core/models/side_menu.dart';
-import 'package:smartpay/core/screens/attendance/in_out.dart';
+import 'package:smartpay/core/screens/attendance.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({

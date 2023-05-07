@@ -69,6 +69,7 @@ flutter:
   assets:
     - assets/images/back.jpeg
     - assets/images/logo.jpeg
+    - assets/images/admin.jpeg
     - .env
     - assets/data/side_menus.json
 
