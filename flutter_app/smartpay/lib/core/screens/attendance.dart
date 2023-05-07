@@ -11,10 +11,11 @@ class InOutScreen extends ConsumerStatefulWidget {
 
 class _InOutScreenState extends ConsumerState<InOutScreen> {
   int _selectedPageIndex = 0;
-  Widget? _activePage;
+  late Widget _activePage;
   @override
   void initState() {
     super.initState();
+    _activePage = const CheckInOut();
   }
 
   void _selectPage(int index) {
@@ -28,7 +29,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("In Out"), actions: <Widget>[
+      appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.sync),
           onPressed: _checkEmployeeState,
