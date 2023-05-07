@@ -2,27 +2,33 @@
     "content": [
         {
             "icon": "e1b1",
-            "display_name": "Tableau De Bord"
+            "display_name": "Tableau De Bord",
+            "identifier":"dashbord"
         },
         {
             "icon": "e1b6",
-            "display_name": "Pointage"
+            "display_name": "Pointage",
+            "identifier":"attendance"
         },
         {
             "icon": "e317",
-            "display_name": "Damande de congé"
+            "display_name": "Damande de congé",
+            "identifier":"leave"
         },
         {
             "icon": "e61c",
-            "display_name": "Notes De Frais"
+            "display_name": "Notes De Frais",
+            "identifier":"expense"
         },
         {
             "icon": "e043",
-            "display_name": "Mon compte"
+            "display_name": "Mon compte",
+            "identifier":"my_account"
         },
         {
             "icon": "e243",
-            "display_name": "Quiter"
+            "display_name": "Quiter",
+            "identifier":"exit"
         }
     ]
 }

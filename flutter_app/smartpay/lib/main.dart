@@ -14,21 +14,14 @@ void main() async {
 
 class SmartPay extends ConsumerWidget {
   const SmartPay({super.key});
-  Widget _getLoginScreen() {
-    return MaterialApp(
-      title: 'SmartPay Mobile',
-      theme: smartpayTheme,
-      home: const LoginScreen(),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget activeScreen = const HomeScreen(title: "SmartPay");
+    Widget activeScreen = const HomeScreen();
     var userInfo = ref.watch(userInfoProvider);
     if (!userInfo.isAuthenticated()) {
-      activeScreen = _getLoginScreen();
+      activeScreen = const LoginScreen();
     }
-    return activeScreen;
+    return MaterialApp(theme: smartpayTheme, home: activeScreen);
   }
 }

@@ -35,9 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const HomeScreen(
-                        title: "SmartPay",
-                      )),
+                  builder: (context) => const HomeScreen()),
             );
           } else {
             // Token confirmation failed, show error message
