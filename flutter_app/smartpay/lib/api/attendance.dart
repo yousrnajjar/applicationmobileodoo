@@ -25,7 +25,7 @@ class AttendanceAPI {
         [
           ["user_id", "=", uid]
         ],
-        ["attendance_state", "name", "hours_today"]
+        ["image_128", "attendance_state", "name", "hours_today"]
       ],
       "kwargs": {}
     };

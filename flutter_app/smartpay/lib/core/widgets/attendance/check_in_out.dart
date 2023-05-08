@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/models.dart';
@@ -134,19 +136,23 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: FadeInImage(
-                    // Montre une placeholder quand l'image n'est pas disponible
-                    placeholder: MemoryImage(
-                      // Convertit des bytes en images
-                      kTransparentImage, // Cree une image transparente en bytes
-                    ),
-                    image: NetworkImage(
-                      // Recupere une image par sont url
-                      "${session.url}/web/image?model=hr.employee.public&amp;field=image_128&amp;id=${employee.id}",
-                    ),
-                    fit: BoxFit.contain,
-                    height: 60,
-                    //width: 60,
+                  child: CircleAvatar(
+                    backgroundImage: FadeInImage(
+                      // Montre une placeholder quand l'image n'est pas disponible
+                      placeholder: MemoryImage(
+                        // Convertit des bytes en images
+                        kTransparentImage, // Cree une image transparente en bytes
+                      ),
+                      image: (employee.image_128 != null)
+                          ? Image.memory(base64Decode(employee.image_128)).image
+                          : NetworkImage(
+                              // Recupere une image par sont url
+                              "${session.url}/web/image?model=hr.employee.public&amp;field=image_128&amp;id=${employee.id}",
+                            ),
+                      fit: BoxFit.contain,
+                      height: 60,
+                      //width: 60,
+                    ).image,
                   ),
                 ),
               ),

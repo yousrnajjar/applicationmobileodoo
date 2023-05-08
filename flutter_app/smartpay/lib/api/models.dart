@@ -68,6 +68,7 @@ class Employee {
   final double hoursToday;
   final Map<String, dynamic> dataJson;
   List<Attendance> attendances = [];
+  dynamic image_128;
 
   Employee({
     required this.id,
@@ -81,7 +82,8 @@ class Employee {
         attendanceState = data["attendance_state"],
         name = data['name'],
         hoursToday = data["hours_today"],
-        dataJson = data;
+        dataJson = data,
+        image_128 = data['image_128'];
 
   Employee.empty()
       : id = -1,
@@ -117,6 +119,7 @@ class EmployeeAllInfo {
   double? hoursLastMonth;
   double? hoursToday;
   dynamic hoursLastMonthDisplay;
+  dynamic image_128;
   int? childAllCount;
   dynamic displayName;
   List? createUid;
@@ -155,7 +158,8 @@ class EmployeeAllInfo {
       this.createUid,
       this.createDate,
       this.writeUid,
-      this.writeDate});
+      this.writeDate,
+      this.image_128,});
 
   EmployeeAllInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -189,6 +193,7 @@ class EmployeeAllInfo {
     createDate = json['create_date'];
     writeUid = json['write_uid'];
     writeDate = json['write_date'];
+    image_128 = json["image_128"];
   }
 
   Map<String, dynamic> toJson() {
@@ -224,6 +229,7 @@ class EmployeeAllInfo {
     data['create_date'] = createDate;
     data['write_uid'] = writeUid;
     data['write_date'] = writeDate;
+    data['image_128'] = image_128;
     return data;
   }
 

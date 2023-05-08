@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/auth/session.dart';
@@ -24,9 +26,11 @@ class EmployeeItem extends ConsumerWidget {
           // Convertit des bytes en images
           kTransparentImage, // Cree une image transparente en bytes
         ),
-        image: NetworkImage(
-            // Recupere une image par sont url
-            imgUrl),
+        image: (employee.image_128 != null)
+            ? Image.memory(base64Decode(employee.image_128)).image
+            : NetworkImage(
+                // Recupere une image par sont url
+                imgUrl),
         fit: BoxFit.contain,
         //height: 60,
         //width: 60,
@@ -46,7 +50,7 @@ class EmployeeItem extends ConsumerWidget {
             "Dernier entré: ${employee.lastCheckIn}",
             style: smallText,
           ),
-          if (employee.lastCheckOut!= false)
+          if (employee.lastCheckOut != false)
             Text(
               "Dernier Sortie: ${employee.lastCheckOut}",
               style: smallText,
