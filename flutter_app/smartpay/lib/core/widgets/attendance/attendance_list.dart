@@ -19,12 +19,16 @@ class _AttendanceListState extends ConsumerState<AttendanceList> {
     var attendances = ref.watch(attendancesProvider);
     return Container(
       padding: const EdgeInsets.all(10),
-      child: ListView.builder(
-        itemCount: attendances.length,
-        itemBuilder: (context, index) => Dismissible(
-            key: ValueKey(index),
-            child: AttendanceItem(attendance: attendances[index])),
-      ),
+      child: (attendances.isEmpty)
+          ? const Center(
+              child: Text("Aucune présence!"),
+            )
+          : ListView.builder(
+              itemCount: attendances.length,
+              itemBuilder: (context, index) => Dismissible(
+                  key: ValueKey(index),
+                  child: AttendanceItem(attendance: attendances[index])),
+            ),
     );
   }
 }

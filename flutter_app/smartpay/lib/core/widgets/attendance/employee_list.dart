@@ -19,12 +19,16 @@ class _EmployeeListState extends ConsumerState<EmployeeList> {
     var employees = ref.watch(employeesProvider);
     return Container(
       padding: const EdgeInsets.all(10),
-      child: ListView.builder(
-        itemCount: employees.length,
-        itemBuilder: (context, index) => Dismissible(
-            key: ValueKey(index),
-            child: EmployeeItem(employee: employees[index])),
-      ),
+      child: (employees.isEmpty)
+          ? const Center(
+              child: Text("Aucun employé!"),
+            )
+          : ListView.builder(
+              itemCount: employees.length,
+              itemBuilder: (context, index) => Dismissible(
+                  key: ValueKey(index),
+                  child: EmployeeItem(employee: employees[index])),
+            ),
     );
   }
 }
