@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/providers/session_providers.dart';
@@ -23,6 +24,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
 
   @override
   Widget build(BuildContext context) {
+    Session session = ref.watch(sessionProvider);
     EmployeeAttendanceInfo attendanceInfo = ref.watch(userAttendanceProvider);
     bool employeeIn = attendanceInfo.attendanceState == 'checked_in';
     double boxWith = 350;
@@ -129,9 +131,22 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                 margin: const EdgeInsets.only(top: 40),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  image: DecorationImage(
-                      image: AssetImage('assets/images/admin.jpeg'),
-                      fit: BoxFit.contain),
+                ),
+                child: Center(
+                  child: FadeInImage(
+                    // Montre une placeholder quand l'image n'est pas disponible
+                    placeholder: MemoryImage(
+                      // Convertit des bytes en images
+                      kTransparentImage, // Cree une image transparente en bytes
+                    ),
+                    image: NetworkImage(
+                      // Recupere une image par sont url
+                      "${session.url}/web/image?model=hr.employee.public&amp;field=image_128&amp;id=${attendanceInfo.id}",
+                    ),
+                    fit: BoxFit.contain,
+                    height: 60,
+                    //width: 60,
+                  ),
                 ),
               ),
             ],
