@@ -57,6 +57,11 @@ class Attendance {
     data['write_date'] = writeDate;
     return data;
   }
+
+  String getEmployeeImageUrl(String baseUrl) {
+    return "$baseUrl/web/image?model=hr.employee&id=${employeeId![0]}&field=image_128";
+  }
+
 }
 
 class EmployeeAttendanceInfo {
@@ -132,5 +137,21 @@ class AttendanceAPI {
       hoursToday: result['action']['hours_today'],
     );
     return attendanceInfo;
+  }
+
+  Future<List<Attendance>> getAttentances(int uid) async {
+    var data = {
+      "model": "hr.attendance",
+      "method": "search_read",
+      "args": [
+        [
+          // ["user_id", "=", uid]
+        ],
+        ["employee_id", "check_in", "check_out", "worked_hours"]
+      ],
+      "kwargs": {}
+    };
+    var result = await session.callKw(data) as List;
+    return [for (var res in result) Attendance.fromJson(res)];
   }
 }

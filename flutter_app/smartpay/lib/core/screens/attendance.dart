@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
+import 'package:smartpay/providers/attendance_list_providers.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_attendance_info.dart';
@@ -16,26 +18,49 @@ class InOutScreen extends ConsumerStatefulWidget {
 }
 
 class _InOutScreenState extends ConsumerState<InOutScreen> {
-  void _getAttendanceInfo() async {
-    UserInfo userInfo = ref.watch(userInfoProvider);
-    Session session = ref.watch(sessionProvider);
-    AttendanceAPI api = AttendanceAPI(session);
-    EmployeeAttendanceInfo attendanceInfo = await api.getInfo(userInfo.uid);
-    ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+  late String _selectedPage;
+  late Widget _activePage = const CheckInOut();
+  int _selectedPageIndex = 0;
+
+  
+  Future<void> _refresh() async {
+    if (_selectedPage == "in_out") {
+      UserInfo userInfo = ref.watch(userInfoProvider);
+      Session session = ref.watch(sessionProvider);
+      AttendanceAPI api = AttendanceAPI(session);
+      EmployeeAttendanceInfo attendanceInfo = await api.getInfo(userInfo.uid);
+      print(attendanceInfo.attendanceState);
+      ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+    } else if (_selectedPage == 'attendance_list') {
+      Session session = ref.watch(sessionProvider);
+      AttendanceAPI api = AttendanceAPI(session);
+      EmployeeAttendanceInfo info = ref.watch(userAttendanceProvider);
+      List<Attendance> attendances = await api.getAttentances(info.id);
+      ref.read(attendancesProvider.notifier).setAttendances(attendances);
+    }
   }
 
-  int _selectedPageIndex = 0;
-  late Widget _activePage;
   @override
   void initState() {
     super.initState();
-    _activePage = const CheckInOut();
+    _selectPage(0);
   }
 
-  void _selectPage(int index) {
+  Future<void> _selectPage(int index) async {
     if (index == 0) {
+      _selectedPage = "in_out";
+      await _refresh();
       setState(() {
         _activePage = const CheckInOut();
+        _selectedPageIndex = 0;
+      });
+    }
+    if (index == 2) {
+      _selectedPage = "attendance_list";
+      await _refresh();
+      setState(() {
+        _activePage = const AttendanceList();
+        _selectedPageIndex = 2;
       });
     }
   }
@@ -46,7 +71,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.sync),
-          onPressed: _getAttendanceInfo,
+          onPressed: _refresh,
         ),
       ]),
       bottomNavigationBar: BottomNavigationBar(
