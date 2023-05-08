@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/models.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
+import 'package:smartpay/core/widgets/attendance/employee_list.dart';
 import 'package:smartpay/providers/attendance_list_providers.dart';
+import 'package:smartpay/providers/employee_list_providers.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_attendance_info.dart';
@@ -22,21 +25,25 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
   late Widget _activePage = const CheckInOut();
   int _selectedPageIndex = 0;
 
-  
   Future<void> _refresh() async {
     if (_selectedPage == "in_out") {
       UserInfo userInfo = ref.watch(userInfoProvider);
       Session session = ref.watch(sessionProvider);
       AttendanceAPI api = AttendanceAPI(session);
-      EmployeeAttendanceInfo attendanceInfo = await api.getInfo(userInfo.uid);
-      print(attendanceInfo.attendanceState);
-      ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+      Employee employee = await api.getEmployee(userInfo.uid);
+      ref.read(currentEmployeeProvider.notifier).setAttendance(employee);
     } else if (_selectedPage == 'attendance_list') {
       Session session = ref.watch(sessionProvider);
       AttendanceAPI api = AttendanceAPI(session);
-      EmployeeAttendanceInfo info = ref.watch(userAttendanceProvider);
+      Employee info = ref.watch(currentEmployeeProvider);
       List<Attendance> attendances = await api.getAttentances(info.id);
       ref.read(attendancesProvider.notifier).setAttendances(attendances);
+    } else if (_selectedPage == 'employee_list') {
+      Session session = ref.watch(sessionProvider);
+      AttendanceAPI api = AttendanceAPI(session);
+      Employee info = ref.watch(currentEmployeeProvider);
+      var employees = await api.getEmployees(info.id);
+      ref.read(employeesProvider.notifier).setEmployees(employees);
     }
   }
 
@@ -54,13 +61,19 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
         _activePage = const CheckInOut();
         _selectedPageIndex = 0;
       });
-    }
-    if (index == 2) {
+    } else if (index == 2) {
       _selectedPage = "attendance_list";
       await _refresh();
       setState(() {
         _activePage = const AttendanceList();
         _selectedPageIndex = 2;
+      });
+    } else if (index == 1) {
+      _selectedPage = "employee_list";
+      await _refresh();
+      setState(() {
+        _activePage = const EmployeeList();
+        _selectedPageIndex = 1;
       });
     }
   }

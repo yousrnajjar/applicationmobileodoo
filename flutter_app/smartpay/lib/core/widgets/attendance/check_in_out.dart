@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/models.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
@@ -15,18 +16,18 @@ class CheckInOut extends ConsumerStatefulWidget {
 
 class _CheckInOutState extends ConsumerState<CheckInOut> {
   void _updateAttendance() async {
-    EmployeeAttendanceInfo attendanceInfo = ref.watch(userAttendanceProvider);
+    Employee employee = ref.watch(currentEmployeeProvider);
     Session session = ref.watch(sessionProvider);
     AttendanceAPI api = AttendanceAPI(session);
-    attendanceInfo = await api.updateAttendance(attendanceInfo.id);
-    ref.read(userAttendanceProvider.notifier).setAttendance(attendanceInfo);
+    employee = await api.updateAttendance(employee.id);
+    ref.read(currentEmployeeProvider.notifier).setAttendance(employee);
   }
 
   @override
   Widget build(BuildContext context) {
     Session session = ref.watch(sessionProvider);
-    EmployeeAttendanceInfo attendanceInfo = ref.watch(userAttendanceProvider);
-    bool employeeIn = attendanceInfo.attendanceState == 'checked_in';
+    Employee employee = ref.watch(currentEmployeeProvider);
+    bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
     return Container(
       decoration: BoxDecoration(
@@ -70,7 +71,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                       child: Column(
                         children: [
                           Text(
-                            attendanceInfo.name,
+                            employee.name,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge!
@@ -92,7 +93,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                           const SizedBox(height: 10),
                           if (employeeIn)
                             Text(
-                              "Heure de travail aujourd'hui: ${attendanceInfo.hoursToday}",
+                              "Heure de travail aujourd'hui: ${employee.hoursToday}",
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall!
@@ -141,7 +142,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                     ),
                     image: NetworkImage(
                       // Recupere une image par sont url
-                      "${session.url}/web/image?model=hr.employee.public&amp;field=image_128&amp;id=${attendanceInfo.id}",
+                      "${session.url}/web/image?model=hr.employee.public&amp;field=image_128&amp;id=${employee.id}",
                     ),
                     fit: BoxFit.contain,
                     height: 60,

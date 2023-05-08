@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance.dart';
+import 'package:smartpay/api/models.dart';
 
 class AttendanceListNotifier extends StateNotifier<List<Attendance>> {
   AttendanceListNotifier(): super(<Attendance>[]);

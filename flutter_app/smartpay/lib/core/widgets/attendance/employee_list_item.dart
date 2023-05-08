@@ -5,15 +5,15 @@ import 'package:smartpay/api/models.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class AttendanceItem extends ConsumerWidget {
-  final Attendance attendance;
+class EmployeeItem extends ConsumerWidget {
+  final EmployeeAllInfo employee;
 
-  const AttendanceItem({super.key, required this.attendance});
+  const EmployeeItem({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Session session = ref.watch(sessionProvider);
-    String imgUrl = attendance.getEmployeeImageUrl(session.url!);
+    String imgUrl = employee.getEmployeeImageUrl(session.url!);
     var smallText = Theme.of(context).textTheme.titleSmall!.copyWith(
           fontSize: 10,
         );
@@ -32,7 +32,7 @@ class AttendanceItem extends ConsumerWidget {
         //width: 60,
       ),
       title: Text(
-        attendance.employeeId![1],
+        employee.name!,
         style: Theme.of(context)
             .textTheme
             .titleLarge!
@@ -43,17 +43,17 @@ class AttendanceItem extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "De ${attendance.checkIn}",
+            "Dernier entré: ${employee.lastCheckIn}",
             style: smallText,
           ),
-          if (attendance.checkOut != false)
+          if (employee.lastCheckOut!= false)
             Text(
-              "À ${attendance.checkOut}",
+              "Dernier Sortie: ${employee.lastCheckOut}",
               style: smallText,
             )
         ],
       ),
-      trailing: Text(attendance.workedHours!.toStringAsFixed(3)),
+      trailing: Text(employee.hoursToday!.toStringAsFixed(3)),
     );
   }
 }

@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance.dart';
+import 'package:smartpay/api/models.dart';
 
-class UserAttendanceInoNotifier extends StateNotifier<EmployeeAttendanceInfo> {
-  UserAttendanceInoNotifier() : super(EmployeeAttendanceInfo.empty());
+class CurrentEmployeeNotifier extends StateNotifier<Employee> {
+  CurrentEmployeeNotifier() : super(Employee.empty());
 
-  void setAttendance(EmployeeAttendanceInfo newAttendanceInfo) {
+  void setAttendance(Employee newAttendanceInfo) {
     state = newAttendanceInfo;
   }
 }
 
-final userAttendanceProvider = StateNotifierProvider<UserAttendanceInoNotifier, EmployeeAttendanceInfo>(
-  (ref) => UserAttendanceInoNotifier(),
+final currentEmployeeProvider = StateNotifierProvider<CurrentEmployeeNotifier, Employee>(
+  (ref) => CurrentEmployeeNotifier(),
 );
