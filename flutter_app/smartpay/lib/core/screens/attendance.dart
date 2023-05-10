@@ -31,26 +31,22 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       Session session = ref.watch(sessionProvider);
       AttendanceAPI api = AttendanceAPI(session);
       Employee employee = await api.getEmployee(userInfo.uid);
-      ref.read(currentEmployeeProvider.notifier).setAttendance(employee);
+      ref
+          .read(currentEmployeeAttendanceProvider.notifier)
+          .setEmployee(employee);
     } else if (_selectedPage == 'attendance_list') {
       Session session = ref.watch(sessionProvider);
       AttendanceAPI api = AttendanceAPI(session);
-      Employee info = ref.watch(currentEmployeeProvider);
+      Employee info = ref.watch(currentEmployeeAttendanceProvider);
       List<Attendance> attendances = await api.getAttentances(info.id);
       ref.read(attendancesProvider.notifier).setAttendances(attendances);
     } else if (_selectedPage == 'employee_list') {
       Session session = ref.watch(sessionProvider);
       AttendanceAPI api = AttendanceAPI(session);
-      Employee info = ref.watch(currentEmployeeProvider);
+      Employee info = ref.watch(currentEmployeeAttendanceProvider);
       var employees = await api.getEmployees(info.id);
       ref.read(employeesProvider.notifier).setEmployees(employees);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _selectPage(0);
   }
 
   Future<void> _selectPage(int index) async {

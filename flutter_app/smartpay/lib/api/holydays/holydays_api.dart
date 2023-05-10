@@ -17,7 +17,7 @@ class HolydaysAPI {
     "employee_id",
     "user_id"
   ];
-  Future<List<Holydays>> getMyHolydays(int myUid) async {
+  Future<List<Holyday>> getMyHolydays(int myUid) async {
     var data = {
       "model": "hr.leave",
       "method": "search_read",
@@ -30,10 +30,10 @@ class HolydaysAPI {
       "kwargs": {}
     };
     var result = await session.callKw(data) as List;
-    return [for (var res in result) Holydays.fromJSON(res)];
+    return [for (var res in result) Holyday.fromJSON(res)];
   }
 
-  Future<Holydays> getEmpty() async {
+  Future<Holyday> getEmpty() async {
     var data = {
       "model": "hr.leave",
       "method": "default_get",
@@ -42,10 +42,10 @@ class HolydaysAPI {
     };
     var result = await session.callKw(data) as List;
 
-    return Holydays.fromJSON(result[0]);
+    return Holyday.fromJSON(result[0]);
   }
 
-  Future<int> createHolydays(Holydays newHolydays) async {
+  Future<int> createHolydays(Holyday newHolydays) async {
     var data = {
       "model": "hr.employee",
       "method": "attendance_manual",

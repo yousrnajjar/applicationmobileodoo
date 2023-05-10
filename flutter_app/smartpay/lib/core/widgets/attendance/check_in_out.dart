@@ -18,17 +18,17 @@ class CheckInOut extends ConsumerStatefulWidget {
 
 class _CheckInOutState extends ConsumerState<CheckInOut> {
   void _updateAttendance() async {
-    Employee employee = ref.watch(currentEmployeeProvider);
+    Employee employee = ref.watch(currentEmployeeAttendanceProvider);
     Session session = ref.watch(sessionProvider);
     AttendanceAPI api = AttendanceAPI(session);
     employee = await api.updateAttendance(employee.id);
-    ref.read(currentEmployeeProvider.notifier).setAttendance(employee);
+    ref.read(currentEmployeeAttendanceProvider.notifier).setEmployee(employee);
   }
 
   @override
   Widget build(BuildContext context) {
     Session session = ref.watch(sessionProvider);
-    Employee employee = ref.watch(currentEmployeeProvider);
+    Employee employee = ref.watch(currentEmployeeAttendanceProvider);
     bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
     return Container(

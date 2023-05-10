@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/employee/employee_api.dart';
+import 'package:smartpay/api/holydays/holydays_api.dart';
+import 'package:smartpay/api/models.dart';
 import 'package:smartpay/core/auth/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/screens/attendance.dart';
 import 'package:smartpay/core/screens/holydays_screen.dart';
+import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/providers/current_employee_provider.dart';
+import 'package:smartpay/providers/models/user_info.dart';
+import 'package:smartpay/providers/my_holydays_list_provider.dart';
+import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_info_providers.dart';
 
-class MainDrawer extends StatefulWidget {
+class MainDrawer extends ConsumerStatefulWidget {
+  final UserInfo userInfo;
+
   const MainDrawer({
+    required this.userInfo,
     super.key,
   });
   @override
-  State<MainDrawer> createState() => _MainDrawerState();
+  ConsumerState<MainDrawer> createState() => _MainDrawerState();
 }
 
-class _MainDrawerState extends State<MainDrawer> {
+class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
-
+  EmployeeAllInfo _employee = EmployeeAllInfo();
   List<SideMenu> _sideMenus = [];
   @override
   void initState() {
@@ -31,6 +45,25 @@ class _MainDrawerState extends State<MainDrawer> {
     });
   }
 
+  Future<void> _getEmployee() async {
+    Session session = ref.watch(sessionProvider);
+    var api = EmployeeAPI(session);
+    var employee = await api.getEmployee(widget.userInfo.uid);
+    ref.read(currentEmployeeProvider.notifier).setEmployee(employee);
+    if (context.mounted) {
+      setState(() {
+        _employee = employee;
+      });
+    }
+  }
+
+  Future<void> _getHolydays() async {
+    Session session = ref.watch(sessionProvider);
+    var api = HolydaysAPI(session);
+    var myHolydays = await api.getMyHolydays(widget.userInfo.uid);
+    ref.read(myHolydaysProvider.notifier).setMyHolydays(myHolydays);
+  }
+
   void _setScreen(String identifier) async {
     Navigator.of(context).pop();
     if (identifier == "attendance") {
@@ -40,6 +73,7 @@ class _MainDrawerState extends State<MainDrawer> {
         ),
       );
     } else if (identifier == "leave") {
+      _getHolydays();
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => const HolydaysScreen(),
@@ -56,9 +90,15 @@ class _MainDrawerState extends State<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    var userInfo = ref.watch(userInfoProvider);
+    _employee = ref.watch(currentEmployeeProvider);
+    if (_employee.id == null) {
+      _getEmployee();
+    }
+    Widget homeScreen = HomeScreen(_employee);
     return Scaffold(
       appBar: AppBar(title: const Text("SmartPay")),
-      body: const Text("Bienvenue"),
+      body: homeScreen,
       drawer: Drawer(
         child: Column(
           children: [

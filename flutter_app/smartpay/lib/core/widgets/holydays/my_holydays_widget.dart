@@ -1,0 +1,79 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/providers/current_employee_provider.dart';
+import 'package:smartpay/providers/my_holydays_list_provider.dart';
+import 'package:smartpay/providers/session_providers.dart';
+import 'package:transparent_image/transparent_image.dart';
+
+import 'my_holydays_widget_item.dart';
+
+class MyHolydaysWidget extends ConsumerStatefulWidget {
+  const MyHolydaysWidget({super.key});
+
+  @override
+  ConsumerState<MyHolydaysWidget> createState() => _MyHolydaysWidgetState();
+}
+
+class _MyHolydaysWidgetState extends ConsumerState<MyHolydaysWidget> {
+  @override
+  Widget build(BuildContext context) {
+    Session session = ref.watch(sessionProvider);
+    var employee = ref.watch(currentEmployeeProvider);
+    String imgUrl = employee.getEmployeeImageUrl(session.url!);
+    var holydays = ref.watch(myHolydaysProvider);
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: (holydays.isEmpty)
+          ? const Center(
+              child: Text("Vous n'apez aucune demande de congé!"),
+            )
+          : Column(
+              children: [
+                Card(
+                  
+                    child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FadeInImage(
+                        // Montre une placeholder quand l'image n'est pas disponible
+                        placeholder: MemoryImage(
+                          // Convertit des bytes en images
+                          kTransparentImage, // Cree une image transparente en bytes
+                        ),
+                        image: (employee.image_128 != null)
+                            ? Image.memory(base64Decode(employee.image_128))
+                                .image
+                            : NetworkImage(
+                                // Recupere une image par sont url
+                                imgUrl),
+                        fit: BoxFit.contain,
+                        //height: 60,
+                        //width: 60,
+                      ),
+                    ),
+                    Text(
+                      employee.name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: holydays.length,
+                    itemBuilder: (context, index) => Dismissible(
+                        key: ValueKey(index),
+                        child: MyHolydaysWidgetItem(holyday: holydays[index])),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}

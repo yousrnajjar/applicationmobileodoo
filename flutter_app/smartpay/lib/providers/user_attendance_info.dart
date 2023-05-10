@@ -4,11 +4,11 @@ import 'package:smartpay/api/models.dart';
 class CurrentEmployeeNotifier extends StateNotifier<Employee> {
   CurrentEmployeeNotifier() : super(Employee.empty());
 
-  void setAttendance(Employee newAttendanceInfo) {
-    state = newAttendanceInfo;
+  void setEmployee(Employee newEmployee) {
+    state = newEmployee;
   }
 }
 
-final currentEmployeeProvider = StateNotifierProvider<CurrentEmployeeNotifier, Employee>(
+final currentEmployeeAttendanceProvider = StateNotifierProvider<CurrentEmployeeNotifier, Employee>(
   (ref) => CurrentEmployeeNotifier(),
 );

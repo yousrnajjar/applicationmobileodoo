@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/holydays/holydays_api.dart';
+import 'package:smartpay/api/holydays/holydays_models.dart';
 import 'package:smartpay/api/models.dart';
+import 'package:smartpay/core/widgets/holydays/my_holydays_widget.dart';
 import 'package:smartpay/providers/attendance_list_providers.dart';
+import 'package:smartpay/providers/my_holydays_list_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_attendance_info.dart';
@@ -20,24 +24,22 @@ enum HolydaysPage { myHolydays, createHolydays }
 
 class _HolydaysScreenState extends ConsumerState<HolydaysScreen> {
   HolydaysPage _selectedPage = HolydaysPage.myHolydays;
-  Widget _activePage = const Scaffold(
-    body: Text("My Holydays"),
-  );
+  Widget _activePage = const MyHolydaysWidget();
   int _selectedPageIndex = 0;
 
   Future<void> _refresh() async {
     if (_selectedPage == HolydaysPage.myHolydays) {
       UserInfo userInfo = ref.watch(userInfoProvider);
       Session session = ref.watch(sessionProvider);
-      AttendanceAPI api = AttendanceAPI(session);
-      Employee employee = await api.getEmployee(userInfo.uid);
-      ref.read(currentEmployeeProvider.notifier).setAttendance(employee);
+      HolydaysAPI api = HolydaysAPI(session);
+      List<Holyday> myHolydays = await api.getMyHolydays(userInfo.uid);
+      ref.read(myHolydaysProvider.notifier).setMyHolydays(myHolydays);
     } else if (_selectedPage == HolydaysPage.createHolydays) {
-      Session session = ref.watch(sessionProvider);
-      AttendanceAPI api = AttendanceAPI(session);
+      /*Session session = ref.watch(sessionProvider);
+      HolydaysAPI api = HolydaysAPI(session);
       Employee info = ref.watch(currentEmployeeProvider);
       List<Attendance> attendances = await api.getAttentances(info.id);
-      ref.read(attendancesProvider.notifier).setAttendances(attendances);
+      ref.read(attendancesProvider.notifier).setAttendances(attendances);*/
     }
   }
 
@@ -51,9 +53,7 @@ class _HolydaysScreenState extends ConsumerState<HolydaysScreen> {
       _selectedPage = HolydaysPage.myHolydays;
       await _refresh();
       setState(() {
-        _activePage = const Scaffold(
-          body: Text("My Holydays"),
-        );
+        _activePage = const MyHolydaysWidget();
         _selectedPageIndex = 0;
       });
     } else if (index == 1) {

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/employee/employee_api.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/core/widgets/main_drawer.dart';
+import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_attendance_info.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -31,15 +36,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       Session session = ref.watch(sessionProvider);
       try {
         final UserInfo userInfo = await session.confirmToken(token);
-        print(userInfo.info);
         ref.read(userInfoProvider.notifier).setUserInfo(userInfo);
         if (context.mounted) {
           if (userInfo.isAuthenticated()) {
             // Token successfully confirmed, navigate to home screen
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-            );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MainDrawer(userInfo: userInfo)),
+              );
           } else {
             // Token confirmation failed, show error message
             ScaffoldMessenger.of(context).showSnackBar(

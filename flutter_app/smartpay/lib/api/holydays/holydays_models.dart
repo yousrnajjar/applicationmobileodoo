@@ -1,17 +1,17 @@
 
-class Holydays {
+class Holyday {
   int? id;
-  String? state;
+  dynamic state;
   dynamic holidayStatusId;
-  String? name;
-  String? dateFrom;
-  String? dateTo;
-  String? durationDisplay;
+  dynamic name;
+  dynamic dateFrom;
+  dynamic dateTo;
+  dynamic durationDisplay;
   dynamic payslipStatus;
   dynamic employeeId;
   dynamic userId;
 
-  Holydays.fromJSON(Map<String, dynamic> data) {
+  Holyday.fromJSON(Map<String, dynamic> data) {
     id = data["id"];
     state = data["state"];
     holidayStatusId = data["holiday_status_id"];
