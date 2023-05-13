@@ -87,7 +87,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       session.password = password;
       try {
         final UserInfo info = await session.sendToken();
-        print(info.info);
         ref.read(userInfoProvider.notifier).setUserInfo(info);
         if (context.mounted) {
           /* Show token confirmation dialog and wait for user input

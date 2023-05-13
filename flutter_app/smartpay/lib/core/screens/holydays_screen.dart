@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/api/holydays/holydays_api.dart';
 import 'package:smartpay/api/holydays/holydays_models.dart';
-import 'package:smartpay/api/models.dart';
 import 'package:smartpay/core/widgets/holydays/my_holydays_widget.dart';
-import 'package:smartpay/providers/attendance_list_providers.dart';
 import 'package:smartpay/providers/my_holydays_list_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
-import 'package:smartpay/providers/user_attendance_info.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
 class HolydaysScreen extends ConsumerStatefulWidget {

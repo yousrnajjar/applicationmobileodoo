@@ -20,8 +20,11 @@ class _AttendanceListState extends ConsumerState<AttendanceList> {
     return Container(
       padding: const EdgeInsets.all(10),
       child: (attendances.isEmpty)
-          ? const Center(
-              child: Text("Aucune présence!"),
+          ? Center(
+              child: Text(
+                "Aucune présence!",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             )
           : ListView.builder(
               itemCount: attendances.length,

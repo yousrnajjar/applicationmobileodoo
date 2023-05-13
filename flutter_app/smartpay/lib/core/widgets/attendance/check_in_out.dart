@@ -31,6 +31,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
     Employee employee = ref.watch(currentEmployeeAttendanceProvider);
     bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
+    var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
@@ -74,12 +75,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                         children: [
                           Text(
                             employee.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: titleLarge!.copyWith(fontWeight: FontWeight.bold,),
                           ),
                           Text(
                             employeeIn
