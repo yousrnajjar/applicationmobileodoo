@@ -6,9 +6,9 @@ class OdooSessionExpiredException implements Exception {
   String toString() => 'OdooSessionExpiredException: $message';
 }
 
-class OdooSessionConfirmTokenException implements Exception {
+class OdooAuthentificationError implements Exception {
     final String message;
-  OdooSessionConfirmTokenException(this.message);
+  OdooAuthentificationError(this.message);
    @override
   String toString() => 'OdooSessionConfirmTokenException: $message';
 }

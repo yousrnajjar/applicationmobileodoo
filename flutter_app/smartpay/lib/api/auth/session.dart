@@ -7,10 +7,10 @@ import 'package:smartpay/providers/models/user_info.dart';
 
 abstract class AuthInterface {
   ///  Sends authentication information to Odoo and token to Odoo and returns a boolean indicating if authentication succeeded.
-  Future<UserInfo> confirmToken(String token);
+  Future<UserInfo?> confirmToken(String token);
 
   /// Sends authentication information to Odoo and returns a boolean indicating if sending token succeeded.
-  Future<UserInfo> sendToken();
+  Future<bool> sendToken();
 }
 
 abstract class CallInterface {
@@ -75,12 +75,10 @@ class Session implements AuthInterface, CallInterface {
               : 'UNKNOWN_ERROR') ??
           'UNKNOWN_ERROR';
       final code = error['code'] ?? -1;
-      if (message == 'Session expired') {
+      if (code == 100 && message == 'Session expired') {
         throw OdooSessionExpiredException(message);
-      } else if (message == "Veuillez confirmer le token.") {
-        throw OdooSessionConfirmTokenException(message);
-      } else if (message == "Invalid Token") {
-        throw OdooSessionInvalidTokenException(message);
+      } else if (code == 100) {
+        throw OdooAuthentificationError(message);
       } else {
         throw OdooErrorException(errorType, message, code);
       }
@@ -89,19 +87,33 @@ class Session implements AuthInterface, CallInterface {
   }
 
   @override
-  Future<UserInfo> confirmToken(String token) async {
+  Future<UserInfo?> confirmToken(String token) async {
     const String path = "/web/session/authenticate/token";
-    var result = await callEndpoint(path,
-        {"login": email, "password": password, "db": dbName, "token": token});
-    return UserInfo(result);
+    try {
+      var result = await callEndpoint(path, {
+        "login": email,
+        "password": password,
+        "token": token,
+      });
+      return UserInfo(result);
+    } on Exception {
+      return null;
+    }
   }
 
   @override
-  Future<UserInfo> sendToken() async {
+  Future<bool> sendToken() async {
     const String path = "/web/session/authenticate2";
-    var result = await callEndpoint(
-        path, {"login": email, "password": password, "db": dbName});
-    return UserInfo(result);
+    try {
+      await callEndpoint(path, {
+        "login": email,
+        "password": password,
+        //"db": dbName,
+      });
+    } on OdooAuthentificationError {
+      return false;
+    }
+    return true;
   }
 
   @override
