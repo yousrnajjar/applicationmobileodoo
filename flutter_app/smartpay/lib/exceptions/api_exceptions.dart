@@ -7,16 +7,16 @@ class OdooSessionExpiredException implements Exception {
 }
 
 class OdooAuthentificationError implements Exception {
-    final String message;
+  final String message;
   OdooAuthentificationError(this.message);
-   @override
+  @override
   String toString() => 'OdooSessionConfirmTokenException: $message';
 }
 
 class OdooSessionInvalidTokenException implements Exception {
-    final String message;
+  final String message;
   OdooSessionInvalidTokenException(this.message);
-   @override
+  @override
   String toString() => 'OdooSessionInvalidTokenException: $message';
 }
 
@@ -28,4 +28,11 @@ class OdooErrorException implements Exception {
 
   @override
   String toString() => '$code - OdooErrorException:  $errorType - $message';
+}
+
+class OdooValidationError extends OdooErrorException {
+  OdooValidationError(super.errorType, super.message, super.code);
+
+  @override
+  String toString() => '$code - Odoo Validation error:  $errorType - $message';
 }

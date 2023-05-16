@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:smartpay/exceptions/api_exceptions.dart';
@@ -45,6 +46,7 @@ class Session implements AuthInterface, CallInterface {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=$sessionId',
     };
+    url = "http://10.0.2.2:8069";
     // Envoie la requête à Odoo
     final response = await http.post(
       Uri.parse('$url/$path'),
@@ -123,21 +125,7 @@ class Session implements AuthInterface, CallInterface {
       'Cookie': 'session_id=$sessionId'
     };
     var request = http.Request('POST', Uri.parse('$url/web/dataset/call_kw'));
-    request.body = json.encode({
-      "jsonrpc": "2.0",
-      "params": data
-      /*  {
-        "model": "hr.employee",
-        "method": "search_read",
-        "args": [
-          [
-            ["user_id", "=", 2]
-          ],
-          ["attendance_state", "name", "hours_today"]
-        ],
-        "kwargs": {}
-      } */
-    });
+    request.body = json.encode({"jsonrpc": "2.0", "params": data});
 
     request.headers.addAll(headers);
 
@@ -145,10 +133,32 @@ class Session implements AuthInterface, CallInterface {
         await http.Response.fromStream(await request.send());
 
     if (response.statusCode == 200) {
-      var result = jsonDecode(response.body);
+      Map<String, dynamic> result = jsonDecode(response.body);
+      if (result.containsKey('error')) {
+        final error = result['error'];
+        final message = error.containsKey('data')
+            ? error['data']['message']
+            : error['message'];
+        final errorType = (error.containsKey('data')
+                ? error['data']['exception_type']
+                : 'UNKNOWN_ERROR') ??
+            'UNKNOWN_ERROR';
+        if (errorType == 'validation_error') {
+          throw OdooValidationError(errorType, message, 200);
+        } else {
+          if (kDebugMode) {
+            print(error);
+            print(errorType);
+            print(message);
+          }
+          throw OdooErrorException(errorType, message, 200);
+        }
+      }
       return result["result"];
     } else {
-      print(response.reasonPhrase);
+      if (kDebugMode) {
+        print(response.reasonPhrase);
+      }
     }
   }
 }
