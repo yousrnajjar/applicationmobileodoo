@@ -1,3 +1,13 @@
+class HolydayType {
+  final Map<String, dynamic> data;
+
+  HolydayType(this.data);
+
+  get id => data["id"] ?? -1;
+  String get name {
+    return data["name"] ?? "Sans nom";
+  }
+}
 
 class Holyday {
   int? id;

@@ -21,8 +21,8 @@ class InOutScreen extends ConsumerStatefulWidget {
 }
 
 class _InOutScreenState extends ConsumerState<InOutScreen> {
-  late String _selectedPage;
-  late Widget _activePage = const CheckInOut();
+  String _selectedPage = "in_out";
+  Widget _activePage = const CheckInOut();
   int _selectedPageIndex = 0;
 
   Future<void> _refresh() async {

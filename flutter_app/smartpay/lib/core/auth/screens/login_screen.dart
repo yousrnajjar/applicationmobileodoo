@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance.dart';
+
 import 'package:smartpay/api/auth/session.dart';
-import 'package:smartpay/api/employee/employee_api.dart';
 import 'package:smartpay/core/data/themes.dart';
-import 'package:smartpay/core/screens/home.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
-import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
-import 'package:smartpay/providers/user_attendance_info.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -27,95 +23,86 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isTokenSend = false;
+  Session? _session;
+  UserInfo? _userInfo;
 
   void _confirmToken(String token) async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      Session session = ref.watch(sessionProvider);
-      try {
-        final UserInfo userInfo = await session.confirmToken(token);
-        ref.read(userInfoProvider.notifier).setUserInfo(userInfo);
+    if (!_formKey.currentState!.validate() || _session == null) {
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+    var isAuthenticated = false;
+    try {
+      _userInfo = await _session!.confirmToken(token);
+      isAuthenticated = _userInfo != null && _userInfo!.isAuthenticated();
+      if (isAuthenticated) {
+        ref.read(sessionProvider.notifier).setSession(_session!);
+        ref.read(userInfoProvider.notifier).setUserInfo(_userInfo!);
         if (context.mounted) {
-          if (userInfo.isAuthenticated()) {
-            // Token successfully confirmed, navigate to home screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainDrawer(userInfo: userInfo)),
-              );
-          } else {
-            // Token confirmation failed, show error message
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to confirm token.'),
-              ),
-            );
-          }
-        } else {
-          // User cancelled token confirmation, show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Token confirmation cancelled.'),
+          // Token successfully confirmed, navigate to home screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainDrawer(userInfo: _userInfo!),
             ),
           );
         }
-      } on Exception catch (e) {
-        // An error occurred, show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An error occurred: $e'),
-          ),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+      } else {
+        if (context.mounted) {
+          // Token confirmation failed, show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Token Invalide.'),
+            ),
+          );
+        }
       }
+    } on Exception catch (e) {
+      // An error occurred, show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+        ),
+      );
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  Future<void> _sendToken(
-      String database, String email, String password) async {
+  Future<void> _sendToken(String hostUrl, String email, String password) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-      Session session = ref.watch(sessionProvider);
-      session.dbName = database;
-      session.email = email;
-      session.password = password;
+      _session = Session(hostUrl, email, password);
+      bool isTokenSend = false;
       try {
-        final UserInfo info = await session.sendToken();
-        print(info.info);
-        ref.read(userInfoProvider.notifier).setUserInfo(info);
-        if (context.mounted) {
-          /* Show token confirmation dialog and wait for user input
-          final token = await showDialog<String>(
-            context: context,
-            builder: (ctx) => const TokenConfirmationDialog(),
-          );*/
-          setState(() {
-            _isTokenSend = true;
-          });
-        } else {
-          // Login failed, show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid email or password.'),
-            ),
-          );
-        }
+        isTokenSend = await _session!.sendToken();
       } on Exception catch (e) {
-        // An error occurred, show error message
+        // An error not handled occurred, show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('An error occurred: $e'),
+            content: Text('An error occurred, please contact admin: $e'),
           ),
         );
-      } finally {
+      }
+      if (!isTokenSend) {
         setState(() {
           _isLoading = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Hôte , Login ou mots de passe incorect!'),
+            ),
+          );
+        });
+      } else if (context.mounted) {
+        setState(() {
+          _isLoading = false;
+          _isTokenSend = isTokenSend;
         });
       }
     }
@@ -123,15 +110,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Les champs pour l'authentifications
     var loginFields = [
       TextFormField(
         controller: _databaseController,
         decoration: const InputDecoration(
-          labelText: 'Base de donnés',
+          labelText: 'Hôte',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'La base de donnée est obligatoire.';
+            return 'L\'hôte est obligatoire.';
           }
           return null;
         },
@@ -249,7 +237,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
                                         // Perform login action here using the values from the text fields
-                                        final database =
+                                        final hostUrl =
                                             _databaseController.text;
                                         final email = _emailController.text;
                                         final password =
@@ -258,7 +246,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           final token = _tokenController.text;
                                           _confirmToken(token);
                                         } else {
-                                          _sendToken(database, email, password);
+                                          _sendToken(hostUrl, email, password);
                                         }
                                       }
                                     },

@@ -33,37 +33,37 @@ class _MyHolydaysWidgetState extends ConsumerState<MyHolydaysWidget> {
           : Column(
               children: [
                 Card(
-                  
-                    child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: FadeInImage(
-                        // Montre une placeholder quand l'image n'est pas disponible
-                        placeholder: MemoryImage(
-                          // Convertit des bytes en images
-                          kTransparentImage, // Cree une image transparente en bytes
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: FadeInImage(
+                          // Montre une placeholder quand l'image n'est pas disponible
+                          placeholder: MemoryImage(
+                            // Convertit des bytes en images
+                            kTransparentImage, // Cree une image transparente en bytes
+                          ),
+                          image: (employee.image_128 != null)
+                              ? Image.memory(base64Decode(employee.image_128))
+                                  .image
+                              : NetworkImage(
+                                  // Recupere une image par sont url
+                                  imgUrl),
+                          fit: BoxFit.contain,
+                          //height: 60,
+                          //width: 60,
                         ),
-                        image: (employee.image_128 != null)
-                            ? Image.memory(base64Decode(employee.image_128))
-                                .image
-                            : NetworkImage(
-                                // Recupere une image par sont url
-                                imgUrl),
-                        fit: BoxFit.contain,
-                        //height: 60,
-                        //width: 60,
                       ),
-                    ),
-                    Text(
-                      employee.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                )),
+                      Text(
+                        employee.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: holydays.length,

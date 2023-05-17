@@ -16,11 +16,12 @@ class AttendanceItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Session session = ref.watch(sessionProvider);
-    var employee = ref.watch(employeesProvider).firstWhere((emp) => attendance.employeeId![0] == emp.id );
+    var employee = ref
+        .watch(employeesProvider)
+        .firstWhere((emp) => attendance.employeeId![0] == emp.id);
     String imgUrl = attendance.getEmployeeImageUrl(session.url!);
-    var smallText = Theme.of(context).textTheme.titleSmall!.copyWith(
-          fontSize: 10,
-        );
+    var smallText = Theme.of(context).textTheme.titleSmall;
+    var titleLarge = Theme.of(context).textTheme.titleLarge;
     return ListTile(
       leading: FadeInImage(
         // Montre une placeholder quand l'image n'est pas disponible
@@ -39,10 +40,7 @@ class AttendanceItem extends ConsumerWidget {
       ),
       title: Text(
         attendance.employeeId![1],
-        style: Theme.of(context)
-            .textTheme
-            .titleLarge!
-            .copyWith(fontWeight: FontWeight.bold),
+        style: titleLarge,
       ),
       subtitle: Flex(
         direction: Axis.vertical,

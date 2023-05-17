@@ -16,9 +16,7 @@ class EmployeeItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Session session = ref.watch(sessionProvider);
     String imgUrl = employee.getEmployeeImageUrl(session.url!);
-    var smallText = Theme.of(context).textTheme.titleSmall!.copyWith(
-          fontSize: 10,
-        );
+    var smallText = Theme.of(context).textTheme.titleSmall!;
     return ListTile(
       leading: FadeInImage(
         // Montre une placeholder quand l'image n'est pas disponible

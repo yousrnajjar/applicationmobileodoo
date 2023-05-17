@@ -1,4 +1,5 @@
 import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/exceptions/api_exceptions.dart';
 
 import 'holydays_models.dart';
 
@@ -29,7 +30,8 @@ class HolydaysAPI {
       ],
       "kwargs": {}
     };
-    var result = await session.callKw(data) as List;
+    var result = await session.callKw(data);
+    result = result as List;
     return [for (var res in result) Holyday.fromJSON(res)];
   }
 
@@ -45,15 +47,33 @@ class HolydaysAPI {
     return Holyday.fromJSON(result[0]);
   }
 
-  Future<int> createHolydays(Holyday newHolydays) async {
+  Future<int> createHolydays(Map<String, dynamic> newHolydays) async {
     var data = {
-      "model": "hr.employee",
-      "method": "attendance_manual",
-      "args": [newHolydays.toJson()],
+      "model": "hr.leave",
+      "method": "create",
+      "args": [newHolydays],
       "kwargs": {}
     };
-    // TODO : VAlidation error
-    var result = (await session.callKw(data));
-    return result;
+    try {
+      var result = (await session.callKw(data));
+      return result;
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  Future<List<HolydayType>> getHolidayTypes() async {
+    var data = {
+      "model": "hr.leave.type",
+      "method": "search_read",
+      "args": [
+        [
+          ["valid", "=", true]
+        ]
+      ],
+      "kwargs": {}
+    };
+    var result = await session.callKw(data) as List;
+    return [for (var res in result) HolydayType(res)];
   }
 }

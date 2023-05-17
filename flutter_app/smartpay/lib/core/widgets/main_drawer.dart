@@ -90,12 +90,12 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    var userInfo = ref.watch(userInfoProvider);
     _employee = ref.watch(currentEmployeeProvider);
     if (_employee.id == null) {
       _getEmployee();
     }
     Widget homeScreen = HomeScreen(_employee);
+    var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(title: const Text("SmartPay")),
       body: homeScreen,
@@ -123,12 +123,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
                     child: Image.asset("assets/images/logo.jpeg"),
                   ),
                   const SizedBox(width: 18),
-                  Text(
-                    "Smart Pay",
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                  )
+                  Text("Smart Pay", style: titleLarge)
                 ],
               ),
             ),
@@ -136,16 +131,10 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
               ListTile(
                 leading: Icon(
                   sideMenu.icon,
-                  size: 26,
+                  //size: 26,
                   color: Theme.of(context).colorScheme.onBackground,
                 ),
-                title: Text(
-                  sideMenu.displayName,
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
-                        fontSize: 24,
-                      ),
-                ),
+                title: Text(sideMenu.displayName, style: titleLarge),
                 onTap: () {
                   _setScreen(sideMenu.identifier);
                 },
@@ -154,16 +143,10 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
             ListTile(
               leading: Icon(
                 Icons.login,
-                size: 26,
+                //size: 26,
                 color: Theme.of(context).colorScheme.onBackground,
               ),
-              title: Text(
-                'Se Connecter',
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
-                      fontSize: 24,
-                    ),
-              ),
+              title: Text('Se Connecter', style: titleLarge),
               onTap: () {
                 _setScreen("login");
               },
