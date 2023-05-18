@@ -20,26 +20,36 @@ Color hoverMenuColor = const Color.fromARGB(255, 67, 160, 71);
 const normalText =
     TextStyle(fontSize: 13, color: Color.fromARGB(255, 88, 88, 88));
 final smartpayTheme = ThemeData().copyWith(
-  useMaterial3: true,
-  colorScheme: kColorSchema,
-  textTheme: GoogleFonts.robotoTextTheme().copyWith(
-      titleLarge: menuText,
-      titleSmall: menuText.copyWith(fontSize: 12),
-      bodyLarge: menuText,
-      bodyMedium: normalText,
-      bodySmall: normalText.copyWith(fontSize: 12)),
-  iconTheme: const IconThemeData().copyWith(
-    size: 26,
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: kColorSchema.primary,
-      foregroundColor: kColorSchema.onPrimary,
+    useMaterial3: true,
+    colorScheme: kColorSchema,
+    textTheme: GoogleFonts.robotoTextTheme().copyWith(
+        titleLarge: menuText,
+        titleSmall: menuText.copyWith(fontSize: 12),
+        bodyLarge: menuText,
+        bodyMedium: normalText,
+        bodySmall: normalText.copyWith(fontSize: 12)),
+    iconTheme: const IconThemeData().copyWith(
+      size: 26,
     ),
-  ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
-    selectedLabelStyle: menuText,
-    unselectedLabelStyle: menuText,
-    selectedItemColor: hoverMenuColor,
-  )
-);
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: kColorSchema.primary,
+        foregroundColor: kColorSchema.onPrimary,
+      ),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
+      selectedLabelStyle: menuText,
+      unselectedLabelStyle: menuText,
+      selectedItemColor: hoverMenuColor,
+    ));
+
+TextStyle titleLargeBold(ThemeData theme) {
+  return theme.textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold);
+}
+TextStyle smallText100(ThemeData theme){
+  return theme.textTheme.titleSmall!
+    .copyWith(color: theme.textTheme.titleSmall!.color!.withAlpha(100));
+}
+TextStyle titleVerySmall(ThemeData theme) {
+  return theme.textTheme.titleSmall!.copyWith(fontSize: 10);
+}
