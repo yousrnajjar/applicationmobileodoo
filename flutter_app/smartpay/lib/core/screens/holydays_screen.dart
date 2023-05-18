@@ -5,7 +5,6 @@ import 'package:smartpay/api/holydays/holydays_api.dart';
 import 'package:smartpay/api/holydays/holydays_models.dart';
 import 'package:smartpay/core/widgets/holydays/holyday_form_widget.dart';
 import 'package:smartpay/core/widgets/holydays/my_holydays_widget.dart';
-import 'package:smartpay/providers/employee_list_providers.dart';
 import 'package:smartpay/providers/my_holydays_list_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
@@ -82,7 +81,7 @@ class _HolydaysScreenState extends ConsumerState<HolydaysScreen> {
                   ),
                   HolydayForm(
                     session: _session,
-                    employeeId: employeeId!,
+                    employeeId: employeeId,
                     holydaysStatus: types,
                   ),
                 ],

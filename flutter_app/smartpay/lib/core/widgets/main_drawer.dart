@@ -13,7 +13,6 @@ import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/my_holydays_list_provider.dart';
 import 'package:smartpay/providers/session_providers.dart';
-import 'package:smartpay/providers/user_info_providers.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
   final UserInfo userInfo;
@@ -29,7 +28,7 @@ class MainDrawer extends ConsumerStatefulWidget {
 class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   EmployeeAllInfo _employee = EmployeeAllInfo();
-  List<SideMenu> _sideMenus = [];
+  final List<SideMenu> _sideMenus = [];
   @override
   void initState() {
     super.initState();
@@ -129,24 +128,22 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
             ),
             for (final sideMenu in _sideMenus)
               ListTile(
-                leading: Icon(
-                  sideMenu.icon,
-                  //size: 26,
-                  color: Theme.of(context).colorScheme.onBackground,
-                ),
+                leading: CircleAvatar(
+                  backgroundImage: sideMenu.iconImage.image
+                  ),
                 title: Text(sideMenu.displayName, style: titleLarge),
                 onTap: () {
                   _setScreen(sideMenu.identifier);
                 },
               ),
-            Spacer(),
+            const Spacer(),
             ListTile(
               leading: Icon(
                 Icons.login,
                 //size: 26,
                 color: Theme.of(context).colorScheme.onBackground,
               ),
-              title: Text('Se Connecter', style: titleLarge),
+              title: Text('Se Déconnecter', style: titleLarge),
               onTap: () {
                 _setScreen("login");
               },

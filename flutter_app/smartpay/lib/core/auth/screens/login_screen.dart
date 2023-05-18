@@ -73,12 +73,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _sendToken(String hostUrl, String email, String password) async {
+  Future<void> _sendToken(String database, String email, String password) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-      _session = Session(hostUrl, email, password);
+      _session = Session(database, email, password);
       bool isTokenSend = false;
       try {
         isTokenSend = await _session!.sendToken();
@@ -95,7 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Hôte , Login ou mots de passe incorect!'),
+              content: Text('Base de donnée , Login ou mots de passe incorect!'),
             ),
           );
         });
@@ -115,11 +115,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextFormField(
         controller: _databaseController,
         decoration: const InputDecoration(
-          labelText: 'Hôte',
+          labelText: 'Base de donné',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'L\'hôte est obligatoire.';
+            return 'La base de donné est obligatoire.';
           }
           return null;
         },
@@ -157,11 +157,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextFormField(
         controller: _tokenController,
         decoration: const InputDecoration(
-          labelText: 'Token de validation',
+          labelText: 'Saisir votre code sécurité',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Le token est obligatoire.';
+            return 'Le code de sécurité est obligatoire.';
           }
           return null;
         },

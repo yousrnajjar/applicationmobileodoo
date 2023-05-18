@@ -46,7 +46,6 @@ class Session implements AuthInterface, CallInterface {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=$sessionId',
     };
-    url = "http://10.0.2.2:8069";
     // Envoie la requête à Odoo
     final response = await http.post(
       Uri.parse('$url/$path'),
@@ -96,6 +95,7 @@ class Session implements AuthInterface, CallInterface {
         "login": email,
         "password": password,
         "token": token,
+        "db": dbName,
       });
       return UserInfo(result);
     } on Exception {
@@ -110,7 +110,7 @@ class Session implements AuthInterface, CallInterface {
       await callEndpoint(path, {
         "login": email,
         "password": password,
-        //"db": dbName,
+        "db": dbName,
       });
     } on OdooAuthentificationError {
       return false;

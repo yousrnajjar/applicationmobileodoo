@@ -72,6 +72,14 @@ flutter:
     - assets/images/back.jpeg
     - assets/images/logo.jpeg
     - assets/images/admin.jpeg
+    - assets/icons/account.jpeg
+    - assets/icons/dashbord.jpeg
+    - assets/icons/employee.jpeg
+    - assets/icons/expense.jpeg
+    - assets/icons/holiday.jpeg
+    - assets/icons/message.jpeg
+    - assets/icons/paylips.jpeg
+    - assets/icons/recrutment.jpeg
     - .env
     - assets/data/side_menus.json
 

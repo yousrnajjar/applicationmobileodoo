@@ -6,13 +6,16 @@ import 'package:flutter/services.dart';
 class SideMenu {
   final IconData icon;
 
+  final Image iconImage;
+
   final String displayName;
 
   final String identifier;
 
   final List<SideMenu> subMenus;
 
-  SideMenu({
+  SideMenu(
+    this.iconImage, {
     required this.icon,
     required this.displayName,
     required this.identifier,
@@ -20,8 +23,12 @@ class SideMenu {
   });
 
   SideMenu.fromJson(Map<String, dynamic> data)
-      : icon = IconData(int.parse(data['icon'], radix: 16), fontFamily: "MaterialIcons"),
+      : icon = IconData(
+          int.parse(data['icon'], radix: 16),
+          fontFamily: "MaterialIcons",
+        ),
         // https://stackoverflow.com/a/71538766
+        iconImage = Image.asset("assets/icons/${data['icon_image']}"),
         displayName = data["display_name"],
         identifier = data['identifier'],
         subMenus = [];
