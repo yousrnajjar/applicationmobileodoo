@@ -73,7 +73,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _sendToken(String database, String email, String password) async {
+  Future<void> _sendToken(
+      String database, String email, String password) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -95,7 +96,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Base de donnée , Login ou mots de passe incorect!'),
+              content:
+                  Text('Base de donnée , Login ou mots de passe incorect!'),
             ),
           );
         });
