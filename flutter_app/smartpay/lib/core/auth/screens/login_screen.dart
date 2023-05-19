@@ -259,13 +259,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: AssetImage('assets/images/logo.jpeg'),
-                          fit: BoxFit.contain),
+                  Center(
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.white,
+                      child: Container(
+                        height: 50,
+                        margin: const EdgeInsets.all(5),
+                        child: Image.asset('assets/images/logo.jpeg'),
+                      ),
                     ),
                   ),
                 ],
