@@ -13,7 +13,6 @@ import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/my_holydays_list_provider.dart';
 import 'package:smartpay/providers/session_providers.dart';
-import 'package:smartpay/providers/user_info_providers.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
   final UserInfo userInfo;
@@ -22,6 +21,7 @@ class MainDrawer extends ConsumerStatefulWidget {
     required this.userInfo,
     super.key,
   });
+
   @override
   ConsumerState<MainDrawer> createState() => _MainDrawerState();
 }
@@ -29,7 +29,8 @@ class MainDrawer extends ConsumerStatefulWidget {
 class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   EmployeeAllInfo _employee = EmployeeAllInfo();
-  List<SideMenu> _sideMenus = [];
+  final List<SideMenu> _sideMenus = [];
+
   @override
   void initState() {
     super.initState();
@@ -97,61 +98,49 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
     Widget homeScreen = HomeScreen(_employee);
     var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
-      appBar: AppBar(title: const Text("SmartPay")),
+      appBar: AppBar(title: const Text("Facilitez votre quotidien avec SmartPay App")),
       body: homeScreen,
       drawer: Drawer(
-        child: Column(
-          children: [
-            DrawerHeader(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primaryContainer,
-                    Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withOpacity(0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    child: Image.asset("assets/images/logo.jpeg"),
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              DrawerHeader(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.white.withOpacity(1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                  const SizedBox(width: 18),
-                  Text("Smart Pay", style: titleLarge)
-                ],
-              ),
-            ),
-            for (final sideMenu in _sideMenus)
-              ListTile(
-                leading: Icon(
-                  sideMenu.icon,
-                  //size: 26,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    child: Image.asset("assets/images/logo.jpeg"),
+                  )),
+              for (final sideMenu in _sideMenus)
+                ListTile(
+                  leading:
+                      CircleAvatar(backgroundImage: sideMenu.iconImage.image),
+                  title: Text(sideMenu.displayName, style: titleLarge),
+                  onTap: () {
+                    _setScreen(sideMenu.identifier);
+                  },
                 ),
-                title: Text(sideMenu.displayName, style: titleLarge),
+              const Spacer(),
+              ListTile(
+                leading: Image.asset("assets/icons/deconnecter.png"),
+                title: Text('Se déconnecter', style: titleLarge),
                 onTap: () {
-                  _setScreen(sideMenu.identifier);
+                  _setScreen("login");
                 },
-              ),
-            Spacer(),
-            ListTile(
-              leading: Icon(
-                Icons.login,
-                //size: 26,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              title: Text('Se Connecter', style: titleLarge),
-              onTap: () {
-                _setScreen("login");
-              },
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

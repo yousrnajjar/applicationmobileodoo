@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+
 class Attendance {
   int? id;
   List<dynamic>? employeeId;
@@ -127,44 +132,45 @@ class EmployeeAllInfo {
   List? writeUid;
   dynamic writeDate;
 
-  EmployeeAllInfo(
-      {this.id,
-      this.name,
-      this.userId,
-      this.active,
-      this.privateEmail,
-      this.gender,
-      this.phone,
-      this.departmentId,
-      this.jobId,
-      this.jobTitle,
-      this.companyId,
-      this.addressId,
-      this.workPhone,
-      this.mobilePhone,
-      this.workEmail,
-      this.workLocation,
-      this.hrPresenceState,
-      this.attendanceIds,
-      this.lastAttendanceId,
-      this.lastCheckIn,
-      this.lastCheckOut,
-      this.attendanceState,
-      this.hoursLastMonth,
-      this.hoursToday,
-      this.hoursLastMonthDisplay,
-      this.childAllCount,
-      this.displayName,
-      this.createUid,
-      this.createDate,
-      this.writeUid,
-      this.writeDate,
-      this.image_128,});
+  EmployeeAllInfo({
+    this.id,
+    this.name,
+    this.userId,
+    this.active,
+    this.privateEmail,
+    this.gender,
+    this.phone,
+    this.departmentId,
+    this.jobId,
+    this.jobTitle,
+    this.companyId,
+    this.addressId,
+    this.workPhone,
+    this.mobilePhone,
+    this.workEmail,
+    this.workLocation,
+    this.hrPresenceState,
+    this.attendanceIds,
+    this.lastAttendanceId,
+    this.lastCheckIn,
+    this.lastCheckOut,
+    this.attendanceState,
+    this.hoursLastMonth,
+    this.hoursToday,
+    this.hoursLastMonthDisplay,
+    this.childAllCount,
+    this.displayName,
+    this.createUid,
+    this.createDate,
+    this.writeUid,
+    this.writeDate,
+    this.image_128,
+  });
 
   EmployeeAllInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    userId =  json['user_id'] is bool ? [-1, ""] : json['user_id'] ;
+    userId = json['user_id'] is bool ? [-1, ""] : json['user_id'];
     active = json['active'];
     privateEmail = json['private_email'];
     gender = json['gender'];
@@ -181,7 +187,7 @@ class EmployeeAllInfo {
     hrPresenceState = json['hr_presence_state'];
     attendanceIds = json['attendance_ids'];
     lastAttendanceId = json['last_attendance_id'];
-    lastCheckIn = json['last_check_in'] ;
+    lastCheckIn = json['last_check_in'];
     lastCheckOut = json['last_check_out'];
     attendanceState = json['attendance_state'];
     hoursLastMonth = json['hours_last_month'];
@@ -235,5 +241,25 @@ class EmployeeAllInfo {
 
   String getEmployeeImageUrl(String baseUrl) {
     return "$baseUrl/web/image?model=hr.employee&id=$id&field=image_128";
+  }
+
+  CircleAvatar imageFrom(String baseUrl) {
+    return CircleAvatar(
+      backgroundImage: FadeInImage(
+        // Montre une placeholder quand l'image n'est pas disponible
+        placeholder: MemoryImage(
+          // Convertit des bytes en images
+          kTransparentImage, // Cree une image transparente en bytes
+        ),
+        image: (image_128 != null)
+            ? Image.memory(base64Decode(image_128)).image
+            : NetworkImage(
+                // Recupere une image par sont url
+                getEmployeeImageUrl(baseUrl)),
+        fit: BoxFit.contain,
+        //height: 60,
+        //width: 60,
+      ).image,
+    );
   }
 }

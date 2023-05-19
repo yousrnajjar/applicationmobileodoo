@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/models.dart';
+import 'package:smartpay/core/data/themes.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:smartpay/api/attendance.dart';
 import 'package:smartpay/api/auth/session.dart';
@@ -31,10 +32,12 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
     Employee employee = ref.watch(currentEmployeeAttendanceProvider);
     bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
-    var titleLarge = Theme.of(context).textTheme.titleLarge;
+    ThemeData theme = Theme.of(context);
+    var smallText = smallText100(theme);
+    var titleLarge = titleLargeBold(theme);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+        color: theme.colorScheme.secondary.withOpacity(0.4),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -49,25 +52,19 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                     height: 80,
                     width: boxWith,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: theme.colorScheme.secondary,
                       gradient: LinearGradient(
                           begin: FractionalOffset.topLeft,
                           end: FractionalOffset.bottomRight,
                           colors: [
-                            Theme.of(context).colorScheme.secondary,
-                            Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.5),
+                            theme.colorScheme.secondary,
+                            theme.colorScheme.secondary.withOpacity(0.5)
                           ]),
                     ),
                   ),
                   Center(
                     child: Container(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .background
-                          .withAlpha(220),
+                      color: theme.colorScheme.background.withAlpha(220),
                       width: boxWith,
                       padding: const EdgeInsets.symmetric(
                           vertical: 20, horizontal: 30),
@@ -75,34 +72,22 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                         children: [
                           Text(
                             employee.name,
-                            style: titleLarge!.copyWith(fontWeight: FontWeight.bold,),
+                            style: titleLarge.copyWith(
+                              fontWeight: FontWeight.bold
+                            ),
                           ),
                           Text(
                             employeeIn
                                 ? "Vous souhaitez partir?"
                                 : "Bienvenue!",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: theme.textTheme.titleSmall!.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           if (employeeIn)
-                            Text(
-                              "Heure de travail aujourd'hui: ${employee.hoursToday}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .color!
-                                          .withAlpha(100)),
-                            ),
+                            Text("Heure de travail aujourd'hui", style: smallText),
+                          Text("${employee.hoursToday}", style: smallText.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.all(5),

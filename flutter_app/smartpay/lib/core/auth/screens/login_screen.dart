@@ -73,12 +73,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _sendToken(String hostUrl, String email, String password) async {
+  Future<void> _sendToken(
+      String database, String email, String password) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-      _session = Session(hostUrl, email, password);
+      _session = Session(database, email, password);
       bool isTokenSend = false;
       try {
         isTokenSend = await _session!.sendToken();
@@ -95,7 +96,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Hôte , Login ou mots de passe incorect!'),
+              content:
+                  Text('Base de donnée , Login ou mots de passe incorect!'),
             ),
           );
         });
@@ -115,11 +117,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextFormField(
         controller: _databaseController,
         decoration: const InputDecoration(
-          labelText: 'Hôte',
+          labelText: 'Base de donné',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'L\'hôte est obligatoire.';
+            return 'La base de donné est obligatoire.';
           }
           return null;
         },
@@ -157,11 +159,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextFormField(
         controller: _tokenController,
         decoration: const InputDecoration(
-          labelText: 'Token de validation',
+          labelText: 'Saisir votre code sécurité',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Le token est obligatoire.';
+            return 'Le code de sécurité est obligatoire.';
           }
           return null;
         },
@@ -202,8 +204,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Container(
                     margin: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 40),
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(color: Colors.white),
+                    padding: const EdgeInsets.only(
+                      left: 30,
+                      top: 30,
+                      right: 30,
+                      bottom: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -212,60 +222,60 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ...confirmTokenFields
                         else
                           ...loginFields,
-                        const SizedBox(height: 20.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_isTokenSend)
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isTokenSend = false;
-                                      });
-                                    },
+                        const SizedBox(height: 30.0),
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    // Perform login action here using the values from the text fields
+                                    final hostUrl = _databaseController.text;
+                                    final email = _emailController.text;
+                                    final password = _passwordController.text;
+                                    if (_isTokenSend) {
+                                      final token = _tokenController.text;
+                                      _confirmToken(token);
+                                    } else {
+                                      _sendToken(hostUrl, email, password);
+                                    }
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    _isTokenSend ? 'Véfifier' : 'CONNEXION',
+                                    textAlign: TextAlign.center,
                                   ),
-                                  const Text("Retour"),
-                                ],
+                                ),
                               ),
-                            const SizedBox(width: 10),
-                            _isLoading
-                                ? const CircularProgressIndicator()
-                                : ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        // Perform login action here using the values from the text fields
-                                        final hostUrl =
-                                            _databaseController.text;
-                                        final email = _emailController.text;
-                                        final password =
-                                            _passwordController.text;
-                                        if (_isTokenSend) {
-                                          final token = _tokenController.text;
-                                          _confirmToken(token);
-                                        } else {
-                                          _sendToken(hostUrl, email, password);
-                                        }
-                                      }
-                                    },
-                                    child: Text(_isTokenSend
-                                        ? 'Véfifier'
-                                        : 'CONNEXION'),
-                                  )
-                          ],
-                        ),
+                        if (_isTokenSend)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isTokenSend = false;
+                              });
+                            },
+                            child: const Text(
+                              "Allez à la page d'acceuil",
+                            ),
+                          ),
+                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
-                  Container(
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: AssetImage('assets/images/logo.jpeg'),
-                          fit: BoxFit.contain),
+                  Center(
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.white,
+                      child: Container(
+                        height: 50,
+                        margin: const EdgeInsets.all(5),
+                        child: Image.asset('assets/images/logo.jpeg'),
+                      ),
                     ),
                   ),
                 ],

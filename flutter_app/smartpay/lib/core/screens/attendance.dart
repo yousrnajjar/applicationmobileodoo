@@ -76,6 +76,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _refresh();
     return Scaffold(
       appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
         IconButton(

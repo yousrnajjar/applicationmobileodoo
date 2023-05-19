@@ -46,7 +46,6 @@ class Session implements AuthInterface, CallInterface {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=$sessionId',
     };
-    url = "http://10.0.2.2:8069";
     // Envoie la requête à Odoo
     final response = await http.post(
       Uri.parse('$url/$path'),
@@ -90,12 +89,13 @@ class Session implements AuthInterface, CallInterface {
 
   @override
   Future<UserInfo?> confirmToken(String token) async {
-    const String path = "/web/session/authenticate/token";
+    const String path = "web/session/authenticate/token";
     try {
       var result = await callEndpoint(path, {
         "login": email,
         "password": password,
         "token": token,
+        "db": dbName,
       });
       return UserInfo(result);
     } on Exception {
@@ -105,12 +105,12 @@ class Session implements AuthInterface, CallInterface {
 
   @override
   Future<bool> sendToken() async {
-    const String path = "/web/session/authenticate2";
+    const String path = "web/session/authenticate2";
     try {
       await callEndpoint(path, {
         "login": email,
         "password": password,
-        //"db": dbName,
+        "db": dbName,
       });
     } on OdooAuthentificationError {
       return false;
