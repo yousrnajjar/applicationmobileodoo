@@ -98,7 +98,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
     Widget homeScreen = HomeScreen(_employee);
     var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
-      appBar: AppBar(title: const Text("SmartPay")),
+      appBar: AppBar(title: const Text("Facilitez votre quotidien avec SmartPay App")),
       body: homeScreen,
       drawer: Drawer(
         child: Container(
