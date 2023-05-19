@@ -21,6 +21,7 @@ class MainDrawer extends ConsumerStatefulWidget {
     required this.userInfo,
     super.key,
   });
+
   @override
   ConsumerState<MainDrawer> createState() => _MainDrawerState();
 }
@@ -29,6 +30,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   EmployeeAllInfo _employee = EmployeeAllInfo();
   final List<SideMenu> _sideMenus = [];
+
   @override
   void initState() {
     super.initState();
@@ -99,56 +101,46 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       appBar: AppBar(title: const Text("SmartPay")),
       body: homeScreen,
       drawer: Drawer(
-        child: Column(
-          children: [
-            DrawerHeader(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primaryContainer,
-                    Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withOpacity(0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              DrawerHeader(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.white.withOpacity(1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: Image.asset("assets/images/logo.jpeg"),
-                  ),
-                  const SizedBox(width: 18),
-                  Text("Smart Pay", style: titleLarge)
-                ],
-              ),
-            ),
-            for (final sideMenu in _sideMenus)
+                  )),
+              for (final sideMenu in _sideMenus)
+                ListTile(
+                  leading:
+                      CircleAvatar(backgroundImage: sideMenu.iconImage.image),
+                  title: Text(sideMenu.displayName, style: titleLarge),
+                  onTap: () {
+                    _setScreen(sideMenu.identifier);
+                  },
+                ),
+              const Spacer(),
               ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: sideMenu.iconImage.image
-                  ),
-                title: Text(sideMenu.displayName, style: titleLarge),
+                leading: Image.asset("assets/icons/deconnecter.png"),
+                title: Text('Se déconnecter', style: titleLarge),
                 onTap: () {
-                  _setScreen(sideMenu.identifier);
+                  _setScreen("login");
                 },
-              ),
-            const Spacer(),
-            ListTile(
-              leading: Icon(
-                Icons.login,
-                //size: 26,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-              title: Text('Se Déconnecter', style: titleLarge),
-              onTap: () {
-                _setScreen("login");
-              },
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

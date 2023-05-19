@@ -3,25 +3,25 @@
         {
             "icon": "e1b1",
             "icon_image": "dashbord.jpeg",
-            "display_name": "Tableau De Bord",
+            "display_name": "Tableau de bord",
             "identifier":"dashbord"
         },
         {
             "icon": "e1b6",
-            "icon_image": "account.jpeg",
+            "icon_image": "pointage.png",
             "display_name": "Pointage",
             "identifier":"attendance"
         },
         {
             "icon": "e317",
             "icon_image": "holiday.jpeg",
-            "display_name": "Damande de congé",
+            "display_name": "Demande des congés",
             "identifier":"leave"
         },
         {
             "icon": "e61c",
             "icon_image": "expense.jpeg",
-            "display_name": "Notes De Frais",
+            "display_name": "Notes de frais",
             "identifier":"expense"
         },
         {
@@ -29,12 +29,6 @@
             "icon_image": "account.jpeg",
             "display_name": "Mon compte",
             "identifier":"my_account"
-        },
-        {
-            "icon": "e243",
-            "icon_image": "account.jpeg",
-            "display_name": "Quiter",
-            "identifier":"exit"
         }
     ]
 }

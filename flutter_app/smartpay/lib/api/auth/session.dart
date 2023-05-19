@@ -89,7 +89,7 @@ class Session implements AuthInterface, CallInterface {
 
   @override
   Future<UserInfo?> confirmToken(String token) async {
-    const String path = "/web/session/authenticate/token";
+    const String path = "web/session/authenticate/token";
     try {
       var result = await callEndpoint(path, {
         "login": email,
@@ -105,7 +105,7 @@ class Session implements AuthInterface, CallInterface {
 
   @override
   Future<bool> sendToken() async {
-    const String path = "/web/session/authenticate2";
+    const String path = "web/session/authenticate2";
     try {
       await callEndpoint(path, {
         "login": email,
