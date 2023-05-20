@@ -1,7 +1,7 @@
-class HolydayType {
+class HolidayType {
   final Map<String, dynamic> data;
 
-  HolydayType(this.data);
+  HolidayType(this.data);
 
   get id => data["id"] ?? -1;
   String get name {
@@ -9,7 +9,7 @@ class HolydayType {
   }
 }
 
-class Holyday {
+class Holiday {
   int? id;
   dynamic state;
   dynamic holidayStatusId;
@@ -21,7 +21,7 @@ class Holyday {
   dynamic employeeId;
   dynamic userId;
 
-  Holyday.fromJSON(Map<String, dynamic> data) {
+  Holiday.fromJSON(Map<String, dynamic> data) {
     id = data["id"];
     state = data["state"];
     holidayStatusId = data["holiday_status_id"];

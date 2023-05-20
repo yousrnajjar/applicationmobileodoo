@@ -1,13 +1,13 @@
 import 'package:smartpay/api/auth/session.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 
-import 'holydays_models.dart';
+import 'holidays_models.dart';
 
-class HolydaysAPI {
+class HolidaysAPI {
   final Session session;
 
-  HolydaysAPI(this.session);
-  var holydaysFields = [
+  HolidaysAPI(this.session);
+  var holidaysFields = [
     "state",
     "holiday_status_id",
     "name",
@@ -18,7 +18,7 @@ class HolydaysAPI {
     "employee_id",
     "user_id"
   ];
-  Future<List<Holyday>> getMyHolydays(int myUid) async {
+  Future<List<Holiday>> getMyHolidays(int myUid) async {
     var data = {
       "model": "hr.leave",
       "method": "search_read",
@@ -26,32 +26,32 @@ class HolydaysAPI {
         [
           ["user_id", "=", myUid]
         ],
-        holydaysFields
+        holidaysFields
       ],
       "kwargs": {}
     };
     var result = await session.callKw(data);
     result = result as List;
-    return [for (var res in result) Holyday.fromJSON(res)];
+    return [for (var res in result) Holiday.fromJSON(res)];
   }
 
-  Future<Holyday> getEmpty() async {
+  Future<Holiday> getEmpty() async {
     var data = {
       "model": "hr.leave",
       "method": "default_get",
-      "args": [holydaysFields],
+      "args": [holidaysFields],
       "kwargs": {}
     };
     var result = await session.callKw(data) as List;
 
-    return Holyday.fromJSON(result[0]);
+    return Holiday.fromJSON(result[0]);
   }
 
-  Future<int> createHolydays(Map<String, dynamic> newHolydays) async {
+  Future<int> createHolidays(Map<String, dynamic> newHolidays) async {
     var data = {
       "model": "hr.leave",
       "method": "create",
-      "args": [newHolydays],
+      "args": [newHolidays],
       "kwargs": {}
     };
     try {
@@ -62,7 +62,7 @@ class HolydaysAPI {
     }
   }
 
-  Future<List<HolydayType>> getHolidayTypes() async {
+  Future<List<HolidayType>> getHolidayTypes() async {
     var data = {
       "model": "hr.leave.type",
       "method": "search_read",
@@ -74,6 +74,6 @@ class HolydaysAPI {
       "kwargs": {}
     };
     var result = await session.callKw(data) as List;
-    return [for (var res in result) HolydayType(res)];
+    return [for (var res in result) HolidayType(res)];
   }
 }

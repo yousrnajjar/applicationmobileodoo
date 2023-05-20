@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/holydays/holydays_models.dart';
+import 'package:smartpay/api/holidays/holidays_models.dart';
 
-class MyHolydaysWidgetItem extends ConsumerWidget {
-  final Holyday holyday;
+class MyHolidaysWidgetItem extends ConsumerWidget {
+  final Holiday holiday;
 
-  const MyHolydaysWidgetItem({super.key, required this.holyday});
+  const MyHolidaysWidgetItem({super.key, required this.holiday});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,28 +23,28 @@ class MyHolydaysWidgetItem extends ConsumerWidget {
         child: Column(
           children: [
             Text(
-              holyday.durationDisplay!,
+              holiday.durationDisplay!,
               style: largeText,
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(holyday.holidayStatusId[1]),
+                Text(holiday.holidayStatusId[1]),
                 Column(
                   children: [
                     Text(
-                      "Du ${holyday.dateFrom}",
+                      "Du ${holiday.dateFrom}",
                       style: smallText,
                     ),
                     Text(
-                      "Au ${holyday.dateTo}",
+                      "Au ${holiday.dateTo}",
                       style: smallText,
                     ),
                   ],
                 ),
-                Text((holyday.name != false) ? holyday.name : ""),
-                Text(holyday.state),
+                Text((holiday.name != false) ? holiday.name : ""),
+                Text(holiday.state),
               ],
             ),
           ],
