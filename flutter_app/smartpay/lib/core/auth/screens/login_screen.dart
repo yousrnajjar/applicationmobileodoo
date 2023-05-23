@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
 import 'package:smartpay/providers/models/user_info.dart';

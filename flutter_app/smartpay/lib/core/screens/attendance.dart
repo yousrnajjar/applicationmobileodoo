@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance.dart';
-import 'package:smartpay/api/auth/session.dart';
-import 'package:smartpay/api/models.dart';
+import 'package:smartpay/api/attendance_api.dart';
+import 'package:smartpay/api/session.dart';
+import 'package:smartpay/models/attendance_models.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
 import 'package:smartpay/core/widgets/attendance/employee_list.dart';

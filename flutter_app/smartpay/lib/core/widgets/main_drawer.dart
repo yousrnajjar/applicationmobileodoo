@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/auth/session.dart';
-import 'package:smartpay/api/employee/employee_api.dart';
-import 'package:smartpay/api/holydays/holydays_api.dart';
-import 'package:smartpay/api/models.dart';
+import 'package:smartpay/api/session.dart';
+import 'package:smartpay/api/employee_api.dart';
+import 'package:smartpay/api/holidays_api.dart';
+import 'package:smartpay/models/attendance_models.dart';
 import 'package:smartpay/core/auth/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/screens/attendance.dart';
-import 'package:smartpay/core/screens/holydays_screen.dart';
+import 'package:smartpay/core/screens/holidays_screen.dart';
 import 'package:smartpay/core/screens/home.dart';
 import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
-import 'package:smartpay/providers/my_holydays_list_provider.dart';
+import 'package:smartpay/providers/my_holidays_list_provider.dart';
 import 'package:smartpay/providers/session_providers.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
@@ -58,11 +58,11 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
     }
   }
 
-  Future<void> _getHolydays() async {
+  Future<void> _getHolidays() async {
     Session session = ref.watch(sessionProvider);
-    var api = HolydaysAPI(session);
-    var myHolydays = await api.getMyHolydays(widget.userInfo.uid);
-    ref.read(myHolydaysProvider.notifier).setMyHolydays(myHolydays);
+    var api = HolidaysAPI(session);
+    var myHolidays = await api.getMyHolidays(widget.userInfo.uid);
+    ref.read(myHolidaysProvider.notifier).setMyHolidays(myHolidays);
   }
 
   void _setScreen(String identifier) async {
@@ -74,10 +74,10 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         ),
       );
     } else if (identifier == "leave") {
-      _getHolydays();
+      _getHolidays();
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (ctx) => const HolydaysScreen(),
+          builder: (ctx) => const HolidaysScreen(),
         ),
       );
     } else if (identifier == "login") {

@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/auth/session.dart';
-import 'package:smartpay/api/holidays/holidays_api.dart';
-import 'package:smartpay/api/holidays/holidays_models.dart';
+import 'package:smartpay/api/session.dart';
+import 'package:smartpay/api/holidays_api.dart';
+import 'package:smartpay/models/holidays_models.dart';
 import 'package:smartpay/core/widgets/holidays/allocation_form_widget.dart';
-import 'package:smartpay/core/widgets/holidays/holiday_form_widget.dart';
+import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart'
+    as holiday_cal;
 import 'package:smartpay/core/widgets/holidays/my_holidays_widget.dart';
 import 'package:smartpay/core/widgets/snippets/forms.dart';
 import 'package:smartpay/providers/my_holidays_list_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
-
-import '../widgets/holidays/holidays_calandar_view.dart';
 
 class HolidaysScreen extends ConsumerStatefulWidget {
   const HolidaysScreen({super.key});
@@ -21,7 +20,12 @@ class HolidaysScreen extends ConsumerStatefulWidget {
   ConsumerState<HolidaysScreen> createState() => _HolidaysScreenState();
 }
 
-enum HolidaysPage { myHolidays, holidayCalandar, createHolidays, createAllocation }
+enum HolidaysPage {
+  myHolidays,
+  holidayCalandar,
+  createHolidays,
+  createAllocation
+}
 
 class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
   HolidaysPage _selectedPage = HolidaysPage.myHolidays;
@@ -30,6 +34,7 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
   late Session _session;
   List<HolidayType> _holidaysTypes = [];
   bool _holidaysTypesIsLoad = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,15 +80,17 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
       await _refresh();
       var employeeId = ref.watch(myHolidaysProvider.notifier).getEmployeeId();
       if (employeeId != null) {
+        var page = await Holiday.buildFormFields(_session);
         setState(() {
-          _activePage = FormSnippet(
+          /*_activePage = FormSnippet(
             mainContaint: HolidayForm(
               session: _session,
               employeeId: employeeId,
               holidaysStatus: _holidaysTypes,
             ),
             title: "Demande de congé",
-          );
+          );*/
+          _activePage = page;
           _selectedPageIndex = 1;
         });
       }
@@ -101,7 +108,10 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
     } else if (index == 3) {
       _selectedPage = HolidaysPage.holidayCalandar;
       setState(() {
-        _activePage = const CongeCalendrier();
+        var myHolidays = ref.watch(myHolidaysProvider);
+        _activePage = holiday_cal.HolidayCalendar(
+          holidays: myHolidays,
+        );
         _selectedPageIndex = 3;
       });
     }
@@ -123,7 +133,7 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
           _selectPage(index);
         },
         currentIndex: _selectedPageIndex,
-        type: BottomNavigationBarType.fixed, 
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.sync),

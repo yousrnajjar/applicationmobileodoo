@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/models.dart';
+import 'package:smartpay/models/attendance_models.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:smartpay/api/attendance.dart';
-import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/attendance_api.dart';
+import 'package:smartpay/api/session.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_attendance_info.dart';
 
