@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/api/holidays_api.dart';
+import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/models/holidays_models.dart';
-import 'package:smartpay/core/widgets/holidays/allocation_form_widget.dart';
+import 'package:smartpay/models/allocation_models.dart';
 import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart'
     as holiday_cal;
 import 'package:smartpay/core/widgets/holidays/my_holidays_widget.dart';
-import 'package:smartpay/core/widgets/snippets/forms.dart';
 import 'package:smartpay/providers/my_holidays_list_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
@@ -67,6 +67,7 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
   }
 
   Future<void> _selectPage(int index) async {
+    var employeeId = ref.watch(myHolidaysProvider.notifier).getEmployeeId();
     if (index == 0) {
       _selectedPage = HolidaysPage.myHolidays;
       await _refresh();
@@ -76,35 +77,37 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
       });
     } else if (index == 1) {
       _selectedPage = HolidaysPage.createHolidays;
-
       await _refresh();
-      var employeeId = ref.watch(myHolidaysProvider.notifier).getEmployeeId();
       if (employeeId != null) {
-        var page = await Holiday.buildFormFields(_session);
+        var holidayModel = OdooModel("hr.leave");
+        var page = await holidayModel.buildFormFields(
+          fieldNames: Holiday.defaultFields,
+          onChangeSpec: Holiday.onchangeSpec,
+          formTitle: "Demande de congé",
+          displayFieldNames: Holiday.displayFieldNames,
+        );
         setState(() {
-          /*_activePage = FormSnippet(
-            mainContaint: HolidayForm(
-              session: _session,
-              employeeId: employeeId,
-              holidaysStatus: _holidaysTypes,
-            ),
-            title: "Demande de congé",
-          );*/
           _activePage = page;
           _selectedPageIndex = 1;
         });
       }
     } else if (index == 2) {
       _selectedPage = HolidaysPage.createAllocation;
-      setState(() {
-        _activePage = FormSnippet(
-          mainContaint: FormulaireDemandeAllocation(
-            holidaysStatus: _holidaysTypes,
-          ),
-          title: "Demande d'allocation",
+      await _refresh();
+      if (employeeId != null) {
+        var allocationModel = OdooModel("hr.leave.allocation");
+        var page = await allocationModel.buildFormFields(
+          fieldNames: Allocation.defaultFields,
+          formTitle: "Demande d'allocation",
+          onChangeSpec: Allocation.onchangeSpec,
+          displayFieldNames: Allocation.displayFieldNames,
         );
-        _selectedPageIndex = 2;
-      });
+
+        setState(() {
+          _activePage = page;
+          _selectedPageIndex = 2;
+        });
+      }
     } else if (index == 3) {
       _selectedPage = HolidaysPage.holidayCalandar;
       setState(() {

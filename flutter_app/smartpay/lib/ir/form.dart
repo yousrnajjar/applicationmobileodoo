@@ -10,10 +10,11 @@ import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/model.dart';
 
 class AppForm extends StatefulWidget {
-  final OdooModel odooModel;
   final List<String> fieldNames;
   final Function(Map<OdooField, dynamic>) onSaved;
   final Map<OdooField, dynamic> initial;
+  final List<String> displayFieldsName;
+  final String title;
 
   /// accept onFieldChangeFunction that is map of field name and an [async] function
   /// that take as parameter an Map<OdooField, dynamic> and return a Map<OdooField, dynamic>
@@ -22,11 +23,12 @@ class AppForm extends StatefulWidget {
 
   const AppForm({
     super.key,
-    required this.odooModel,
     required this.onSaved,
     required this.fieldNames,
     required this.initial,
     required this.onFieldChanges,
+    required this.displayFieldsName,
+    required this.title,
   });
 
   @override
@@ -34,16 +36,15 @@ class AppForm extends StatefulWidget {
 }
 
 class _AppFormState extends State<AppForm> {
-  late Map<OdooField, dynamic> _values;
   final _formKey = GlobalKey<FormState>();
-  late Map<OdooField, TextEditingController> _controllers;
+  Map<OdooField, dynamic> _values = {};
+  Map<OdooField, TextEditingController> _controllers = {};
 
   bool _isSending = false;
 
   @override
   void initState() {
     super.initState();
-    _values = {};
     _controllers = {};
     widget.initial.forEach((field, value) {
       _values[field] = value;
@@ -84,7 +85,9 @@ class _AppFormState extends State<AppForm> {
       if (_controllers.keys.map((e) => e.name).contains(field.name) &&
           value != null) {
         setState(() {
-          _controllers[field]!.text = "$value";
+          //_controllers[field]!.text = "$value";
+           _controllers[field]!.dispose();
+          _controllers[field] = TextEditingController(text: "${value ?? ""}");
         });
       }
       var key = _values.keys.firstWhere((e) => e.name == field.name);
@@ -109,7 +112,7 @@ class _AppFormState extends State<AppForm> {
       message = e.message;
     } on OdooErrorException catch (e) {
       message = "Veuillez contactez l'admin: ${e.message}";
-          } finally {
+    } finally {
       setState(() {
         _isSending = false;
       });
@@ -128,29 +131,43 @@ class _AppFormState extends State<AppForm> {
     /// use defaultGet of the model to build an flutter Form widget
     final List<Widget> formFields = [];
     _setFormFields(formFields);
+    final List<Widget> formFieldsWidget = [];
+    for (var element in formFields) {
+      formFieldsWidget.add(element);
+      formFieldsWidget.add(const SizedBox(
+        height: 10,
+      ));
+    }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 40),
       child: Column(
         verticalDirection: VerticalDirection.up,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _save,
-                child: _isSending
-                    ? const CircularProgressIndicator()
-                    : const Text("Enregistrer"),
-              )
-            ],
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _save,
+              child: _isSending
+                  ? const CircularProgressIndicator()
+                  : const Text("Envoyer"),
+            ),
           ),
           Expanded(
             child: Form(
               key: _formKey,
-              child: ListView(
-                children: formFields,
-              ),
+              child: ListView(children: formFieldsWidget),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(30),
+            child: Text(
+              widget.title,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontSize: 18,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
             ),
           ),
         ],
@@ -168,7 +185,14 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The form fields are returned as a list of widgets.
   _setFormFields(List<Widget> formFields) {
+    print(widget.title);
+    print(widget.displayFieldsName);
+    print(widget.initial.keys.map((e) => e.name).toList());
+    print(_values.keys.map((e) => e.name).toList());
     _values.forEach((field, value) {
+      if (!widget.displayFieldsName.contains(field.name)) {
+        return;
+      }
       if (field.type == OdooFieldType.boolean) {
         formFields.add(_buildBooleanField(field));
       } else if (field.type == OdooFieldType.integer) {

@@ -37,6 +37,7 @@ class Session implements AuthInterface, CallInterface {
   /// The password of the user to authenticate with.
   String password;
 
+  int? uid;
   /// The session ID returned by the Odoo server.
   String? sessionId;
 
@@ -141,7 +142,7 @@ class Session implements AuthInterface, CallInterface {
   }
 
   @override
-  Future callKw(Map<String, dynamic> data) async {
+  Future callKw(Map<String, dynamic> data, {returnFullResponce=false}) async {
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=$sessionId'
@@ -172,7 +173,7 @@ class Session implements AuthInterface, CallInterface {
           throw OdooErrorException(errorType, message, 200);
         }
       }
-      return result["result"];
+      return returnFullResponce ? result: result["result"];
     } else {
       if (kDebugMode) {
         print("Response");
@@ -307,18 +308,18 @@ class Session implements AuthInterface, CallInterface {
       "args": [idList, valuesMap, fieldNames, onchangeSpec],
       "kwargs": {"context": defaultContext}
     }); 
-    print(result);
     return result;
   }
 
   /// create a new record
   Future<dynamic> create(String model, Map<String, dynamic> values) async {
-    return await callKw({
+    var result =  await callKw({
       "model": model,
       "method": "create",
       "args": [values],
       "kwargs": {"context": defaultContext}
-    });
+    }, returnFullResponce: true);
+    return result["result"];
   }
 
   /// update a records

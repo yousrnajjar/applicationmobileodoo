@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
+import 'package:smartpay/ir/form.dart';
 
 enum OdooFieldType {
   string,
@@ -141,19 +143,18 @@ class OdooField {
 
 class OdooModel {
   /// Class to help with Odoo models
+  /*static final Map<String, String> onchangeSpec = {};
+  static final List<String> defaultFields = [];*/
 
   /// Odoo session
-  final Session session;
+  static Session session = Session("", "", "");
 
   /// Unique name of the model (e.g. "hr.leave")
   final String modelName;
-  final Map<String, String> onchangeSpec;
-
-  OdooModel(this.session, this.modelName, this.onchangeSpec);
+  OdooModel(this.modelName);
 
   Future<List<OdooField>> getAllFields() async {
     /// List of fields for the model
-    String model = "ir.model.fields";
     var domain = [
       ["model", "=", modelName]
     ];
@@ -161,7 +162,7 @@ class OdooModel {
     int limit = 1000;
     int offset = 0;
     var records =
-        await session.searchRead(model, domain, fields, limit, offset);
+        await session.searchRead("ir.model.fields", domain, fields, limit, offset);
 
     var result = <OdooField>[];
     for (var record in records) {
@@ -201,7 +202,7 @@ class OdooModel {
 
   /// It should return a map with the default values for the model
   /// Key is the field [OdooField] and value is the default value
-  Future<Map<OdooField, dynamic>> defaultGet(List<String> fieldNames) async {
+  Future<Map<OdooField, dynamic>> defaultGet(List<String> fieldNames, Map<String, String> onChangeSpec) async {
     Map<String, dynamic> defaultValue =
         await session.defaultGet(modelName, fieldNames);
     var allFields = await getAllFields();
@@ -213,7 +214,7 @@ class OdooModel {
       result[field] = value;
     }
     // Trigger onchange if onchangeSpec is not empty
-    result = await onchange([], result, odooFields);
+    result = await onchange(odooFields, result, onChangeSpec);
     return result;
   }
 
@@ -224,7 +225,8 @@ class OdooModel {
       if ([OdooFieldType.many2one].contains(field.type)) {
         try {
           valuesMap[field.name] = values[field][0];
-        } catch (e) { // FIXME: Handle correct exception
+        } catch (e) {
+          // FIXME: Handle correct exception
           valuesMap[field.name] = values[field];
         }
       } else {
@@ -232,17 +234,20 @@ class OdooModel {
       }
     }
     int id = await session.create(modelName, valuesMap);
+    /*print("=======================$id");
     List<dynamic> datas = await session.searchRead(
         modelName,
         [
-          ["id", "=", id]
+          ["id", "=", id],
+          ['user_id', '=', session.uid]
         ],
         valuesMap.keys.toList(),
-        1,
-        100);
+        1000,
+        100,);
+    print("=======================$datas");
     datas[0].forEach((key, value) {
       values[values.keys.firstWhere((element) => element.name == key)] = value;
-    });
+    });*/
     return values;
   }
 
@@ -253,10 +258,8 @@ class OdooModel {
   /// It use [onchangeSpec] to handle onchange events
   /// It returns a map of changed values
   Future<Map<OdooField, dynamic>> onchange(
-    List<int> idList,
-    Map<OdooField, dynamic> values,
-    List<OdooField> fields,
-  ) async {
+      List<OdooField> changedFields,
+      Map<OdooField, dynamic> currentValues, Map<String, dynamic> onchangeSpec) async {
     // Check if onchangeSpec is empty
     if (onchangeSpec.isEmpty) {
       return {};
@@ -264,25 +267,67 @@ class OdooModel {
 
     // Build valuesMap that contains only the field name and its value
     Map<String, dynamic> valuesMap = {};
-    for (var field in values.keys) {
-      valuesMap[field.name] = values[field];
+    for (var field in currentValues.keys) {
+      valuesMap[field.name] = currentValues[field];
     }
     // Build fieldNames that contains only the field name
-    List<String> fieldNames = fields.map((field) => "${field.name}").toList();
+    List<String> fieldNames =
+        changedFields.map((field) => "${field.name}").toList();
     // Call onchange
+    List<int> idList = [];
     Map<String, dynamic> result = await session.onchange(
         modelName, idList, valuesMap, fieldNames, onchangeSpec);
     // Map result to OdooField
     /*var allFields = await getAllFields();
     List<OdooField> odooFields =
         allFields.where((field) => fieldNames.contains(field.name)).toList();*/
-    for (var field in values.keys) {
+    for (var field in currentValues.keys) {
       for (var name in result['value'].keys) {
         if (field.name == name) {
-          values[field] = result['value'][name];
+          currentValues[field] = result['value'][name];
         }
       }
     }
-    return values;
+    return currentValues;
+  }
+
+  /// Build the form fields for editing the holiday
+  ///
+  Future<Widget> buildFormFields({required List<String> fieldNames, required List<String> displayFieldNames, required Map<String, String> onChangeSpec, required String formTitle}) async {
+    Map<OdooField, dynamic> initial = await defaultGet(fieldNames, onChangeSpec);
+    Map<OdooField, Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+        onFieldChanges = {};
+    for (OdooField field in initial.keys) {
+      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+        return await onchange([field], currentValues, onChangeSpec);
+      };
+    }
+
+    return  AppForm(
+      key: ObjectKey(this),
+      fieldNames: fieldNames,
+      initial: initial,
+      onFieldChanges: onFieldChanges,
+      displayFieldsName: displayFieldNames,
+      title: formTitle,
+      onSaved: (Map<OdooField, dynamic> values) async {
+        return await create(values);
+      },
+    );
+  }
+
+  Future<Widget> getForm(
+      {required OdooModel odooModel,
+      required List<String> fieldNames,
+      required Map<OdooField, dynamic> initial,
+      required Map<OdooField,
+              Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+          onFieldChanges,
+      required List<String> displayFieldsName,
+      required String title,
+      required Future<Map<OdooField, dynamic>> Function(
+              Map<OdooField, dynamic> values)
+          onSaved})   async {
+    return const Text("No form yet");
   }
 }

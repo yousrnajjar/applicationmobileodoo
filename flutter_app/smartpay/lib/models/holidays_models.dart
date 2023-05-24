@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smartpay/api/session.dart';
-import 'package:smartpay/ir/form.dart';
-import 'package:smartpay/ir/model.dart';
 
 class HolidayType {
   final Map<String, dynamic> data;
@@ -19,8 +15,15 @@ class HolidayType {
 final dayFormatter = DateFormat('yyyy-MM-dd');
 
 class Holiday {
-  /// model from hr.leave in odoo build for flutter app
-  static String modelName = "hr.leave";
+  Holiday();
+
+  static List<String> displayFieldNames = [
+    "date_from",
+    "date_to",
+    'request_date_from',
+    'request_date_to',
+  ];
+
   ///
   static List<String> defaultFields = [
     //'id',
@@ -61,12 +64,11 @@ class Holiday {
     ...defaultFields,
     'duration_display',
     'id',
-    "message_follower_ids",
+    /*"message_follower_ids",
     "activity_ids",
     "message_ids",
-    "message_attachment_count"
+    "message_attachment_count"*/
   ];
-
   int? id;
   dynamic canApprove;
   dynamic canReset;
@@ -97,30 +99,39 @@ class Holiday {
   dynamic departmentId;
   dynamic name;
 
-  //dynamic messageFollowerIds;
-  //dynamic activityIds;
-  //dynamic messageIds;
-  //dynamic messageAttachmentCount;
-
-  /*int? id;
-  dynamic state;
-  dynamic holidayStatusId;
-  dynamic name;
-  dynamic dateFrom;
-  dynamic dateTo;
-  dynamic durationDisplay;
-  dynamic payslipStatus;
-  dynamic employeeId;
-  dynamic userId;*/
-  
   ///Onchange spec for hr.leave
-  static Map<String, String> onchangeSpec = {'can_reset': '', 'can_approve': '', 'state': '1', 'tz': '1', 'tz_mismatch': '', 'holiday_type': '1',
-     'leave_type_request_unit': '', 'display_name': '', 'holiday_status_id': '1', 'date_from': '1', 'date_to': '1',
-     'request_date_from': '1', 'request_date_to': '1', 'request_date_from_period': '1', 'request_unit_half': '1',
-     'request_unit_hours': '1', 'request_unit_custom': '1', 'request_hour_from': '1', 'request_hour_to': '1',
-     'number_of_days_display': '', 'number_of_days': '1', 'number_of_hours_display': '', 'user_id': '',
-     'employee_id': '1', 'department_id': '1', 'name': '1', 'message_follower_ids': '', 'activity_ids': '',
-     'message_ids': '', 'message_attachment_count': ''};
+  static Map<String, String> onchangeSpec = {
+    'can_reset': '',
+    'can_approve': '',
+    'state': '1',
+    'tz': '1',
+    'tz_mismatch': '',
+    'holiday_type': '1',
+    'leave_type_request_unit': '',
+    'display_name': '',
+    'holiday_status_id': '1',
+    'date_from': '1',
+    'date_to': '1',
+    'request_date_from': '1',
+    'request_date_to': '1',
+    'request_date_from_period': '1',
+    'request_unit_half': '1',
+    'request_unit_hours': '1',
+    'request_unit_custom': '1',
+    'request_hour_from': '1',
+    'request_hour_to': '1',
+    'number_of_days_display': '',
+    'number_of_days': '1',
+    'number_of_hours_display': '',
+    'user_id': '',
+    'employee_id': '1',
+    'department_id': '1',
+    'name': '1',
+    'message_follower_ids': '',
+    'activity_ids': '',
+    'message_ids': '',
+    'message_attachment_count': ''
+  };
 
   Holiday.fromJSON(Map<String, dynamic> data) {
     id = data["id"];
@@ -220,40 +231,4 @@ class Holiday {
   DateTime? get to {
     return dayFormatter.parse(dateTo);
   }
-  
-  /// Build the form fields for editing the holiday
-  /// 
-  static Future<AppForm> buildFormFields(Session session) async {
-    OdooModel odooModel = OdooModel(session, modelName, onchangeSpec);
-    Map<OdooField, dynamic> initial = await odooModel.defaultGet(defaultFields);
-    Map<OdooField, Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)> onFieldChanges = {};
-    for (OdooField field in initial.keys) {
-      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
-        return await onchange(session, [field], currentValues );
-      };
-    }
-
-    return AppForm(
-      odooModel: odooModel,
-      fieldNames: defaultFields,
-      initial: initial,
-      onFieldChanges: onFieldChanges,
-      onSaved: (Map<OdooField, dynamic> values) async {  
-        return await  odooModel.create(values);
-      },
-    );
-  }
-
-  /// Handle onchange events
-  static Future<dynamic> onchange(Session session, List<OdooField> changedFields, Map<OdooField, dynamic> currentValues) async {
-    var odooModel = OdooModel(session, modelName, onchangeSpec);
-    Map<OdooField, dynamic> newValues = await odooModel.onchange(
-      [], // id = null
-      currentValues,
-      changedFields
-    );
-    return newValues;
-  }
-
-
 }

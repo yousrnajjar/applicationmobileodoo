@@ -13,6 +13,7 @@ import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/my_holidays_list_provider.dart';
 import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/providers/user_info_providers.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
   final UserInfo userInfo;
@@ -81,6 +82,8 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         ),
       );
     } else if (identifier == "login") {
+      ref.read(userInfoProvider.notifier).setUserInfo(UserInfo({}));
+      ref.watch(sessionProvider.notifier).setSession(Session("", "", ""));
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => const LoginScreen(),
