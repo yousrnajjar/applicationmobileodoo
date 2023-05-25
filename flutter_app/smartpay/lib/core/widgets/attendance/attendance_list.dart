@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list_item.dart';
-import 'package:smartpay/providers/attendance_list_providers.dart';
+import 'package:smartpay/ir/models/attendance_models.dart';
 
 class AttendanceList extends ConsumerStatefulWidget {
-  const AttendanceList({super.key});
+  final List<Attendance> list; 
+  const AttendanceList({super.key, required  this.list});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -15,10 +16,9 @@ class AttendanceList extends ConsumerStatefulWidget {
 class _AttendanceListState extends ConsumerState<AttendanceList> {
   @override
   Widget build(BuildContext context) {
-    var attendances = ref.watch(attendancesProvider);
     return Container(
       padding: const EdgeInsets.all(10),
-      child: (attendances.isEmpty)
+      child: (widget.list.isEmpty)
           ? Center(
               child: Text(
                 "Aucune présence!",
@@ -26,10 +26,10 @@ class _AttendanceListState extends ConsumerState<AttendanceList> {
               ),
             )
           : ListView.builder(
-              itemCount: attendances.length,
+              itemCount: widget.list.length,
               itemBuilder: (context, index) => Dismissible(
                   key: ValueKey(index),
-                  child: AttendanceItem(attendance: attendances[index])),
+                  child: AttendanceItem(attendance: widget.list[index])),
             ),
     );
   }

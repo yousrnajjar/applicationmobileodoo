@@ -1,32 +1,48 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/session.dart';
-import 'package:smartpay/core/providers/session_providers.dart';
-import 'package:smartpay/providers/current_employee_provider.dart';
-import 'package:smartpay/providers/my_holidays_list_provider.dart';
+import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/attendance_models.dart';
+import 'package:smartpay/ir/models/holidays_models.dart';
+import 'package:smartpay/ir/models/user_info.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'my_holidays_widget_item.dart';
 
-class MyHolidaysWidget extends ConsumerStatefulWidget {
-  const MyHolidaysWidget({super.key});
-
+class HolidaysWidget extends StatefulWidget {
+  final List<Holiday> list;
+  final User user;
+  const HolidaysWidget(this.user, {super.key, required this.list});
   @override
-  ConsumerState<MyHolidaysWidget> createState() => _MyHolidaysWidgetState();
+  State<HolidaysWidget> createState() => _MyHolidaysWidgetState();
 }
 
-class _MyHolidaysWidgetState extends ConsumerState<MyHolidaysWidget> {
+class _MyHolidaysWidgetState extends State<HolidaysWidget> {
+  EmployeeAllInfo? _employee;
+
+  _loadEmployee() async {
+    var data = await OdooModel("hr.employee").searchRead(
+      domain: [
+        ['user_id', '=', widget.user.uid]
+      ],
+      fieldNames: ['id', 'name']
+    );
+    if (data.isNotEmpty) {
+      setState(() {
+        _employee = EmployeeAllInfo.fromJson(data[0]);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Session session = ref.watch(sessionProvider);
-    var employee = ref.watch(currentEmployeeProvider);
-    String imgUrl = employee.getEmployeeImageUrl(session.url!);
-    var holidays = ref.watch(myHolidaysProvider);
+    if (!widget.user.isAdmin) {
+      _loadEmployee();
+    }
+    String imgUrl = widget.user.getImageUrl(OdooModel.session.url!);
     return Container(
       padding: const EdgeInsets.all(10),
-      child: (holidays.isEmpty)
+      child: (widget.list.isEmpty)
           ? const Center(
               child: Text("Vous n'apez aucune demande de congé!"),
             )
@@ -43,8 +59,9 @@ class _MyHolidaysWidgetState extends ConsumerState<MyHolidaysWidget> {
                             // Convertit des bytes en images
                             kTransparentImage, // Cree une image transparente en bytes
                           ),
-                          image: (employee.image_128 != null)
-                              ? Image.memory(base64Decode(employee.image_128))
+                          image: (_employee != null &&
+                                  _employee!.image_128 != null)
+                              ? Image.memory(base64Decode(_employee!.image_128))
                                   .image
                               : NetworkImage(
                                   // Recupere une image par sont url
@@ -55,7 +72,7 @@ class _MyHolidaysWidgetState extends ConsumerState<MyHolidaysWidget> {
                         ),
                       ),
                       Text(
-                        employee.name,
+                        widget.user.name,
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge!
@@ -66,10 +83,11 @@ class _MyHolidaysWidgetState extends ConsumerState<MyHolidaysWidget> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: holidays.length,
+                    itemCount: widget.list.length,
                     itemBuilder: (context, index) => Dismissible(
                         key: ValueKey(index),
-                        child: MyHolidaysWidgetItem(holiday: holidays[index])),
+                        child:
+                            MyHolidaysWidgetItem(holiday: widget.list[index])),
                   ),
                 ),
               ],

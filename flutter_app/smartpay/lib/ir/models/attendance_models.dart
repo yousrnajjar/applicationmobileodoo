@@ -75,6 +75,7 @@ class Employee {
   List<Attendance> attendances = [];
   dynamic image_128;
 
+
   Employee({
     required this.id,
     required this.attendanceState,
@@ -99,6 +100,9 @@ class Employee {
 }
 
 class EmployeeAllInfo {
+
+  List<Attendance> attendances = [];
+
   int? id;
   dynamic name;
   List? userId;

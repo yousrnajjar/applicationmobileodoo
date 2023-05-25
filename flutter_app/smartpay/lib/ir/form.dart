@@ -86,7 +86,7 @@ class _AppFormState extends State<AppForm> {
           value != null) {
         setState(() {
           //_controllers[field]!.text = "$value";
-           _controllers[field]!.dispose();
+          _controllers[field]!.dispose();
           _controllers[field] = TextEditingController(text: "${value ?? ""}");
         });
       }
@@ -185,10 +185,6 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The form fields are returned as a list of widgets.
   _setFormFields(List<Widget> formFields) {
-    print(widget.title);
-    print(widget.displayFieldsName);
-    print(widget.initial.keys.map((e) => e.name).toList());
-    print(_values.keys.map((e) => e.name).toList());
     _values.forEach((field, value) {
       if (!widget.displayFieldsName.contains(field.name)) {
         return;

@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/attendance_api.dart';
-import 'package:smartpay/api/session.dart';
+import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/attendance_models.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
 import 'package:smartpay/core/widgets/attendance/employee_list.dart';
-import 'package:smartpay/providers/attendance_list_providers.dart';
-import 'package:smartpay/providers/employee_list_providers.dart';
-import 'package:smartpay/ir/models/user_info.dart';
-import 'package:smartpay/core/providers/session_providers.dart';
-import 'package:smartpay/providers/user_attendance_info.dart';
-import 'package:smartpay/providers/user_info_providers.dart';
+import 'package:smartpay/core/providers/user_info_providers.dart';
 
 class InOutScreen extends ConsumerStatefulWidget {
   const InOutScreen({super.key});
@@ -24,29 +18,38 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
   String _selectedPage = "in_out";
   Widget _activePage = const CheckInOut();
   int _selectedPageIndex = 0;
+  List<EmployeeAllInfo> _employees = [];
+  List<Attendance> _attendances = [];
 
   Future<void> _refresh() async {
+    var user = ref.watch(userInfoProvider);
     if (_selectedPage == "in_out") {
-      UserInfo userInfo = ref.watch(userInfoProvider);
-      Session session = ref.watch(sessionProvider);
-      AttendanceAPI api = AttendanceAPI(session);
-      Employee employee = await api.getEmployee(userInfo.uid);
-      ref
-          .read(currentEmployeeAttendanceProvider.notifier)
-          .setEmployee(employee);
+      var employeeData = await OdooModel("hr.employee").searchRead(
+        domain: [
+          ['user_id', '=', user.uid]
+        ],
+        limit: 1,
+      );
+      user.employee = EmployeeAllInfo.fromJson(employeeData[0]);
     } else if (_selectedPage == 'attendance_list') {
-      Session session = ref.watch(sessionProvider);
-      AttendanceAPI api = AttendanceAPI(session);
-      Employee info = ref.watch(currentEmployeeAttendanceProvider);
-      List<Attendance> attendances = await api.getAttentances(info.id);
-      ref.read(attendancesProvider.notifier).setAttendances(attendances);
+      var attendancesData = await OdooModel("hr.attendance").searchRead(
+        domain: [
+          ['employee_id', '=', user.employee!.id]
+        ],
+        limit: 1000,
+      );
+      _attendances =
+          attendancesData.map((e) => Attendance.fromJson(e)).toList();
+      user.employee!.attendances = _attendances;
     } else if (_selectedPage == 'employee_list') {
-      Session session = ref.watch(sessionProvider);
-      AttendanceAPI api = AttendanceAPI(session);
-      Employee info = ref.watch(currentEmployeeAttendanceProvider);
-      var employees = await api.getEmployees(info.id);
-      ref.read(employeesProvider.notifier).setEmployees(employees);
+      var employeesData = await OdooModel("hr.employee").searchRead(
+        domain: [[]],
+        limit: 1000,
+      );
+      _employees =
+          employeesData.map((e) => EmployeeAllInfo.fromJson(e)).toList();
     }
+    ref.read(userInfoProvider.notifier).setUserInfo(user);
   }
 
   Future<void> _selectPage(int index) async {
@@ -61,14 +64,14 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       _selectedPage = "attendance_list";
       await _refresh();
       setState(() {
-        _activePage = const AttendanceList();
+        _activePage = AttendanceList(list: _attendances);
         _selectedPageIndex = 2;
       });
     } else if (index == 1) {
       _selectedPage = "employee_list";
       await _refresh();
       setState(() {
-        _activePage = const EmployeeList();
+        _activePage = EmployeeList(list: _employees);
         _selectedPageIndex = 1;
       });
     }

@@ -2,13 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/core/providers/session_providers.dart';
+import 'package:smartpay/core/providers/user_info_providers.dart';
+import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/attendance_models.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:smartpay/api/attendance_api.dart';
-import 'package:smartpay/api/session.dart';
-import 'package:smartpay/providers/user_attendance_info.dart';
 
 class CheckInOut extends ConsumerStatefulWidget {
   const CheckInOut({super.key});
@@ -19,22 +17,22 @@ class CheckInOut extends ConsumerStatefulWidget {
 
 class _CheckInOutState extends ConsumerState<CheckInOut> {
   void _updateAttendance() async {
-    Employee employee = ref.watch(currentEmployeeAttendanceProvider);
-    Session session = ref.watch(sessionProvider);
-    AttendanceAPI api = AttendanceAPI(session);
-    employee = await api.updateAttendance(employee.id);
-    ref.read(currentEmployeeAttendanceProvider.notifier).setEmployee(employee);
+    var user = ref.watch(userInfoProvider);
+    var employeeData = await OdooModel("hr.employee").searchRead(domain: [['user_id', '=', user.uid]], limit: 1);
+    user.employee = EmployeeAllInfo.fromJson(employeeData[0]);
+    ref.read(userInfoProvider.notifier).setUserInfo(user);
   }
 
   @override
   Widget build(BuildContext context) {
-    Session session = ref.watch(sessionProvider);
-    Employee employee = ref.watch(currentEmployeeAttendanceProvider);
+    var user = ref.watch(userInfoProvider);
+    EmployeeAllInfo employee = user.employee!;
     bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
     ThemeData theme = Theme.of(context);
     var smallText = smallText100(theme);
     var titleLarge = titleLargeBold(theme);
+    var session = OdooModel.session;
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.secondary.withOpacity(0.4),

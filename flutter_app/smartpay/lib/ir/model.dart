@@ -153,7 +153,8 @@ class OdooModel {
   final String modelName;
   OdooModel(this.modelName);
 
-  Future<List<OdooField>> getAllFields() async {
+  /// Get all fields Names for the model
+  Future<List<Map<String, dynamic>>> getAllFieldRaw() async {
     /// List of fields for the model
     var domain = [
       ["model", "=", modelName]
@@ -161,9 +162,14 @@ class OdooModel {
     var fields = OdooField.allProperties();
     int limit = 1000;
     int offset = 0;
-    var records =
-        await session.searchRead("ir.model.fields", domain, fields, limit, offset);
+    var result = await session.searchRead(
+        "ir.model.fields", domain, fields, limit, offset);
+    return result;
+  }
 
+  /// Get all fields for the model
+  Future<List<OdooField>> getAllFields() async {
+    var records = await getAllFieldRaw();
     var result = <OdooField>[];
     for (var record in records) {
       var field = OdooField.fromMap(record);
@@ -174,8 +180,8 @@ class OdooModel {
             ['field_id', "=", field.id]
           ],
           ['id', 'display_name', 'name', 'value'],
-          limit,
-          offset,
+          1000,
+          0,
         );
       } else if (field.type == OdooFieldType.many2one) {
         try {
@@ -183,8 +189,8 @@ class OdooModel {
             field.relation,
             [if (field.domain != false) field.domain],
             ['id', 'name'],
-            limit,
-            offset,
+            1000,
+            0,
           );
         } on OdooErrorException catch (e) {
           if (e.errorType == "access_error") {
@@ -200,9 +206,25 @@ class OdooModel {
     return result;
   }
 
+  /// Search and read records (all fields) from the model
+  Future<List<Map<String, dynamic>>> searchRead(
+      {required List<dynamic> domain,
+      int limit = 1000,
+      int offset = 1,
+      List<String>? fieldNames}) async {
+    if (fieldNames == null) {
+      var allFieldRaw = await getAllFieldRaw();
+      fieldNames = allFieldRaw.map((e) => e['name'].toString()).toList();
+    }
+    var result =
+        await session.searchRead(modelName, domain, fieldNames, null, null);
+    return result;
+  }
+
   /// It should return a map with the default values for the model
   /// Key is the field [OdooField] and value is the default value
-  Future<Map<OdooField, dynamic>> defaultGet(List<String> fieldNames, Map<String, String> onChangeSpec) async {
+  Future<Map<OdooField, dynamic>> defaultGet(
+      List<String> fieldNames, Map<String, String> onChangeSpec) async {
     Map<String, dynamic> defaultValue =
         await session.defaultGet(modelName, fieldNames);
     var allFields = await getAllFields();
@@ -259,7 +281,8 @@ class OdooModel {
   /// It returns a map of changed values
   Future<Map<OdooField, dynamic>> onchange(
       List<OdooField> changedFields,
-      Map<OdooField, dynamic> currentValues, Map<String, dynamic> onchangeSpec) async {
+      Map<OdooField, dynamic> currentValues,
+      Map<String, dynamic> onchangeSpec) async {
     // Check if onchangeSpec is empty
     if (onchangeSpec.isEmpty) {
       return {};
@@ -293,9 +316,15 @@ class OdooModel {
 
   /// Build the form fields for editing the holiday
   ///
-  Future<Widget> buildFormFields({required List<String> fieldNames, required List<String> displayFieldNames, required Map<String, String> onChangeSpec, required String formTitle}) async {
-    Map<OdooField, dynamic> initial = await defaultGet(fieldNames, onChangeSpec);
-    Map<OdooField, Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+  Future<Widget> buildFormFields(
+      {required List<String> fieldNames,
+      required List<String> displayFieldNames,
+      required Map<String, String> onChangeSpec,
+      required String formTitle}) async {
+    Map<OdooField, dynamic> initial =
+        await defaultGet(fieldNames, onChangeSpec);
+    Map<OdooField,
+            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
         onFieldChanges = {};
     for (OdooField field in initial.keys) {
       onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
@@ -303,7 +332,7 @@ class OdooModel {
       };
     }
 
-    return  AppForm(
+    return AppForm(
       key: ObjectKey(this),
       fieldNames: fieldNames,
       initial: initial,
@@ -327,7 +356,7 @@ class OdooModel {
       required String title,
       required Future<Map<OdooField, dynamic>> Function(
               Map<OdooField, dynamic> values)
-          onSaved})   async {
+          onSaved}) async {
     return const Text("No form yet");
   }
 }

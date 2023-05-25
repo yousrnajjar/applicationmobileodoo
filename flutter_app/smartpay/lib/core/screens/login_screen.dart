@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:smartpay/api/session.dart';
+
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user_info.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
-import 'package:smartpay/providers/user_info_providers.dart';
+import 'package:smartpay/core/providers/user_info_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -24,11 +24,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isTokenSend = false;
-  Session? _session;
-  UserInfo? _userInfo;
+  User? _userInfo;
 
   void _confirmToken(String token) async {
-    if (!_formKey.currentState!.validate() || _session == null) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
     setState(() {
@@ -36,34 +35,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     var isAuthenticated = false;
     try {
-      _userInfo = await _session!.confirmToken(token);
+      _userInfo = await OdooModel.session.confirmToken(token);
       isAuthenticated = _userInfo != null && _userInfo!.isAuthenticated();
       if (isAuthenticated) {
-        _session!.uid = _userInfo!.uid;
-        OdooModel.session = _session!;
-        ref.read(sessionProvider.notifier).setSession(_session!);
+        int uid = _userInfo!.uid;
+        OdooModel.session.uid = uid;
+        ref
+            .read(sessionProvider.notifier)
+            .setSession(OdooModel.session); // TODO: Remove this
         ref.read(userInfoProvider.notifier).setUserInfo(_userInfo!);
         if (context.mounted) {
           // Token successfully confirmed, navigate to home screen
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MainDrawer(userInfo: _userInfo!),
+              builder: (context) => MainDrawer(user: _userInfo!),
             ),
           );
         }
-      } else {
-        if (context.mounted) {
-          // Token confirmation failed, show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Token Invalide.'),
-            ),
-          );
-        }
+      } else if (context.mounted) {
+        // Token confirmation failed, show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Token Invalide.'),
+          ),
+        );
       }
     } on Exception catch (e) {
       // An error occurred, show error message
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('An error occurred: $e'),
@@ -82,12 +84,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      _session = Session(database, email, password);
+      OdooModel.session = Session(database, email, password);
       bool isTokenSend = false;
       try {
-        isTokenSend = await _session!.sendToken();
+        isTokenSend = await OdooModel.session.sendToken();
       } on Exception catch (e) {
         // An error not handled occurred, show error message
+        setState(() {
+          _isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('An error occurred, please contact admin: $e'),

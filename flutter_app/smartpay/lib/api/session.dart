@@ -8,7 +8,7 @@ import 'package:smartpay/ir/models/user_info.dart';
 
 abstract class AuthInterface {
   ///  Sends authentication information to Odoo and token to Odoo and returns a boolean indicating if authentication succeeded.
-  Future<UserInfo?> confirmToken(String token);
+  Future<User?> confirmToken(String token);
 
   /// Sends authentication information to Odoo and returns a boolean indicating if sending token succeeded.
   Future<bool> sendToken();
@@ -108,7 +108,7 @@ class Session implements AuthInterface, CallInterface {
   }
 
   @override
-  Future<UserInfo?> confirmToken(String token) async {
+  Future<User?> confirmToken(String token) async {
     const String path = "web/session/authenticate/token";
     try {
       var result = await callEndpoint(path, {
@@ -117,7 +117,7 @@ class Session implements AuthInterface, CallInterface {
         "token": token,
         "db": dbName,
       });
-      return UserInfo(result);
+      return User(result);
     } on Exception {
       return null;
     }
@@ -180,9 +180,9 @@ class Session implements AuthInterface, CallInterface {
     }
   }
 
-  Future<List<dynamic>> searchRead(String model, List<dynamic> domain,
+  Future<List<Map<String, dynamic>>> searchRead(String model, List<dynamic> domain,
       List<dynamic> fields, int? limit, int? offset) async {
-    return await callKw({
+    var res =  await callKw({
       "model": model,
       "method": "search_read",
       "args": [domain, fields],
@@ -192,6 +192,7 @@ class Session implements AuthInterface, CallInterface {
         "context": defaultContext
       }
     });
+    return [for (var r in res) r as Map<String, dynamic>];
   }
 
   Future<dynamic> searchCount(String model, List<dynamic> domain) async {

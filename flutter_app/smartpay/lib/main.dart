@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/core/data/themes.dart';
-import 'package:smartpay/core/screens/login_screen.dart';
-import 'package:smartpay/core/widgets/main_drawer.dart';
-import 'package:smartpay/providers/user_info_providers.dart';
+
+import 'core/data/themes.dart';
+import 'core/screens/login_screen.dart';
+import 'core/widgets/main_drawer.dart';
+import 'core/providers/user_info_providers.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -22,7 +23,7 @@ class SmartPay extends ConsumerWidget {
     if (!userInfo.isAuthenticated()) {
       activeScreen = const LoginScreen();
     } else {
-      activeScreen = MainDrawer(userInfo: userInfo);
+      activeScreen = MainDrawer(user: userInfo);
     }
     return MaterialApp(theme: smartpayTheme, home: activeScreen);
   }

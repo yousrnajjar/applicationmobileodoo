@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
+import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/ir/models/attendance_models.dart';
 import 'package:smartpay/core/data/themes.dart';
-import 'package:smartpay/providers/employee_list_providers.dart';
 
 class AttendanceItem extends ConsumerWidget {
   final Attendance attendance;
@@ -14,9 +14,7 @@ class AttendanceItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Session session = ref.watch(sessionProvider);
-    var employee = ref
-        .watch(employeesProvider)
-        .firstWhere((emp) => attendance.employeeId![0] == emp.id);
+    var employee = ref.watch(userInfoProvider).employee!;
     ThemeData theme = Theme.of(context);
     var smallText = titleVerySmall(theme);
     var titleLarge = titleLargeBold(theme);
