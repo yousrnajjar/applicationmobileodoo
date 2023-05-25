@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/api/holidays_api.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/models/holidays_models.dart';
-import 'package:smartpay/models/allocation_models.dart';
+import 'package:smartpay/ir/models/holidays_models.dart';
+import 'package:smartpay/ir/models/allocation_models.dart';
 import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart'
     as holiday_cal;
 import 'package:smartpay/core/widgets/holidays/my_holidays_widget.dart';
 import 'package:smartpay/providers/my_holidays_list_provider.dart';
-import 'package:smartpay/providers/models/user_info.dart';
-import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
 class HolidaysScreen extends ConsumerStatefulWidget {
@@ -32,24 +32,12 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
   Widget _activePage = const MyHolidaysWidget();
   int _selectedPageIndex = 0;
   late Session _session;
-  List<HolidayType> _holidaysTypes = [];
-  bool _holidaysTypesIsLoad = false;
 
   @override
   void initState() {
     super.initState();
   }
 
-  Future<void> _getHolidaysType(Session session) async {
-    HolidaysAPI api = HolidaysAPI(session);
-    var types = await api.getHolidayTypes();
-    if (context.mounted) {
-      setState(() {
-        _holidaysTypes = types;
-        _holidaysTypesIsLoad = true;
-      });
-    }
-  }
 
   Future<void> _refresh() async {
     HolidaysAPI api = HolidaysAPI(_session);
@@ -123,7 +111,6 @@ class _HolidaysScreenState extends ConsumerState<HolidaysScreen> {
   @override
   Widget build(BuildContext context) {
     _session = ref.watch(sessionProvider);
-    if (!_holidaysTypesIsLoad) _getHolidaysType(_session);
     return Scaffold(
       appBar: AppBar(title: const Text("Congé"), actions: <Widget>[
         IconButton(

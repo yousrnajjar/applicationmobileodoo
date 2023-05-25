@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
-import 'package:smartpay/models/attendance_models.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
+import 'package:smartpay/ir/models/attendance_models.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/providers/employee_list_providers.dart';
-import 'package:smartpay/providers/session_providers.dart';
 
 class AttendanceItem extends ConsumerWidget {
   final Attendance attendance;

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/models/holidays_models.dart';
+import 'package:smartpay/ir/models/holidays_models.dart';
 
 class HolidaysListNotifier extends StateNotifier<List<Holiday>> {
   HolidaysListNotifier() : super(<Holiday>[]);

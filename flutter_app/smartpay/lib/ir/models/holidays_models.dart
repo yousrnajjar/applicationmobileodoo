@@ -22,6 +22,8 @@ class Holiday {
     "date_to",
     'request_date_from',
     'request_date_to',
+    'holiday_status_id',
+    'name',
   ];
 
   ///

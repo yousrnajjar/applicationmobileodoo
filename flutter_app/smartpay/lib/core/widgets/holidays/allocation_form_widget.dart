@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/models/holidays_models.dart';
+import 'package:smartpay/ir/models/holidays_models.dart';
 
 class FormulaireDemandeAllocation extends StatefulWidget {
   final List<HolidayType> holidaysStatus;

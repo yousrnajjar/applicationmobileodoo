@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/models/holidays_models.dart';
+import 'package:smartpay/ir/models/holidays_models.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class HolidayCalendar extends StatefulWidget {

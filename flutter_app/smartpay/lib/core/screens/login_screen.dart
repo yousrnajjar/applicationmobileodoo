@@ -5,8 +5,8 @@ import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/providers/models/user_info.dart';
-import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {

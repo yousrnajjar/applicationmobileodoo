@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/providers/current_employee_provider.dart';
 import 'package:smartpay/providers/my_holidays_list_provider.dart';
-import 'package:smartpay/providers/session_providers.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'my_holidays_widget_item.dart';

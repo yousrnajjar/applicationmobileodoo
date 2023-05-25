@@ -1,5 +1,5 @@
 import 'package:smartpay/api/session.dart';
-import 'package:smartpay/models/attendance_models.dart';
+import 'package:smartpay/ir/models/attendance_models.dart';
 
 class EmployeeAPI {
   final Session session;

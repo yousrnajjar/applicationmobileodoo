@@ -209,9 +209,9 @@ class _AppFormState extends State<AppForm> {
         formFields.add(_buildDateTimeField(field, value));
       } else if (field.type == OdooFieldType.selection) {
         formFields.add(_buildSelectionField(field, value));
-      } /*else if (field.type == OdooFieldType.many2one) {
+      } else if (field.type == OdooFieldType.many2one) {
         formFields.add(_buildMany2oneField(field, value));
-      } else if (field.type == OdooFieldType.one2many) {
+      } /*else if (field.type == OdooFieldType.one2many) {
         formFields.add(_buildOne2manyField(field, value));
       } else if (field.type == OdooFieldType.many2many) {
         formFields.add(_buildMany2manyField(field, value));

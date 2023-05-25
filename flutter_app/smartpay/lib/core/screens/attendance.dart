@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/attendance_api.dart';
 import 'package:smartpay/api/session.dart';
-import 'package:smartpay/models/attendance_models.dart';
+import 'package:smartpay/ir/models/attendance_models.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
 import 'package:smartpay/core/widgets/attendance/employee_list.dart';
 import 'package:smartpay/providers/attendance_list_providers.dart';
 import 'package:smartpay/providers/employee_list_providers.dart';
-import 'package:smartpay/providers/models/user_info.dart';
-import 'package:smartpay/providers/session_providers.dart';
+import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/providers/user_attendance_info.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 

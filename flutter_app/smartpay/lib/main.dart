@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/data/themes.dart';
-import 'package:smartpay/core/auth/screens/login_screen.dart';
+import 'package:smartpay/core/screens/login_screen.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
 
