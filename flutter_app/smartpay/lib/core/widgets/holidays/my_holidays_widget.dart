@@ -2,31 +2,31 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/session.dart';
 import 'package:smartpay/providers/current_employee_provider.dart';
-import 'package:smartpay/providers/my_holydays_list_provider.dart';
+import 'package:smartpay/providers/my_holidays_list_provider.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'my_holydays_widget_item.dart';
+import 'my_holidays_widget_item.dart';
 
-class MyHolydaysWidget extends ConsumerStatefulWidget {
-  const MyHolydaysWidget({super.key});
+class MyHolidaysWidget extends ConsumerStatefulWidget {
+  const MyHolidaysWidget({super.key});
 
   @override
-  ConsumerState<MyHolydaysWidget> createState() => _MyHolydaysWidgetState();
+  ConsumerState<MyHolidaysWidget> createState() => _MyHolidaysWidgetState();
 }
 
-class _MyHolydaysWidgetState extends ConsumerState<MyHolydaysWidget> {
+class _MyHolidaysWidgetState extends ConsumerState<MyHolidaysWidget> {
   @override
   Widget build(BuildContext context) {
     Session session = ref.watch(sessionProvider);
     var employee = ref.watch(currentEmployeeProvider);
     String imgUrl = employee.getEmployeeImageUrl(session.url!);
-    var holydays = ref.watch(myHolydaysProvider);
+    var holidays = ref.watch(myHolidaysProvider);
     return Container(
       padding: const EdgeInsets.all(10),
-      child: (holydays.isEmpty)
+      child: (holidays.isEmpty)
           ? const Center(
               child: Text("Vous n'apez aucune demande de congé!"),
             )
@@ -66,10 +66,10 @@ class _MyHolydaysWidgetState extends ConsumerState<MyHolydaysWidget> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: holydays.length,
+                    itemCount: holidays.length,
                     itemBuilder: (context, index) => Dismissible(
                         key: ValueKey(index),
-                        child: MyHolydaysWidgetItem(holyday: holydays[index])),
+                        child: MyHolidaysWidgetItem(holiday: holidays[index])),
                   ),
                 ),
               ],

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/session.dart';
 
 class SessionNotifier extends StateNotifier<Session> {
   SessionNotifier() : super(Session("", "", ""));

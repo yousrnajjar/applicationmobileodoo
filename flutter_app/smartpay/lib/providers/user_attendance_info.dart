@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/api/models.dart';
+import 'package:smartpay/models/attendance_models.dart';
 
 class CurrentEmployeeNotifier extends StateNotifier<Employee> {
   CurrentEmployeeNotifier() : super(Employee.empty());

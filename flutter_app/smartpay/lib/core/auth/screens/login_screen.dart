@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:smartpay/api/auth/session.dart';
+import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/data/themes.dart';
 import 'package:smartpay/core/widgets/main_drawer.dart';
+import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/providers/models/user_info.dart';
 import 'package:smartpay/providers/session_providers.dart';
 import 'package:smartpay/providers/user_info_providers.dart';
@@ -38,6 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _userInfo = await _session!.confirmToken(token);
       isAuthenticated = _userInfo != null && _userInfo!.isAuthenticated();
       if (isAuthenticated) {
+        _session!.uid = _userInfo!.uid;
+        OdooModel.session = _session!;
         ref.read(sessionProvider.notifier).setSession(_session!);
         ref.read(userInfoProvider.notifier).setUserInfo(_userInfo!);
         if (context.mounted) {

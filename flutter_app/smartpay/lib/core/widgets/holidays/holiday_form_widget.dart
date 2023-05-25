@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smartpay/api/auth/session.dart';
-import 'package:smartpay/api/holydays/holydays_models.dart';
+import 'package:smartpay/api/session.dart';
+import 'package:smartpay/models/holidays_models.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 
 final dayFormatter = DateFormat('yyyy-MM-dd');
 
-class HolydayForm extends StatefulWidget {
+class HolidayForm extends StatefulWidget {
   final Session session;
   final int employeeId;
 
-  final List<HolydayType> holydaysStatus;
+  final List<HolidayType> holidaysStatus;
 
-  const HolydayForm(
+  const HolidayForm(
       {super.key,
       required this.session,
       required this.employeeId,
-      required this.holydaysStatus});
+      required this.holidaysStatus});
 
   @override
-  State<HolydayForm> createState() => _HolydayFormState();
+  State<HolidayForm> createState() => _HolidayFormState();
 }
 
-class _HolydayFormState extends State<HolydayForm> {
+class _HolidayFormState extends State<HolidayForm> {
   final _formKey = GlobalKey<FormState>();
 
-  HolydayType? _selectedHolydayType;
+  HolidayType? _selectedHolidayType;
   DateTime _requestDateFrom = DateTime.now();
   DateTime _requestDateTo = DateTime.now();
   String? _description;
 
   bool _isSending = false;
+  
 
   void _presentDatePicker(String dataContext) async {
     final now = DateTime.now();
@@ -80,7 +81,7 @@ class _HolydayFormState extends State<HolydayForm> {
       "holiday_type": "employee",
       "date_from": dayFormatter.format(_requestDateFrom),
       "date_to": dayFormatter.format(_requestDateTo),
-      "holiday_status_id": _selectedHolydayType!.id,
+      "holiday_status_id": _selectedHolidayType!.id,
       //"state": "confirm",
       "employee_id": widget.employeeId,
       "name": _description,
@@ -118,10 +119,10 @@ class _HolydayFormState extends State<HolydayForm> {
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: DropdownButtonFormField(
-                value: _selectedHolydayType,
-                decoration: const InputDecoration(label: Text("Type de congé")),
+                value: _selectedHolidayType,
+                decoration: const InputDecoration(label: Text("Type de congés")),
                 items: [
-                  for (var type in widget.holydaysStatus)
+                  for (var type in widget.holidaysStatus)
                     DropdownMenuItem(
                       value: type,
                       child: Text(type.name),
@@ -129,7 +130,7 @@ class _HolydayFormState extends State<HolydayForm> {
                 ],
                 onChanged: (value) {
                   setState(() {
-                    _selectedHolydayType = value;
+                    _selectedHolidayType = value;
                   });
                 }),
           ),
