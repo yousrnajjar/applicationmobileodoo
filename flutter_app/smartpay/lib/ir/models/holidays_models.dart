@@ -233,4 +233,18 @@ class Holiday {
   DateTime? get to {
     return dayFormatter.parse(dateTo);
   }
+
+  /// Group a list of [Holiday] by [Holiday.status]
+  static Map<String, List<Holiday>> groupByStatus(List<Holiday> holidays) {
+    var map = <String, List<Holiday>>{};
+    for (var holiday in holidays) {
+      var status = holiday.state;
+      if (map.containsKey(status)) {
+        map[status]!.add(holiday);
+      } else {
+        map[status] = [holiday];
+      }
+    }
+    return map;
+  }
 }
