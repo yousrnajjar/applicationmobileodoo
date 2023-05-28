@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 
 class UserInfoNotifier extends StateNotifier<User> {

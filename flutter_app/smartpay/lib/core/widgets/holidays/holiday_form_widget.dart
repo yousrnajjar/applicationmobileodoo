@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/api/session.dart';
-import 'package:smartpay/ir/models/holidays_models.dart';
+import 'package:smartpay/ir/models/holidays.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 
 final dayFormatter = DateFormat('yyyy-MM-dd');

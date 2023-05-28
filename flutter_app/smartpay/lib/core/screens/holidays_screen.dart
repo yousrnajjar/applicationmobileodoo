@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/holidays_models.dart';
-import 'package:smartpay/ir/models/allocation_models.dart';
+import 'package:smartpay/ir/models/holidays.dart';
+import 'package:smartpay/ir/models/allocation.dart';
 import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart'
     as holiday_cal;
 import 'package:smartpay/core/widgets/holidays/my_holidays_widget.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 class HolidaysScreen extends StatefulWidget {
   final User user;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final User user;
@@ -18,6 +18,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Bienvenue ${widget.user.name}", style: Theme.of(context).textTheme.bodyLarge,));
+    return Center(child: Text("Bienvenue ${widget.user.info["name"]}", style: Theme.of(context).textTheme.bodyLarge,));
   }
 }

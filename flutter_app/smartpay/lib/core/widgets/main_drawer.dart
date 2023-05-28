@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/providers/user_info_providers.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/core/screens/holidays_screen_v2.dart';
+import 'package:smartpay/ir/models/user.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/core/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/screens/attendance.dart';
-import 'package:smartpay/core/screens/holidays_screen.dart';
 import 'package:smartpay/core/screens/home.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
@@ -25,6 +25,8 @@ class MainDrawer extends ConsumerStatefulWidget {
 class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   final List<SideMenu> _sideMenus = [];
+
+  String _title = "Facilitez votre quotidien avec SmartPay App";
 
   @override
   void initState() {
@@ -52,7 +54,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
     } else if (identifier == "leave") {
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (ctx) => HolidaysScreen(widget.user),
+          builder: (ctx) => HolidayScreen(user: widget.user),
         ),
       );
     } else if (identifier == "login") {
@@ -68,10 +70,13 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
     Widget homeScreen = HomeScreen(widget.user);
     var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
-      appBar: AppBar(title: const Text("Facilitez votre quotidien avec SmartPay App")),
+      appBar: AppBar(
+        title: const Text("Facilitez votre quotidien avec SmartPay App")
+      ),
       body: homeScreen,
       drawer: Drawer(
         child: Container(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smartpay/ir/models/attendance_models.dart';
+import 'package:smartpay/ir/models/employee.dart';
 
 import 'employee_list_item.dart';
 

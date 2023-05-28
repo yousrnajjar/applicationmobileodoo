@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
-import 'package:smartpay/ir/models/attendance_models.dart';
-import 'package:smartpay/core/data/themes.dart';
+import 'package:smartpay/ir/models/employee.dart';
+import 'package:smartpay/ir/data/themes.dart';
 
 class EmployeeItem extends ConsumerWidget {
   final EmployeeAllInfo employee;

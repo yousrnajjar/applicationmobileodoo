@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
-import 'package:smartpay/ir/form.dart';
+import 'package:smartpay/ir/views/form.dart';
 
+/// Represent an odoo Field Type
 enum OdooFieldType {
   string,
   integer,
@@ -28,8 +29,8 @@ enum OdooFieldType {
   unknown,
 }
 
+/// Class to represent an Odoo field
 class OdooField {
-  /// Class to represent an Odoo field
   dynamic id;
   dynamic name;
   dynamic displayName;
@@ -151,13 +152,17 @@ class OdooModel {
 
   /// Unique name of the model (e.g. "hr.leave")
   final String modelName;
+
   OdooModel(this.modelName);
 
   /// Get all fields Names for the model
-  Future<List<Map<String, dynamic>>> getAllFieldRaw() async {
+  Future<List<Map<String, dynamic>>> getAllFieldAsString(
+      {List<String>? fieldNames}) async {
     /// List of fields for the model
     var domain = [
-      ["model", "=", modelName]
+      ["model", "=", modelName],
+      if (fieldNames != null && fieldNames.isNotEmpty)
+        ['name', 'in', fieldNames]
     ];
     var fields = OdooField.allProperties();
     int limit = 1000;
@@ -168,8 +173,8 @@ class OdooModel {
   }
 
   /// Get all fields for the model
-  Future<List<OdooField>> getAllFields() async {
-    var records = await getAllFieldRaw();
+  Future<List<OdooField>> getAllFields({List<String>? fieldNames}) async {
+    var records = await getAllFieldAsString(fieldNames: fieldNames);
     var result = <OdooField>[];
     for (var record in records) {
       var field = OdooField.fromMap(record);
@@ -213,7 +218,7 @@ class OdooModel {
       int offset = 1,
       List<String>? fieldNames}) async {
     if (fieldNames == null) {
-      var allFieldRaw = await getAllFieldRaw();
+      var allFieldRaw = await getAllFieldAsString();
       fieldNames = allFieldRaw.map((e) => e['name'].toString()).toList();
     }
     var result =
@@ -345,6 +350,7 @@ class OdooModel {
     );
   }
 
+  /// FixMe : Remove This
   Future<Widget> getForm(
       {required OdooModel odooModel,
       required List<String> fieldNames,

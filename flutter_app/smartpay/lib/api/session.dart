@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:smartpay/exceptions/api_exceptions.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 abstract class AuthInterface {
   ///  Sends authentication information to Odoo and token to Odoo and returns a boolean indicating if authentication succeeded.

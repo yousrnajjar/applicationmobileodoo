@@ -1,6 +1,6 @@
 import 'package:smartpay/api/session.dart';
 
-import '../ir/models/holidays_models.dart';
+import '../ir/models/holidays.dart';
 
 class HolidaysAPI {
   final Session session;

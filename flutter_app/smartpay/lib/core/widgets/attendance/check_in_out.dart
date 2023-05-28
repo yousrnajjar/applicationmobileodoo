@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/attendance_models.dart';
-import 'package:smartpay/core/data/themes.dart';
+import 'package:smartpay/ir/models/employee.dart';
+import 'package:smartpay/ir/data/themes.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class CheckInOut extends ConsumerStatefulWidget {

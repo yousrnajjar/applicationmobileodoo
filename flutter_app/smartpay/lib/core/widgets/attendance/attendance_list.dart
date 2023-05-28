@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list_item.dart';
-import 'package:smartpay/ir/models/attendance_models.dart';
+import 'package:smartpay/ir/models/attendance.dart';
 
 class AttendanceList extends ConsumerStatefulWidget {
   final List<Attendance> list; 

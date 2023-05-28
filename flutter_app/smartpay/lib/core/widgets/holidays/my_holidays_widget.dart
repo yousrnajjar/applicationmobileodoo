@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/attendance_models.dart';
-import 'package:smartpay/ir/models/holidays_models.dart';
-import 'package:smartpay/ir/models/user_info.dart';
+import 'package:smartpay/ir/models/employee.dart';
+import 'package:smartpay/ir/models/holidays.dart';
+import 'package:smartpay/ir/models/user.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'my_holidays_widget_item.dart';
@@ -72,7 +72,7 @@ class _MyHolidaysWidgetState extends State<HolidaysWidget> {
                         ),
                       ),
                       Text(
-                        widget.user.name,
+                        widget.user.info['name'],
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge!

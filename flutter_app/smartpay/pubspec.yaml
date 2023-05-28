@@ -74,7 +74,7 @@ flutter:
     - assets/images/back.jpeg
     - assets/images/logo.jpeg
     - assets/images/admin.jpeg
-    # Iconnes
+    # Icons
     - assets/icons/account.jpeg
     - assets/icons/dashbord.jpeg
     - assets/icons/employee.jpeg
@@ -85,6 +85,14 @@ flutter:
     - assets/icons/pointage.png
     - assets/icons/recrutment.jpeg
     - assets/icons/deconnecter.png
+    # Icons Holidays
+    - assets/icons/holiday/icone_approuvee.png
+    - assets/icons/holiday/icone_demande_allocation.png
+    - assets/icons/holiday/icone_demande_conge.png
+    - assets/icons/holiday/icone_historique_conge.png
+    - assets/icons/holiday/icone_menu.png
+    - assets/icons/holiday/icone_notification.png
+    - assets/icons/holiday/icone_refuse.png
     # Data
     - .env
     - assets/data/side_menus.json
