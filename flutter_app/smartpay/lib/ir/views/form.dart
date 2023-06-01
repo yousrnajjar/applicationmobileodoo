@@ -8,6 +8,7 @@ import 'package:smartpay/exceptions/api_exceptions.dart';
 
 // smartpay
 import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/data/themes.dart';
 
 class AppForm extends StatefulWidget {
   final List<String> fieldNames;
@@ -32,22 +33,22 @@ class AppForm extends StatefulWidget {
   });
 
   @override
-  State<AppForm> createState() => _AppFormState();
+  State<AppForm> createState() => AppFormState();
 }
 
-class _AppFormState extends State<AppForm> {
+class AppFormState extends State<AppForm> {
   final _formKey = GlobalKey<FormState>();
-  Map<OdooField, dynamic> _values = {};
-  Map<OdooField, TextEditingController> _controllers = {};
+  Map<OdooField, dynamic> values = {};
+  Map<OdooField, TextEditingController> controllers = {};
 
-  bool _isSending = false;
+  bool isSending = false;
 
   @override
   void initState() {
     super.initState();
-    _controllers = {};
+    controllers = {};
     widget.initial.forEach((field, value) {
-      _values[field] = value;
+      values[field] = value;
       var textField = [
         OdooFieldType.char,
         OdooFieldType.text,
@@ -56,57 +57,64 @@ class _AppFormState extends State<AppForm> {
         OdooFieldType.html
       ];
       if (textField.contains(field.type)) {
-        _controllers[field] = TextEditingController(text: "${value ?? ""}");
+        controllers[field] = TextEditingController(text: "${value ?? ""}");
       }
     });
   }
 
   @override
   dispose() {
-    _controllers.forEach((field, controller) {
+    controllers.forEach((field, controller) {
       controller.dispose();
     });
     super.dispose();
   }
 
-  Map<OdooField, dynamic> _cleanValues() {
+  Map<OdooField, dynamic> cleanValues() {
     Map<OdooField, dynamic> res = {};
-    _values.forEach((key, value) {
-      res[key] = value;
+    values.forEach((key, value) {
+      if (value != null &&
+          value.runtimeType == List &&
+          [OdooFieldType.many2one].contains(key.type)) {
+        res[key] = value[0];
+      } else {
+        res[key] = value;
+      }
     });
-    _controllers.forEach((field, controller) {
+    controllers.forEach((field, controller) {
       res[field] = controller.text;
     });
     return res;
   }
 
-  _setValues(Map<OdooField, dynamic> newValues) {
+  setValues(Map<OdooField, dynamic> newValues) {
     newValues.forEach((field, value) {
-      if (_controllers.keys.map((e) => e.name).contains(field.name) &&
+      if (controllers.keys.map((e) => e.name).contains(field.name) &&
           value != null) {
         setState(() {
           //_controllers[field]!.text = "$value";
-          _controllers[field]!.dispose();
-          _controllers[field] = TextEditingController(text: "${value ?? ""}");
+          controllers[field]!.dispose();
+          controllers[field] = TextEditingController(text: "${value ?? ""}");
         });
       }
-      var key = _values.keys.firstWhere((e) => e.name == field.name);
+      var key = values.keys.firstWhere((e) => e.name == field.name);
       setState(() {
-        _values[key] = newValues[field];
+        values[key] = newValues[field];
       });
     });
   }
 
   _save() async {
-    var cleanedValues = _cleanValues();
+    var cleanedValues = cleanValues();
+    cleanedValues.forEach((key, value) {});
     setState(() {
-      _isSending = true;
+      isSending = true;
     });
     var message = "Enregistrez!";
     try {
       var newValues = await widget.onSaved(cleanedValues);
       setState(() {
-        _values = newValues;
+        values = newValues;
       });
     } on OdooValidationError catch (e) {
       message = e.message;
@@ -114,7 +122,7 @@ class _AppFormState extends State<AppForm> {
       message = "Veuillez contactez l'admin: ${e.message}";
     } finally {
       setState(() {
-        _isSending = false;
+        isSending = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -126,11 +134,11 @@ class _AppFormState extends State<AppForm> {
 
   @override
   Widget build(BuildContext context) {
-    _setValues(_values);
+    setValues(values);
 
     /// use defaultGet of the model to build an flutter Form widget
     final List<Widget> formFields = [];
-    _setFormFields(formFields);
+    setFormFields(formFields);
     final List<Widget> formFieldsWidget = [];
     for (var element in formFields) {
       formFieldsWidget.add(element);
@@ -138,40 +146,82 @@ class _AppFormState extends State<AppForm> {
         height: 10,
       ));
     }
+    var title = buildTitle();
+    var mediaQuery = MediaQuery.of(context);
+    var horizPadding = mediaQuery.size.width * 0.1;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 40),
+      margin: EdgeInsets.symmetric(horizontal: horizPadding, vertical: 40),
       child: Column(
-        verticalDirection: VerticalDirection.up,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _save,
-              child: _isSending
-                  ? const CircularProgressIndicator()
-                  : const Text("Envoyer"),
-            ),
-          ),
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: ListView(children: formFieldsWidget),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(30),
-            child: Text(
-              widget.title,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    fontSize: 18,
-                    letterSpacing: 1,
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-            ),
-          ),
+          title ?? Container(),
+          buildForm(formFieldsWidget),
         ],
       ),
+    );
+  }
+
+  /// Build the title of the form
+  ///
+  Widget? buildTitle() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Text(
+        widget.title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  /// Build the form
+  ///
+  Widget buildForm(List<Widget> formFieldsWidget) {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ...formFieldsWidget,
+          buildActionButtons(),
+        ],
+      ),
+    );
+  }
+
+  /// Build the action buttons of the form
+  ///
+  Widget buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: isSending
+              ? null
+              : () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    _save();
+                  }
+                },
+          child: isSending
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                )
+              : const Text("Enregistrer"),
+        ),
+        OutlinedButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text("Annuler"),
+        ),
+      ],
     );
   }
 
@@ -184,33 +234,33 @@ class _AppFormState extends State<AppForm> {
   /// The form fields are built based on the type of the field.
   ///
   /// The form fields are returned as a list of widgets.
-  _setFormFields(List<Widget> formFields) {
-    _values.forEach((field, value) {
+  setFormFields(List<Widget> formFields) {
+    values.forEach((field, value) {
       if (!widget.displayFieldsName.contains(field.name)) {
         return;
       }
       if (field.type == OdooFieldType.boolean) {
-        formFields.add(_buildBooleanField(field));
+        formFields.add(buildBooleanField(field));
       } else if (field.type == OdooFieldType.integer) {
-        formFields.add(_buildIntegerField(field, value));
+        formFields.add(buildIntegerField(field, value));
       } else if (field.type == OdooFieldType.float) {
-        formFields.add(_buildFloatField(field, value));
+        formFields.add(buildFloatField(field, value));
       } else if (field.type == OdooFieldType.char) {
-        formFields.add(_buildCharField(field, value));
+        formFields.add(buildCharField(field, value, true));
       } else if (field.type == OdooFieldType.text) {
-        formFields.add(_buildTextField(field, value));
+        formFields.add(buildTextField(field, value));
       } else if (field.type == OdooFieldType.date) {
-        formFields.add(_buildDateField(field, value));
+        formFields.add(buildDateField(field, value, true, true));
       } else if (field.type == OdooFieldType.datetime) {
-        formFields.add(_buildDateTimeField(field, value));
+        formFields.add(buildDateTimeField(field, value));
       } else if (field.type == OdooFieldType.selection) {
-        formFields.add(_buildSelectionField(field, value));
+        formFields.add(buildSelectionField(field, value));
       } else if (field.type == OdooFieldType.many2one) {
-        formFields.add(_buildMany2oneField(field, value));
+        formFields.add(buildMany2oneField(field, value));
       } /*else if (field.type == OdooFieldType.one2many) {
-        formFields.add(_buildOne2manyField(field, value));
+        formFields.add(buildOne2manyField(field, value));
       } else if (field.type == OdooFieldType.many2many) {
-        formFields.add(_buildMany2manyField(field, value));
+        formFields.add(buildMany2manyField(field, value));
       }*/
     });
   }
@@ -231,8 +281,8 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [CheckboxListTile].
 
-  Widget _buildBooleanField(OdooField field) {
-    var value = _values[field] ?? false;
+  Widget buildBooleanField(OdooField field) {
+    var value = values[field] ?? false;
     return CheckboxListTile(
       key: ObjectKey(field),
       enabled: field.readonly,
@@ -250,11 +300,11 @@ class _AppFormState extends State<AppForm> {
       onChanged: (newValue) {
         // trigger on change for the field
         setState(() {
-          _values[field] = !(_values[field] ?? false);
+          values[field] = !(values[field] ?? false);
           Function(Map<OdooField, dynamic>) onchange =
               widget.onFieldChanges[field]!;
-          onchange(_cleanValues()).then((newValues) {
-            _setValues(newValues);
+          onchange(cleanValues()).then((newValues) {
+            setValues(newValues);
           });
         });
       },
@@ -272,9 +322,9 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget _buildIntegerField(OdooField field, dynamic controller) {
+  Widget buildIntegerField(OdooField field, dynamic controller) {
     return TextFormField(
-      controller: _controllers[field],
+      controller: controllers[field],
       decoration: InputDecoration(labelText: field.fieldDescription),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -285,7 +335,7 @@ class _AppFormState extends State<AppForm> {
       },
       onSaved: (newValue) {
         setState(() {
-          _values[field] = int.parse(newValue!);
+          values[field] = int.parse(newValue!);
         });
       },
     );
@@ -301,9 +351,9 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget _buildFloatField(OdooField field, dynamic controller) {
+  Widget buildFloatField(OdooField field, dynamic controller) {
     return TextFormField(
-      controller: _controllers[field],
+      controller: controllers[field],
       decoration: InputDecoration(labelText: field.fieldDescription),
       keyboardType: TextInputType.number,
       validator: (val) {
@@ -314,7 +364,7 @@ class _AppFormState extends State<AppForm> {
       },
       onSaved: (newValue) {
         setState(() {
-          _values[field] = double.parse(newValue!);
+          values[field] = double.parse(newValue!);
         });
       },
     );
@@ -330,11 +380,12 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget _buildCharField(OdooField field, dynamic controller) {
+  Widget buildCharField(OdooField field, dynamic controller, bool showLabel) {
     return TextFormField(
       /*initialValue: value.toString(),*/
-      controller: _controllers[field],
-      decoration: InputDecoration(labelText: field.fieldDescription),
+      controller: controllers[field],
+      decoration:
+          InputDecoration(labelText: showLabel ? field.fieldDescription : null),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a value';
@@ -343,7 +394,7 @@ class _AppFormState extends State<AppForm> {
       },
       onSaved: (newValue) {
         setState(() {
-          _values[field] = newValue;
+          values[field] = newValue;
         });
       },
     );
@@ -359,10 +410,13 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget _buildTextField(OdooField field, dynamic controller) {
+  Widget buildTextField(OdooField field, dynamic controller) {
+    // TODO: increase maxLines if field is a text field
     return TextFormField(
-      controller: _controllers[field],
+      controller: controllers[field],
       decoration: InputDecoration(labelText: field.fieldDescription),
+      minLines: 1,
+      maxLines: 5,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a value';
@@ -371,7 +425,7 @@ class _AppFormState extends State<AppForm> {
       },
       onSaved: (newValue) {
         setState(() {
-          _values[field] = newValue;
+          values[field] = newValue;
         });
       },
     );
@@ -398,7 +452,8 @@ class _AppFormState extends State<AppForm> {
   ///
   /// The field is the Widget that contains the [showDatePicker], icon of calendar, and the [value] of the field in a [Text].
 
-  Widget _buildDateField(OdooField field, dynamic valueString) {
+  Widget buildDateField(OdooField field, dynamic valueString, bool showLabel,
+      bool showCalendarIcon) {
     var dateFormat = DateFormat('yyyy-MM-dd');
     DateTime value;
     try {
@@ -406,6 +461,7 @@ class _AppFormState extends State<AppForm> {
     } catch (e) {
       value = DateTime.now();
     }
+    var mediaQuery = MediaQuery.of(context);
     return InkWell(
       onTap: () async {
         if (field.readonly) {
@@ -427,24 +483,40 @@ class _AppFormState extends State<AppForm> {
           useRootNavigator: false,
         );
         if (picked != null && picked != value) {
-          _values[field] = dateFormat.format(picked);
+          setState(() {
+            value = picked;
+          });
+          values[field] = dateFormat.format(picked);
           var onFieldChange = widget.onFieldChanges[field];
           if (onFieldChange != null) {
-            onFieldChange(_cleanValues()).then((newValues) {
-              _setValues(newValues);
+            onFieldChange(cleanValues()).then((newValues) {
+              setValues(newValues);
             });
           }
         }
       },
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: field.fieldDescription,
-          icon: const Icon(Icons.calendar_today),
+          labelText: showLabel ? field.fieldDescription : null,
+          icon: showCalendarIcon ? const Icon(Icons.calendar_today) : null,
+          suffixIcon: const Icon(
+            // Calendar month icon.
+            Icons.calendar_month,
+            color: kGreen,
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 0,
+            vertical: mediaQuery.size.height * 0.01,
+          ),
         ),
-        child: Text(
-          dateFormat.format(value),
-          style: const TextStyle(
-            fontSize: 16,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            dateFormat.format(value),
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+            ),
           ),
         ),
       ),
@@ -471,7 +543,7 @@ class _AppFormState extends State<AppForm> {
   /// The [context] of the field is set to  [context].
   ///
   /// The field is the Widget that contains the [showDatePicker], icon of calendar, and the [value] of the field in a [Text].
-  Widget _buildDateTimeField(OdooField field, dynamic valueString) {
+  Widget buildDateTimeField(OdooField field, dynamic valueString) {
     var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
     DateTime value;
     try {
@@ -501,12 +573,12 @@ class _AppFormState extends State<AppForm> {
         );
         if (picked != null && picked != value) {
           setState(() {
-            _values[field] = dateFormat.format(picked);
+            values[field] = dateFormat.format(picked);
           });
           var onFieldChange = widget.onFieldChanges[field];
           if (onFieldChange != null) {
-            onFieldChange(_cleanValues()).then((newValues) {
-              _setValues(newValues);
+            onFieldChange(cleanValues()).then((newValues) {
+              setValues(newValues);
             });
           }
         }
@@ -536,10 +608,10 @@ class _AppFormState extends State<AppForm> {
   /// The [onSaved] of the field is set to a [onSaved] that sets the [value] of the field to the [newValue].
   ///
   /// The field is the Widget that contains the [DropdownButtonFormField].
-  Widget _buildSelectionField(OdooField field, dynamic value) {
+  Widget buildSelectionField(OdooField field, dynamic value) {
     var selectionOptions = field.selectionOptions;
     return DropdownButtonFormField(
-      value: _values[field],
+      value: values[field],
       decoration: InputDecoration(
         labelText: field.fieldDescription,
       ),
@@ -558,18 +630,19 @@ class _AppFormState extends State<AppForm> {
         return null;
       },
       onSaved: (newValue) {
+        print(newValue);
         setState(() {
-          _values[field] = newValue;
+          values[field] = newValue;
         });
       },
       onChanged: (Object? value) {
         setState(() {
-          _values[field] = value;
+          values[field] = value;
         });
         var onFieldChange = widget.onFieldChanges[field];
         if (onFieldChange != null) {
-          onFieldChange(_cleanValues()).then((newValues) {
-            _setValues(newValues);
+          onFieldChange(cleanValues()).then((newValues) {
+            setValues(newValues);
           });
         }
       },
@@ -586,11 +659,11 @@ class _AppFormState extends State<AppForm> {
   /// The [onSaved] of the field is set to a [onSaved] that sets the [value] of the field to the [newValue].
   ///
   /// The field is the Widget that contains the [DropdownButtonFormField].
-  Widget _buildMany2oneField(OdooField field, dynamic value) {
+  Widget buildMany2oneField(OdooField field, dynamic value) {
     var selectionOptions = field.selectionOptions;
 
     return DropdownButtonFormField(
-      value: _values[field],
+      value: values[field],
       decoration: InputDecoration(
         labelText: field.fieldDescription,
       ),
@@ -608,7 +681,7 @@ class _AppFormState extends State<AppForm> {
       },
       onSaved: (newValue) {
         setState(() {
-          _values[field] = newValue;
+          values[field] = newValue;
         });
       },
       onChanged: (Object? value) {},
@@ -627,7 +700,7 @@ class _AppFormState extends State<AppForm> {
   /// The [onSaved] of the field is set to a [onSaved] that sets the [value] of the field to the [newValue].
   ///
   /// The field is the Widget that contains the [MultiSelectFormField].
-  Widget _buildMany2manyField(OdooField field, dynamic values) {
+  Widget buildMany2manyField(OdooField field, dynamic values) {
     return const Text('ToDO');
     /*return MultiSelectFormField(
       autovalidate: false,
@@ -677,7 +750,7 @@ class _AppFormState extends State<AppForm> {
   /// The [onSaved] of the field is set to a [onSaved] that sets the [value] of the field to the [newValue].
   ///
   /// The field is the Widget that contains the [MultiSelectFormField].
-  Widget _buildOne2manyField(OdooField field, dynamic values) {
+  Widget buildOne2manyField(OdooField field, dynamic values) {
     return const Text("TOdo");
     /*MultiSelectFormField(
       autovalidate: false,

@@ -109,6 +109,40 @@ class EmployeeAllInfo {
     this.image_128,
   });
 
+  final List<String> allFields = [
+    'id',
+    'name',
+    'user_id',
+    'active',
+    'private_email',
+    'gender',
+    'phone',
+    'department_id',
+    'job_id',
+    'job_title',
+    'company_id',
+    'address_id',
+    'work_phone',
+    'mobile_phone',
+    'work_email',
+    'work_location',
+    'hr_presence_state',
+    'attendance_ids',
+    'last_attendance_id',
+    'last_check_in',
+    'last_check_out',
+    'attendance_state',
+    'hours_last_month',
+    'hours_today',
+    'hours_last_month_display',
+    'child_all_count',
+    'display_name',
+    'create_uid',
+    'create_date',
+    'write_uid',
+    'write_date',
+    'image_128',
+  ];
   EmployeeAllInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];

@@ -18,6 +18,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smartpay/core/widgets/holidays/leave_form.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
@@ -544,6 +545,7 @@ class _HolidayListState extends State<HolidayList> {
 // for allocation form page, we just print Text : Allocation form page
 class HolidayScreen extends StatefulWidget {
   final User user;
+
   const HolidayScreen({super.key, required this.user});
 
   @override
@@ -556,6 +558,12 @@ class _HolidayScreenState extends State<HolidayScreen> {
 
   // List of pages
   final List<Widget> _pages = [];
+  final List<String> _pageTitle = [
+    'Congés',
+    'Historique',
+    'Demande de congé',
+    'Demande d\'allocation'
+  ];
 
   @override
   void initState() {
@@ -578,7 +586,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: appBarForeground,
         title: Text(
-          'Congés',
+          _pageTitle[_selectedIndex],
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: appBarForeground,
@@ -631,6 +639,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
           if ([2, 3].contains(index)) {
@@ -666,26 +675,58 @@ class _HolidayScreenState extends State<HolidayScreen> {
   }
 
   _buildForm(int index) async {
-    var content;
+    Widget? content;
     if (index == 2) {
-      content  = await OdooModel("hr.leave").buildFormFields(
-        fieldNames: Holiday.defaultFields,
-        onChangeSpec: Holiday.onchangeSpec,
-        formTitle: "Demande de congé",
-        displayFieldNames: Holiday.displayFieldNames,
-      );
+      content = await buildHolidayForm();
     } else if (index == 3) {
-        content =  await OdooModel("hr.leave.allocation").buildFormFields(
-          fieldNames: Allocation.defaultFields,
-          onChangeSpec: Allocation.onchangeSpec,
-          formTitle: "Demande d'Allocation",
-          displayFieldNames: Allocation.displayFieldNames,
-        );
+      content = await OdooModel("hr.leave.allocation").buildFormFields(
+        fieldNames: Allocation.defaultFields,
+        onChangeSpec: Allocation.onchangeSpec,
+        formTitle: "Demande d'Allocation",
+        displayFieldNames: Allocation.displayFieldNames,
+      );
     }
     if (content != null) {
       setState(() {
-       _pages[index] = content; 
+        _pages[index] = content!;
       });
     }
+  }
+
+  Future<Widget> buildHolidayForm() async {
+    /*return await OdooModel("hr.leave").buildFormFields(
+      fieldNames: Holiday.defaultFields,
+      onChangeSpec: Holiday.onchangeSpec,
+      formTitle: "Demande de congé",
+      displayFieldNames: Holiday.displayFieldNames,
+    );*/
+    var fieldNames = Holiday.defaultFields;
+    var displayFieldNames = Holiday.displayFieldNames;
+    var onChangeSpec = Holiday.onchangeSpec;
+    var formTitle = "Demande de congé";
+    var model = OdooModel("hr.leave");
+
+    Map<OdooField, dynamic> initial =
+        await model.defaultGet(fieldNames, onChangeSpec);
+    Map<OdooField,
+            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+        onFieldChanges = {};
+    for (OdooField field in initial.keys) {
+      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+        return await model.onchange([field], currentValues, onChangeSpec);
+      };
+    }
+
+    return HolidayForm(
+      key: ObjectKey(this),
+      fieldNames: fieldNames,
+      initial: initial,
+      onFieldChanges: onFieldChanges,
+      displayFieldsName: displayFieldNames,
+      title: formTitle,
+      onSaved: (Map<OdooField, dynamic> values) async {
+        return await model.create(values);
+      },
+    );
   }
 }

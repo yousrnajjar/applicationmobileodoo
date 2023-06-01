@@ -26,7 +26,7 @@ class SmartPay extends ConsumerWidget {
     } else {
       activeScreen = MainDrawer(user: userInfo);
     }
-    
-    return MaterialApp(theme: smartpayTheme, home: activeScreen);
+    var appTheme =  smartpayTheme;
+    return MaterialApp(theme: appTheme, home: activeScreen);
   }
 }

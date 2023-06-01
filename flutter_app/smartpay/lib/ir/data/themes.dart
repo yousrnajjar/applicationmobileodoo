@@ -50,17 +50,30 @@ final smartpayTheme = ThemeData().copyWith(
       style: ElevatedButton.styleFrom(
         backgroundColor: kColorSchema.primary,
         foregroundColor: kColorSchema.onPrimary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0),
+        ),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        primary: kColorSchema.primary,
+        backgroundColor: Colors.white,
+        side: BorderSide(color: kColorSchema.primary),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0),
+        ),
       ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
-      selectedLabelStyle: menuText,
-      unselectedLabelStyle: menuText,
+      selectedLabelStyle: menuText.copyWith(fontSize: 12),
+      unselectedLabelStyle: menuText.copyWith(fontSize: 12),
       selectedItemColor: hoverMenuColor,
     ),
     appBarTheme: const AppBarTheme().copyWith(
       backgroundColor: kGreen,
       foregroundColor: Colors.white,
-      iconTheme: IconThemeData().copyWith(color: Colors.white),
+      iconTheme: const IconThemeData().copyWith(color: Colors.white),
     ),
 );
 

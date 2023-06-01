@@ -20,12 +20,11 @@ class Holiday {
   Holiday();
 
   static List<String> displayFieldNames = [
-    "date_from",
-    "date_to",
     'request_date_from',
     'request_date_to',
     'holiday_status_id',
-    'name',
+    'notes',
+    'number_of_days',
   ];
 
   ///
@@ -58,6 +57,7 @@ class Holiday {
     'employee_id',
     'department_id',
     'name',
+    'notes',
     //'message_follower_ids',
     //'activity_ids',
     //'message_ids',
@@ -102,6 +102,7 @@ class Holiday {
   dynamic employeeId;
   dynamic departmentId;
   dynamic name;
+  dynamic notes;
 
   /// Onchange spec for hr.leave
   static Map<String, String> onchangeSpec = {
@@ -167,6 +168,7 @@ class Holiday {
     employeeId = data["employee_id"];
     departmentId = data["department_id"];
     name = data["name"];
+    notes = data["notes"];
     //messageFollowerIds = data["message_follower_ids"];
     //activityIds = data["activity_ids"];
     //messageIds = data["message_ids"];
@@ -215,6 +217,7 @@ class Holiday {
     data["employee_id"] = employeeId;
     data["department_id"] = departmentId;
     data["name"] = name;
+    data["notes"] = notes;
     //data["message_follower_ids"] = messageFollowerIds;
     //data["activity_ids"] = activityIds;
     //data["message_ids"] = messageIds;
