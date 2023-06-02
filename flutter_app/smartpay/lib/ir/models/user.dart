@@ -50,9 +50,9 @@ class User extends OdooModelHelper {
         // Allocation Display
         "allocation_display",
         // Total number of days off used
-        'allocation_used_count'
-            // Total number of days allocated.
-            'allocation_count',
+        'allocation_used_count',
+        // Total number of days allocated.
+        'allocation_count',
 
         // Attendance Status
         'attendance_state',
@@ -122,7 +122,6 @@ class User extends OdooModelHelper {
 
   Future<List<Map<String, dynamic>>> getHolidayDetails(
       {bool onlyMe = false, required List<String> holidayFields}) async {
-    
     var employeeIdManaged = <int>[info['employee_id'][0]];
     if (!onlyMe) {
       var subordinatesData = await OdooModel("hr.employee").searchRead(
@@ -152,10 +151,12 @@ class User extends OdooModelHelper {
   }
 
   readEmployeeData() async {
-    
-    var list = await OdooModel("hr.employee").searchRead(domain: [
-      ['user_id', '=', info[uid]]
-    ]);
+    var list = await OdooModel("hr.employee").searchRead(
+      domain: [
+        ['user_id', '=', info[uid]],
+      ],
+      fieldNames: EmployeeAllInfo().allFields,
+    );
     employeeData = list[0];
   }
 
