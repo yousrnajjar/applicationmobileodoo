@@ -40,18 +40,19 @@ class Allocation {
   static List<String> allFields = [
     ...defaultFields,
     "id",
-    "message_attachment_count"
-        "message_follower_ids",
+    "message_attachment_count",
+    "message_follower_ids",
     "activity_ids",
     "message_ids",
   ];
 
   static List<String> displayFieldNames = [
-      'display_name',
-      'name',
-      'holiday_status_id',
-      'number_of_days_display',
-      'notes'
+      'holiday_status_id', // Type de congé
+      'number_of_days', // Durée 
+      //'holiday_type', // Mode
+      'allocation_type', // Type d'allocation
+      'notes', // Description
+      //'employee_id', // Salarié
     ];
   ///Onchange spec for hr.leave
   static Map<String, String> onchangeSpec = {

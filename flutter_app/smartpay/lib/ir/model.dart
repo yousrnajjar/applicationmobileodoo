@@ -218,7 +218,7 @@ class OdooModel {
       int offset = 1,
       List<String>? fieldNames}) async {
     if (fieldNames == null) {
-      var allFieldRaw = await getAllFieldAsString();
+      var allFieldRaw = await getAllFieldAsString(fieldNames: fieldNames);
       fieldNames = allFieldRaw.map((e) => e['name'].toString()).toList();
     }
     var result =
@@ -232,7 +232,7 @@ class OdooModel {
       List<String> fieldNames, Map<String, String> onChangeSpec) async {
     Map<String, dynamic> defaultValue =
         await session.defaultGet(modelName, fieldNames);
-    var allFields = await getAllFields();
+    var allFields = await getAllFields(fieldNames: fieldNames);
     List<OdooField> odooFields =
         allFields.where((field) => fieldNames.contains(field.name)).toList();
     Map<OdooField, dynamic> result = {};

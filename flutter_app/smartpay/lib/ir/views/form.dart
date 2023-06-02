@@ -351,10 +351,10 @@ class AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget buildFloatField(OdooField field, dynamic controller) {
+  Widget buildFloatField(OdooField field, dynamic controller, {bool showLabel=true}) {
     return TextFormField(
       controller: controllers[field],
-      decoration: InputDecoration(labelText: field.fieldDescription),
+      decoration: InputDecoration(labelText: showLabel ? field.fieldDescription: null),
       keyboardType: TextInputType.number,
       validator: (val) {
         if (val == null || val.isEmpty) {
@@ -410,16 +410,23 @@ class AppFormState extends State<AppForm> {
   ///
   /// The field is returned as a [TextFormField].
 
-  Widget buildTextField(OdooField field, dynamic controller) {
+  Widget buildTextField(
+    OdooField field,
+    dynamic controller, {
+    int maxLines = 5,
+    int minLines = 1,
+    bool showLabel=false,
+    String errorMsg= 'Please enter a value',
+  }) {
     // TODO: increase maxLines if field is a text field
     return TextFormField(
       controller: controllers[field],
-      decoration: InputDecoration(labelText: field.fieldDescription),
-      minLines: 1,
-      maxLines: 5,
+      decoration: InputDecoration(labelText: showLabel ? field.fieldDescription : null),
+      minLines: minLines,
+      maxLines: maxLines,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter a value';
+          return errorMsg;
         }
         return null;
       },

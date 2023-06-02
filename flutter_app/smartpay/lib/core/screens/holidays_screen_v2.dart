@@ -18,6 +18,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smartpay/core/widgets/holidays/allocation_form.dart';
 import 'package:smartpay/core/widgets/holidays/leave_form.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
@@ -679,12 +680,13 @@ class _HolidayScreenState extends State<HolidayScreen> {
     if (index == 2) {
       content = await buildHolidayForm();
     } else if (index == 3) {
-      content = await OdooModel("hr.leave.allocation").buildFormFields(
+      /*content = await OdooModel("hr.leave.allocation").buildFormFields(
         fieldNames: Allocation.defaultFields,
         onChangeSpec: Allocation.onchangeSpec,
         formTitle: "Demande d'Allocation",
         displayFieldNames: Allocation.displayFieldNames,
-      );
+      );*/
+      content = await buildAllocationForm();
     }
     if (content != null) {
       setState(() {
@@ -729,4 +731,41 @@ class _HolidayScreenState extends State<HolidayScreen> {
       },
     );
   }
+
+  Future<Widget> buildAllocationForm() async {
+    /*return await OdooModel("hr.leave.allocation").buildFormFields(
+      fieldNames: Allocation.defaultFields,
+      onChangeSpec: Allocation.onchangeSpec,
+      formTitle: "Demande de congé",
+      displayFieldNames: Allocation.displayFieldNames,
+    );*/
+    var fieldNames = Allocation.defaultFields;
+    var displayFieldNames = Allocation.displayFieldNames;
+    var onChangeSpec = Allocation.onchangeSpec;
+    var formTitle = "Demande de congé";
+    var model = OdooModel("hr.leave.allocation");
+
+    Map<OdooField, dynamic> initial =
+        await model.defaultGet(fieldNames, onChangeSpec);
+    Map<OdooField,
+            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+        onFieldChanges = {};
+    for (OdooField field in initial.keys) {
+      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+        return await model.onchange([field], currentValues, onChangeSpec);
+      };
+    }
+    return AllocationForm(
+      key: ObjectKey(this),
+      fieldNames: fieldNames,
+      initial: initial,
+      onFieldChanges: onFieldChanges,
+      displayFieldsName: displayFieldNames,
+      title: formTitle,
+      onSaved: (Map<OdooField, dynamic> values) async {
+        return await model.create(values);
+      },
+    );
+  }
+
 }
