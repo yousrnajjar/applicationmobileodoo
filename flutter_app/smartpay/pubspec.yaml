@@ -40,8 +40,10 @@ dependencies:
   flutter_dotenv: ^5.0.2
   flutter_riverpod: ^2.3.6
   transparent_image: ^2.0.1
-  intl: ^0.18.1
+  intl: 
   syncfusion_flutter_calendar: 20.1.47
+  flutter_localization: ^0.1.11
+  syncfusion_localizations: ^21.2.4
 dependency_overrides:
   syncfusion_flutter_core: 20.1.47
 dev_dependencies:

@@ -50,7 +50,7 @@ class _HolidayFormState extends AppFormState {
       } else if (field.type == OdooFieldType.integer) {
          groupedField[field.name] =  buildIntegerField(field, value);
       } else if (field.type == OdooFieldType.float) {
-         groupedField[field.name] =  buildFloatField(field, value);
+         groupedField[field.name] =  buildFloatField(field, value, showLabel: false);
       } else if (field.type == OdooFieldType.char) {
          groupedField[field.name] =  buildCharField(field, value, false);
       } else if (field.type == OdooFieldType.text) {

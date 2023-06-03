@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/models/holidays.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -14,33 +17,130 @@ class HolidayCalendar extends StatefulWidget {
 class _MyHomePageState extends State<HolidayCalendar> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SfCalendar(
+    var datas = _getDataSource();
+    return SfCalendar(
+      backgroundColor: kLightGrey,
+      // frensh TimeZone
+      timeZone: 'Europe/Paris',
       view: CalendarView.month,
-      dataSource: HolidayDataSource(_getDataSource()),
-      // by default the month appointment display mode set as Indicator, we can
-      // change the display mode as appointment using the appointment display
-      // mode property
+      headerDateFormat: 'MMMM',
+      dataSource: HolidayDataSource(datas),
+      headerStyle: const CalendarHeaderStyle(
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      viewHeaderStyle: ViewHeaderStyle(
+        dayTextStyle: TextStyle(
+          color: kGrey,
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+        dateTextStyle: TextStyle(
+          color: kGrey,
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      appointmentBuilder: buildHolidayCellDetail,
+      monthCellBuilder: (context, details) =>
+          buildMonthCell(context, details, datas),
+      timeRegionBuilder: buildTimeRegion,
+      resourceViewHeaderBuilder: buildResourceViewHeader,
+      scheduleViewMonthHeaderBuilder: buildScheduleViewMonthHeader,
       monthViewSettings: const MonthViewSettings(
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
-    ));
+        appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+        showAgenda: false,
+        numberOfWeeksInView: 6,
+        agendaViewHeight: 100,
+        appointmentDisplayCount: 1,
+        agendaStyle: AgendaStyle(
+          backgroundColor: kLightGrey,
+        ),
+      ),
+    );
   }
 
   List<HolidayToDisplay> _getDataSource() {
-    final List<HolidayToDisplay> holidaysToDisplay = widget.holidays
-        // .where((element) => element.state == 'validate')
-        .map((e) => HolidayToDisplay.fromHoliday(e))
-        .toList();
-    /*
-    final List<HolidayToDisplay> holidays = <HolidayToDisplay>[];
-    final DateTime today = DateTime.now();
-    final DateTime startTime = DateTime(today.year, today.month, today.day, 9);
-    final DateTime endTime = startTime.add(const Duration(hours: 2));
-    holidays.add(HolidayToDisplay(
-        'Conference', startTime, endTime, const Color(0xFF0F8644), false));
-
-     */
+    final List<HolidayToDisplay> holidaysToDisplay =
+        widget.holidays.map((e) => HolidayToDisplay.fromHoliday(e)).toList();
     return holidaysToDisplay;
+  }
+
+  Color sumColor(Color c1, Color c2) {
+    return Color.fromARGB(
+      255,
+      (c1.red + c2.red) ~/ 2,
+      (c1.green + c2.green) ~/ 2,
+      (c1.blue + c2.blue) ~/ 2,
+    );
+  }
+
+  Widget buildMonthCell(BuildContext context, MonthCellDetails details,
+      List<HolidayToDisplay> datas) {
+    Color meanColor = Colors.transparent;
+    Color textColor = kGrey;
+    String dayDisplay = '';
+    bool isThisMonth = details.date.month != details.visibleDates[0].month &&
+        details.date.month !=
+            details.visibleDates[details.visibleDates.length - 1].month;
+    if (isThisMonth) {
+      // remove day of another month
+      dayDisplay = details.date.day.toString();
+      // left justify the day of the month with 0
+      if (dayDisplay.length == 1) {
+        dayDisplay = '0$dayDisplay';
+      }
+      if (datas.isNotEmpty) {
+        var holidays = datas.where((element) =>
+            element.from.day == details.date.day &&
+            element.from.month == details.date.month &&
+            element.from.year == details.date.year);
+        if (holidays.isNotEmpty) {
+          textColor = Colors.white;
+          // Compute the mean color of the holidays
+          meanColor = holidays
+              .map((e) => e.background)
+              .reduce((value, element) => sumColor(value, element));
+        }
+      }
+    }
+    return Container(
+      color: meanColor,
+      padding: const EdgeInsets.all(6),
+      margin: const EdgeInsets.all(6),
+      child: Center(
+        child: Text(
+          dayDisplay,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildHolidayCellDetail(
+      BuildContext context, CalendarAppointmentDetails details) {
+    return const Text('');
+  }
+
+  Widget buildTimeRegion(BuildContext context, TimeRegionDetails details) {
+    return const Text('');
+  }
+
+  Widget buildResourceViewHeader(
+      BuildContext context, ResourceViewHeaderDetails details) {
+    return const Text('');
+  }
+
+  Widget buildScheduleViewMonthHeader(
+      BuildContext context, ScheduleViewMonthHeaderDetails details) {
+    return const Text('');
   }
 }
 
@@ -85,7 +185,6 @@ class HolidayDataSource extends CalendarDataSource {
     if (holiday is HolidayToDisplay) {
       holidayData = holiday;
     }
-
     return holidayData;
   }
 }
@@ -112,11 +211,19 @@ class HolidayToDisplay {
   /// IsAllDay which is equivalent to isAllDay property of [Appointment].
   bool isAllDay;
 
-  HolidayToDisplay.fromHoliday(Holiday holiday)
-      : eventName =
-            "${holiday.employeeId[1]}, ${holiday.holidayStatusId[1]}, ${holiday.durationDisplay}",
-        from = holiday.from!,
-        to = holiday.to!,
-        background = Colors.greenAccent,
-        isAllDay = false;
+  static HolidayToDisplay fromHoliday(Holiday holiday) {
+    final dayFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    //var eventName =   "${holiday.employeeId[1]}, ${holiday.holidayStatusId[1]}, ${holiday.durationDisplay}";
+    var eventName = holiday.employeeId[1].substring(0, 2);
+    var from = dayFormatter.parse(holiday.dateFrom);
+    var to = dayFormatter.parse(holiday.dateTo);
+    var background = holiday.color;
+    if (kDebugMode) {
+      print(background);
+      print(from);
+      print(to);
+    }
+    var isAllDay = false;
+    return HolidayToDisplay(eventName, from, to, background, isAllDay);
+  }
 }

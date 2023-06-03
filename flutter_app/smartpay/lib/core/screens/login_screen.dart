@@ -40,7 +40,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (isAuthenticated) {
         int uid = _userInfo!.uid;
         OdooModel.session.uid = uid;
-        var info = await OdooModel('res.users').searchRead(domain: [['id', '=', uid]]);
+        var info = await OdooModel('res.users').searchRead(
+          domain: [
+            ['id', '=', uid]
+          ],
+          fieldNames: User({}).allFields,
+        );
         info[0].forEach((key, value) {
           _userInfo!.info.putIfAbsent(key, () => value);
         });
@@ -72,11 +77,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('An error occurred: $e'),
         ),
       );
+      rethrow;
     }
 
     setState(() {

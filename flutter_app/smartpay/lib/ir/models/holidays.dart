@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 
 class HolidayType {
@@ -184,6 +187,23 @@ class Holiday {
     payslipStatus = data["payslip_status"];
     employeeId = data["employee_id"];
     userId = data["user_id"];*/
+  }
+  static Map<String, Color> stateColors = {
+    'validate': kLightGreen,
+    'refuse': kLightOrange,
+    'confirm': kLightPink,
+  };
+
+  static Map<String, Color> stateTextColors = {
+    'validate': kGreen,
+    'refuse': Colors.redAccent,
+    'confirm': kGrey,
+  };
+  Color get color {
+    if (kDebugMode) {
+      print("================$state");
+    }
+    return stateTextColors[state] ?? Colors.black;
   }
 
   Map<String, dynamic> toJson() {

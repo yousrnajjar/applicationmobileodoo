@@ -19,6 +19,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/core/widgets/holidays/allocation_form.dart';
+import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart';
 import 'package:smartpay/core/widgets/holidays/leave_form.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
@@ -219,8 +220,8 @@ class HolidayItem extends StatelessWidget {
     // for now, the [Button] are not functional and only display a [SnackBar] with the action name
 
     return Card(
+      margin: const EdgeInsets.all(0),
       shape: const RoundedRectangleBorder(),
-      margin: const EdgeInsets.all(10),
       color: stateColors[state],
       child: Container(
         padding: const EdgeInsets.all(10),
@@ -420,7 +421,6 @@ class _HolidayListState extends State<HolidayList> {
         children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Row(
               children: [
                 ElevatedButton(
@@ -500,35 +500,39 @@ class _HolidayListState extends State<HolidayList> {
             child: ListView.builder(
               itemCount: filteredHolidays.length,
               itemBuilder: (context, index) {
-                return HolidayItem(
-                  key: ValueKey(filteredHolidays[index]['id']),
-                  holiday: filteredHolidays[index],
-                  isManager: isManager,
-                  doAction: (int id, String action) async {
-                    if (!isManager) return;
-                    bool res = false;
-                    try {
-                      if (action == 'approve') {
-                        res = await Holiday.validate(id);
-                      } else if (action == 'refuse') {
-                        res = await Holiday.refuse(id);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                  child: HolidayItem(
+                    key: ValueKey(filteredHolidays[index]['id']),
+                    holiday: filteredHolidays[index],
+                    isManager: isManager,
+                    doAction: (int id, String action) async {
+                      if (!isManager) return;
+                      bool res = false;
+                      try {
+                        if (action == 'approve') {
+                          res = await Holiday.validate(id);
+                        } else if (action == 'refuse') {
+                          res = await Holiday.refuse(id);
+                        }
+                      } on OdooErrorException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.message),
+                          ),
+                        );
+                        return;
                       }
-                    } on OdooErrorException catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(e.message),
-                        ),
-                      );
-                      return;
-                    }
-                    if (res) {
-                      _getHolidays();
-                    }
-                  },
+                      if (res) {
+                        _getHolidays();
+                      }
+                    },
+                  ),
                 );
               },
             ),
           ),
+          HolidayCalendar(holidays: filteredHolidays.map((e) => Holiday.fromJSON(e)).toList())
         ],
       );
     }
@@ -571,8 +575,6 @@ class _HolidayScreenState extends State<HolidayScreen> {
     super.initState();
     // Add the holiday list page
     _pages.add(HolidayList(user: widget.user));
-    // Add the history page
-    _pages.add(const Center(child: Text('History TODO')));
     // Add the holiday form page
     _pages.add(const Center(child: CircularProgressIndicator()));
     // Add the allocation form page
@@ -638,12 +640,15 @@ class _HolidayScreenState extends State<HolidayScreen> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
+      body: Container(
+        margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
+        child: _pages[_selectedIndex]
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          if ([2, 3].contains(index)) {
+          if ([1, 2].contains(index)) {
             _buildForm(index);
           }
           setState(() {
@@ -654,12 +659,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
           BottomNavigationBarItem(
             icon:
                 Image.asset("assets/icons/holiday/icone_historique_conge.png"),
-            label: 'Liste',
-          ),
-          BottomNavigationBarItem(
-            icon:
-                Image.asset("assets/icons/holiday/icone_historique_conge.png"),
-            label: 'Historique',
+            label: 'Liste de congé',
           ),
           BottomNavigationBarItem(
             icon: Image.asset("assets/icons/holiday/icone_demande_conge.png"),
@@ -677,9 +677,9 @@ class _HolidayScreenState extends State<HolidayScreen> {
 
   _buildForm(int index) async {
     Widget? content;
-    if (index == 2) {
+    if (index == 1) {
       content = await buildHolidayForm();
-    } else if (index == 3) {
+    } else if (index == 2) {
       /*content = await OdooModel("hr.leave.allocation").buildFormFields(
         fieldNames: Allocation.defaultFields,
         onChangeSpec: Allocation.onchangeSpec,

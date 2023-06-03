@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 import 'ir/data/themes.dart';
 import 'core/screens/holidays_screen_v2.dart' as holidays_v2;
@@ -27,6 +29,21 @@ class SmartPay extends ConsumerWidget {
       activeScreen = MainDrawer(user: userInfo);
     }
     var appTheme =  smartpayTheme;
-    return MaterialApp(theme: appTheme, home: activeScreen);
+    return MaterialApp(
+      theme: appTheme,
+      title: 'SmartPay',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        SfGlobalLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('fr', 'FR'),
+      ],
+      locale: const Locale('fr', 'FR'),
+      home: activeScreen
+    );
   }
 }

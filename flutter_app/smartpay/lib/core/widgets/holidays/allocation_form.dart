@@ -35,17 +35,20 @@ class _AllocationFormState extends AppFormState {
   @override
   void initState() {
     super.initState();
-    var allocation = widget.initial.entries.firstWhere((element) => element.key.name == 'allocation_type');
-    for (var el in allocation.key.selectionOptions){
-        _allocationType[el] = allocation.value == el['value'];
+    var allocation = widget.initial.entries
+        .firstWhere((element) => element.key.name == 'allocation_type');
+    for (var el in allocation.key.selectionOptions) {
+      _allocationType[el['value']] = allocation.value == el['value'];
     }
   }
+
   @override
   setValues(Map<OdooField, dynamic> newValues) {
     var res = super.setValues(newValues);
-    var allocation = newValues.entries.firstWhere((element) => element.key.name == 'allocation_type');
-    for (var el in allocation.key.selectionOptions){
-        _allocationType[el['value']] = allocation.value == el['value'];
+    var allocation = newValues.entries
+        .firstWhere((element) => element.key.name == 'allocation_type');
+    for (var el in allocation.key.selectionOptions) {
+      _allocationType[el['value']] = allocation.value == el['value'];
     }
     return res;
   }
@@ -58,7 +61,6 @@ class _AllocationFormState extends AppFormState {
   @override
   setFormFields(List<Widget> formFields) {
     Map<String, Widget> groupedField = {};
-    Map<OdooField, dynamic> values = super.values;
     List<Widget> allocationTypeAsCheckBox = [];
     values.forEach((field, value) {
       if (!widget.displayFieldsName.contains(field.name)) {
@@ -68,9 +70,12 @@ class _AllocationFormState extends AppFormState {
         allocationTypeAsCheckBox = field.selectionOptions.map((e) {
           var value = _allocationType[e['value']]!;
           return CheckboxListTile(
-           // key: ObjectKey(_allocationType[]),
+            // key: ObjectKey(_allocationType[]),
             value: value,
-            title: Text(e['display_name'], style: const TextStyle(fontSize: 12),),
+            title: Text(
+              e['display_name'],
+              style: const TextStyle(fontSize: 12),
+            ),
             //controlAffinity: ListTileControlAffinity.leading,
             contentPadding: const EdgeInsets.symmetric(horizontal: 0),
             activeColor: Theme.of(context).colorScheme.primary,
@@ -80,10 +85,12 @@ class _AllocationFormState extends AppFormState {
               setState(() {
                 _allocationType[e['value']] = !(_allocationType[e['value']]!);
                 values[field] = e['value'];
-                Function(Map<OdooField, dynamic>) onchange =
-                    widget.onFieldChanges[field]!;
-                onchange(cleanValues()).then((newValues) {
-                  setValues(newValues);
+                widget.onFieldChanges.forEach((key, func) {
+                  if (key.name == field.name) {
+                    func(cleanValues()).then((newValues) {
+                      setValues(newValues);
+                    });
+                  }
                 });
               });
             },
@@ -97,11 +104,13 @@ class _AllocationFormState extends AppFormState {
       } else if (field.type == OdooFieldType.integer) {
         groupedField[field.name] = buildIntegerField(field, value);
       } else if (field.type == OdooFieldType.float) {
-        groupedField[field.name] = buildFloatField(field, value, showLabel: false);
+        groupedField[field.name] =
+            buildFloatField(field, value, showLabel: false);
       } else if (field.type == OdooFieldType.char) {
         groupedField[field.name] = buildCharField(field, value, false);
       } else if (field.type == OdooFieldType.text) {
-        groupedField[field.name] = buildTextField(field, value, showLabel: true);
+        groupedField[field.name] =
+            buildTextField(field, value, showLabel: true);
       } else if (field.type == OdooFieldType.date) {
         groupedField[field.name] = buildDateField(field, value, false, false);
       } else if (field.type == OdooFieldType.datetime) {
@@ -146,7 +155,9 @@ class _AllocationFormState extends AppFormState {
       const SizedBox(height: 10),
       groupedField['holiday_status_id']!,
       const SizedBox(height: 10),
-      Row(children: [for (var element in allocationTypeAsCheckBox) Expanded(child: element)]),
+      Row(children: [
+        for (var element in allocationTypeAsCheckBox) Expanded(child: element)
+      ]),
       //groupedField['allocation_type']!,
       // Nombre de jour
       const SizedBox(height: 10),
