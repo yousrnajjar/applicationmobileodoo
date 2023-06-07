@@ -9,8 +9,8 @@ import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/ir/models/employee.dart';
 
 class InOutScreen extends ConsumerStatefulWidget {
-  const InOutScreen({super.key});
-
+  const InOutScreen({super.key, required this.onTitleChanged});
+  final Function(String) onTitleChanged;
   @override
   ConsumerState<InOutScreen> createState() => _InOutScreenState();
 }
@@ -55,6 +55,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
 
   Future<void> _selectPage(int index) async {
     if (index == 0) {
+      widget.onTitleChanged("Présence");
       _selectedPage = "in_out";
       await _refresh();
       setState(() {
@@ -62,6 +63,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
         _selectedPageIndex = 0;
       });
     } else if (index == 2) {
+      widget.onTitleChanged("Liste des présences");
       _selectedPage = "attendance_list";
       await _refresh();
       setState(() {
@@ -69,6 +71,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
         _selectedPageIndex = 2;
       });
     } else if (index == 1) {
+      widget.onTitleChanged("Liste des employés");
       _selectedPage = "employee_list";
       await _refresh();
       setState(() {
@@ -82,12 +85,12 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
   Widget build(BuildContext context) {
     _refresh();
     return Scaffold(
-      appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
+      /*appBar: AppBar(title: const Text("Présence"), actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.sync),
           onPressed: _refresh,
         ),
-      ]),
+      ]),*/
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           _selectPage(index);

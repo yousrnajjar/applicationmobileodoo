@@ -550,8 +550,10 @@ class _HolidayListState extends State<HolidayList> {
 // for allocation form page, we just print Text : Allocation form page
 class HolidayScreen extends StatefulWidget {
   final User user;
+  // onTitleChanged is a callback function to change the title of the page
+  final Function(String) onTitleChanged;
 
-  const HolidayScreen({super.key, required this.user});
+  const HolidayScreen({super.key, required this.user, required this.onTitleChanged});
 
   @override
   State<HolidayScreen> createState() => _HolidayScreenState();
@@ -565,8 +567,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
   final List<Widget> _pages = [];
   final List<String> _pageTitle = [
     'Congés',
-    'Historique',
-    'Demande de congé',
+    'Demande de congés',
     'Demande d\'allocation'
   ];
 
@@ -585,61 +586,6 @@ class _HolidayScreenState extends State<HolidayScreen> {
   Widget build(BuildContext context) {
     var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        foregroundColor: appBarForeground,
-        title: Text(
-          _pageTitle[_selectedIndex],
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: appBarForeground,
-              ),
-        ),
-        actions: [
-          InkWell(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Notification'),
-                ),
-              );
-            },
-            child: Stack(
-              children: [
-                Icon(
-                  Icons.notifications_none_outlined,
-                  color: appBarForeground,
-                  size: 40,
-                ),
-                //Image.asset('assets/icons/holiday/icone_notification.png'),
-                Positioned(
-                  top: 5,
-                  right: 5,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: const Text(
-                      '10',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
       body: Container(
         margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
         child: _pages[_selectedIndex]
@@ -648,6 +594,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
+          widget.onTitleChanged(_pageTitle[index]);
           if ([1, 2].contains(index)) {
             _buildForm(index);
           }
@@ -668,7 +615,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
           BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/holiday/icone_demande_allocation.png"),
-            label: 'Demande d\'Allocation',
+            label: 'Demande d\'allocation',
           ),
         ],
       ),
