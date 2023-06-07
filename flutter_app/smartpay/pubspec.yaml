@@ -95,6 +95,9 @@ flutter:
     - assets/icons/holiday/icone_menu.png
     - assets/icons/holiday/icone_notification.png
     - assets/icons/holiday/icone_refuse.png
+    # Presentation
+    - assets/images/employee.png
+    - assets/images/employee_background.png
     # Data
     - .env
     - assets/data/side_menus.json

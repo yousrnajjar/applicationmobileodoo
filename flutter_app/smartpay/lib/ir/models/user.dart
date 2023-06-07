@@ -42,9 +42,10 @@ class User extends OdooModelHelper {
         'ref', 'vat',
         'function', 'job_title',
         'street', 'street2', 'zip', 'city', 'contact_address',
-
+        'last_activity_time', 'last_activity',
         // Check In, Check Out
         'last_check_in', 'last_check_out',
+        'hours_last_month', 'hours_last_month_display',
         // Allocation Used Display
         'allocation_used_display',
         // Allocation Display

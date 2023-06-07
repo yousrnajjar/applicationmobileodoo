@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
+var baseHeightDesign = 655;
+var baseWidthDesign = 325;
+
 /// #d9f6da
 const kLightGreen = Color.fromARGB(255, 217, 246, 218);
 /// #43a047
@@ -9,6 +13,8 @@ const kGreen = Color.fromARGB(255, 67, 160, 71);
 const kLightOrange = Color.fromARGB(255, 246, 239, 217);
 ///  #f6d9eb
 const kLightPink = Color.fromARGB(255, 246, 217, 235);
+/// 
+const kPink = Color.fromARGB(255, 160, 71, 160);
 /// #f1efef
 const kLightGrey = Color.fromARGB(255, 241, 239, 239);
 /// #878686

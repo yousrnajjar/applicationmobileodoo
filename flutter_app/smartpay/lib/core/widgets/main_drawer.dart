@@ -26,7 +26,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   final List<SideMenu> _sideMenus = [];
 
-  String _title = "Facilitez votre quotidien avec SmartPay App";
+  String _title = "Tableau de bord";
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
     var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Facilitez votre quotidien avec SmartPay App")
+        title: Text(_title)
       ),
       body: homeScreen,
       drawer: Drawer(

@@ -225,6 +225,30 @@ class OdooModel {
         await session.searchRead(modelName, domain, fieldNames, null, null);
     return result;
   }
+  /// Search and read records (all fields) from the model
+  /// and return a list of Map<Odoofield, dynamic> using  [searchRead]
+  Future<List<Map<OdooField, dynamic>>> searchReadAsOdooField(
+      {required List<dynamic> domain,
+      int limit = 1000,
+      int offset = 1,
+      List<String>? fieldNames}) async {
+    var result = await searchRead(
+        domain: domain, limit: limit, offset: offset, fieldNames: fieldNames);
+    var allFields = await getAllFields(fieldNames: fieldNames);
+    List<OdooField> odooFields =
+        allFields.where((field) => fieldNames!.contains(field.name)).toList();
+    List<Map<OdooField, dynamic>> resultAsOdooField = [];
+    for (var record in result) {
+      Map<OdooField, dynamic> recordAsOdooField = {};
+      for (var field in odooFields) {
+        var value = record[field.name];
+        recordAsOdooField[field] = value;
+      }
+      resultAsOdooField.add(recordAsOdooField);
+    }
+    return resultAsOdooField;
+  }
+
 
   /// It should return a map with the default values for the model
   /// Key is the field [OdooField] and value is the default value
