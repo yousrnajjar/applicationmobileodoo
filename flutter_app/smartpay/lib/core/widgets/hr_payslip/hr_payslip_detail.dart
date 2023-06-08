@@ -12,6 +12,24 @@ class PayslipDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var itemHeight = (86 / baseHeightDesign) * height;
+    var itemWidth = (60 / baseWidthDesign) * width;
+    // Si aucune fiche de pay n'est disponible
+    if (pay.isEmpty) {
+      return Container(
+        height: itemHeight,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 191, 248, 187),
+        ),
+        child: const Center(
+          child: Text('Pas de fiche de paie disponible pour le moment'),
+        ),
+      );
+    }
+
     Map<String, Color> stateColor = {
       'draft': kGrey,
       'done': kGreen,
@@ -28,10 +46,7 @@ class PayslipDetail extends StatelessWidget {
         .firstWhere((v) => v['value'] == lastPay['state'])['display_name'];
     var dateFormatter = DateFormat('yyyy-MM-dd');
     var date = dateFormatter.parse(lastPay['date_from']);
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
-    var itemHeight = (86 / baseHeightDesign) * height;
-    var itemWidth = (60 / baseWidthDesign) * width;
+
     return Row(
       children: [
         Container(

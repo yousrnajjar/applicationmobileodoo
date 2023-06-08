@@ -17,7 +17,8 @@ class EmployeeCardDetail extends StatelessWidget {
     employee.forEach((key, value) {
       employeeKeyAsString[key.name] = value;
     });
-    employeeKeyAsString['vat'] = user.info['vat'] == false ? '--/--' : user.info['vat'];
+    employeeKeyAsString['vat'] =
+        user.info['vat'] == false ? '--/--' : user.info['vat'];
 
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
@@ -173,7 +174,9 @@ class EmployeeCardDetail extends StatelessWidget {
             ),
             Center(
               child: Text(
-                employeeKeyAsString['job_id'][1].toUpperCase(),
+                employeeKeyAsString['job_id'] == false
+                    ? "----/----"
+                    : employeeKeyAsString['job_id'][1].toUpperCase(),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
@@ -192,7 +195,8 @@ class EmployeeCard extends StatelessWidget {
 
   final User user;
   const EmployeeCard(
-    this.employee, this.user, {
+    this.employee,
+    this.user, {
     super.key,
   });
 

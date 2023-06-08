@@ -18,7 +18,13 @@ class CheckInOut extends ConsumerStatefulWidget {
 class _CheckInOutState extends ConsumerState<CheckInOut> {
   void _updateAttendance() async {
     var user = ref.watch(userInfoProvider);
-    var employeeData = await OdooModel("hr.employee").searchRead(domain: [['user_id', '=', user.uid]], limit: 1);
+    var employeeData = await OdooModel("hr.employee").searchRead(
+      domain: [
+        ['user_id', '=', user.uid]
+      ],
+      fieldNames: EmployeeAllInfo().allFields,
+      limit: 1,
+    );
     user.employee = EmployeeAllInfo.fromJson(employeeData[0]);
     ref.read(userInfoProvider.notifier).setUserInfo(user);
   }
@@ -84,8 +90,11 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                           ),
                           const SizedBox(height: 10),
                           if (employeeIn)
-                            Text("Heure de travail aujourd'hui", style: smallText),
-                          Text("${employee.hoursToday}", style: smallText.copyWith(fontWeight: FontWeight.bold)),
+                            Text("Heure de travail aujourd'hui",
+                                style: smallText),
+                          Text("${employee.hoursToday}",
+                              style: smallText.copyWith(
+                                  fontWeight: FontWeight.bold)),
                           const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.all(5),

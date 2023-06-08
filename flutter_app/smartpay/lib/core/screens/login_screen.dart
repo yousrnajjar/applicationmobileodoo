@@ -268,7 +268,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 child: SizedBox(
                                   width: double.infinity,
                                   child: Text(
-                                    _isTokenSend ? 'Véfifier' : 'CONNEXION',
+                                    _isTokenSend ? 'Vérifier' : 'CONNEXION',
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
@@ -281,7 +281,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               });
                             },
                             child: const Text(
-                              "Allez à la page d'acceuil",
+                              "Allez à la page d'accueil",
                             ),
                           ),
                         const SizedBox(width: 10),

@@ -33,6 +33,9 @@ class _AllocationFormState extends AppFormState {
   final Map<String, bool> _allocationType = {};
 
   @override
+  String get message => "Votre demande d'allocation a été bien enregistrée!";
+
+  @override
   void initState() {
     super.initState();
     var allocation = widget.initial.entries
@@ -146,8 +149,6 @@ class _AllocationFormState extends AppFormState {
         .selectionOptions
         .firstWhere((element) => element['id'] == employeeId);
     employeeName = employeeName != null ? employeeName['name'] : '';
-
-    // TODO: Change allocation_type from select to bool field
 
     formFields.addAll([
       const SizedBox(height: 10),

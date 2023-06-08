@@ -17,6 +17,20 @@ class ContractDetail extends StatelessWidget {
     var itemHeight = (86 / baseHeightDesign) * height;
     var itemWidth = (60 / baseWidthDesign) * width;
 
+    // Si aucune fiche de pay n'est disponible
+    if (contract.isEmpty) {
+      return Container(
+        height: itemHeight,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(
+              255, 248, 187, 220), //Color.fromARGB(255, 191, 248, 187),
+        ),
+        child: const Center(
+          child: Text('Pas de contrat disponible pour le moment'),
+        ),
+      );
+    }
     Map<String, Color> stateColor = {
       'draft': kGrey,
       'open': kGreen,
@@ -25,7 +39,7 @@ class ContractDetail extends StatelessWidget {
     };
 
     Map<String, dynamic> contractDisplay = {};
-    contract.forEach((k, v)  {
+    contract.forEach((k, v) {
       contractDisplay[k.name] = v;
     });
     String numberOfMonthInContractString = '';
@@ -280,7 +294,5 @@ class ContractDetail extends StatelessWidget {
         ),
       ),
     ]);
-
   }
-
 }

@@ -2,8 +2,6 @@
 /// It is used to display a form based on a [OdooModel].
 /// [AppForm] is a [StatefulWidget] that uses [AppFormState] as its state.
 
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,6 +41,8 @@ class AppFormState extends State<AppForm> {
   final _formKey = GlobalKey<FormState>();
   Map<OdooField, dynamic> values = {};
   Map<OdooField, TextEditingController> controllers = {};
+  String message = "Votre demande a été bien enregistrée!";
+  String emptyMsg = "Merci d\'entrer une valeur";
 
   bool isSending = false;
 
@@ -146,7 +146,6 @@ class AppFormState extends State<AppForm> {
     setState(() {
       isSending = true;
     });
-    var message = "Enregistrez!";
     try {
       var newValues = await widget.onSaved(cleanedValues);
       setState(() {
@@ -367,7 +366,7 @@ class AppFormState extends State<AppForm> {
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter a value';
+          return emptyMsg;
         }
         return null;
       },
@@ -450,7 +449,7 @@ class AppFormState extends State<AppForm> {
           InputDecoration(labelText: showLabel ? field.fieldDescription : null),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter a value';
+          return emptyMsg;
         }
         return null;
       },
@@ -478,8 +477,9 @@ class AppFormState extends State<AppForm> {
     int maxLines = 5,
     int minLines = 1,
     bool showLabel = false,
-    String errorMsg = 'Please enter a value',
+    String errorMsg = "",
   }) {
+    errorMsg = emptyMsg;
     var controller = controllers.entries
         .firstWhere((element) => element.key.name == field.name)
         .value;
@@ -711,7 +711,7 @@ class AppFormState extends State<AppForm> {
           .toList(),
       validator: (value) {
         if (value == null) {
-          return 'Please enter a value';
+          return emptyMsg;
         }
         return null;
       },
@@ -761,7 +761,7 @@ class AppFormState extends State<AppForm> {
             .toList(),
         validator: (value) {
           if (value == null) {
-            return 'Please enter a value';
+            return emptyMsg;
           }
           return null;
         },

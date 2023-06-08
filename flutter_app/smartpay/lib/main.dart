@@ -5,7 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 import 'ir/data/themes.dart';
-import 'core/screens/holidays_screen_v2.dart' as holidays_v2;
 import 'core/screens/login_screen.dart';
 import 'core/widgets/main_drawer.dart';
 import 'core/providers/user_info_providers.dart';

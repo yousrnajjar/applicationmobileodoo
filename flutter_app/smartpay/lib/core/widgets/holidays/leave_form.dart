@@ -35,6 +35,8 @@ class _HolidayFormState extends AppFormState {
     return null;
   }
 
+  @override
+  String get message => "Votre demande de congé a été bien enregistrée!";
 
   @override
   setFormFields(List<Widget> formFields) {
@@ -46,23 +48,24 @@ class _HolidayFormState extends AppFormState {
         return;
       }
       if (field.type == OdooFieldType.boolean) {
-        groupedField[field.name] =  buildBooleanField(field);
+        groupedField[field.name] = buildBooleanField(field);
       } else if (field.type == OdooFieldType.integer) {
-         groupedField[field.name] =  buildIntegerField(field, value);
+        groupedField[field.name] = buildIntegerField(field, value);
       } else if (field.type == OdooFieldType.float) {
-         groupedField[field.name] =  buildFloatField(field, value, showLabel: false);
+        groupedField[field.name] =
+            buildFloatField(field, value, showLabel: false);
       } else if (field.type == OdooFieldType.char) {
-         groupedField[field.name] =  buildCharField(field, value, false);
+        groupedField[field.name] = buildCharField(field, value, false);
       } else if (field.type == OdooFieldType.text) {
-         groupedField[field.name] =  buildTextField(field, value);
+        groupedField[field.name] = buildTextField(field, value);
       } else if (field.type == OdooFieldType.date) {
-         groupedField[field.name] =  buildDateField(field, value,false,false);
+        groupedField[field.name] = buildDateField(field, value, false, false);
       } else if (field.type == OdooFieldType.datetime) {
-         groupedField[field.name] =  buildDateTimeField(field, value);
+        groupedField[field.name] = buildDateTimeField(field, value);
       } else if (field.type == OdooFieldType.selection) {
-         groupedField[field.name] =  buildSelectionField(field, value);
+        groupedField[field.name] = buildSelectionField(field, value);
       } else if (field.type == OdooFieldType.many2one) {
-         groupedField[field.name] =  buildMany2oneField(field, value);
+        groupedField[field.name] = buildMany2oneField(field, value);
       } /*else if (field.type == OdooFieldType.one2many) {
          groupedField[field.name] =  _buildOne2manyField(field, value);
       } else if (field.type == OdooFieldType.many2many) {
@@ -74,14 +77,18 @@ class _HolidayFormState extends AppFormState {
     var holidayMode = values.entries
         .firstWhere((element) => element.key.name == 'holiday_type')
         .value;
-    holidayMode = values.keys.firstWhere((element) => element.name == 'holiday_type')
-        .selectionOptions.firstWhere((element) => element['value'] == holidayMode);
+    holidayMode = values.keys
+        .firstWhere((element) => element.name == 'holiday_type')
+        .selectionOptions
+        .firstWhere((element) => element['value'] == holidayMode);
     holidayMode = holidayMode != null ? holidayMode['display_name'] : '';
     var employeeId = values.entries
         .firstWhere((element) => element.key.name == 'employee_id')
         .value;
-    var employeeName = values.keys.firstWhere((element) => element.name == 'employee_id')
-        .selectionOptions.firstWhere((element) => element['id'] == employeeId);
+    var employeeName = values.keys
+        .firstWhere((element) => element.name == 'employee_id')
+        .selectionOptions
+        .firstWhere((element) => element['id'] == employeeId);
     employeeName = employeeName != null ? employeeName['name'] : '';
 
     formFields.addAll([
@@ -100,7 +107,8 @@ class _HolidayFormState extends AppFormState {
                   children: [
                     const Text('De', style: fontBold),
                     const SizedBox(width: 10),
-                    SizedBox(width: 120, child: groupedField['request_date_from']!),
+                    SizedBox(
+                        width: 120, child: groupedField['request_date_from']!),
                   ],
                 ),
               ),
@@ -109,7 +117,8 @@ class _HolidayFormState extends AppFormState {
                   children: [
                     const Text('À', style: fontBold),
                     const SizedBox(width: 10),
-                    SizedBox(width: 120, child: groupedField['request_date_to']!),
+                    SizedBox(
+                        width: 120, child: groupedField['request_date_to']!),
                   ],
                 ),
               ),
@@ -129,33 +138,30 @@ class _HolidayFormState extends AppFormState {
       ),
       groupedField['notes']!,
       Container(
-        margin: const EdgeInsets.only(top: 40, bottom: 40),
-        child: Column(
-          children: [
-            // Mode:          Par Employé
-            // Salarié:       Ben Ameur Mohamed
-            Row(
-              children: [
-                const SizedBox(
-                  width: 100,
-                  child: Text('Mode:', style: fontBold),
-                ),
-                Text(holidayMode),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const SizedBox(
-                  width: 100,
-                  child: Text('Salarié:', style: fontBold),
-                ),
-                Text(employeeName),
-              ],
-            ),
-          ],
-        )
-      ),
+          margin: const EdgeInsets.only(top: 40, bottom: 40),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 100,
+                    child: Text('Mode:', style: fontBold),
+                  ),
+                  Text(holidayMode),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 100,
+                    child: Text('Salarié:', style: fontBold),
+                  ),
+                  Text(employeeName),
+                ],
+              ),
+            ],
+          )),
     ]);
   }
 }

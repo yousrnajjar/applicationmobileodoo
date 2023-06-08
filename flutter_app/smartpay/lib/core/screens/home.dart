@@ -6,7 +6,6 @@ import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
 import 'package:smartpay/core/widgets/hr_payslip/hr_payslip_detail.dart';
 
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/employee.dart';
 import 'package:smartpay/ir/models/user.dart';
 import 'package:smartpay/ir/data/themes.dart';
 
@@ -112,7 +111,8 @@ class _HomeState extends ConsumerState<HomeScreen> {
             children: [
               CircularRatioIndicator(
                 suffix: 'Jours',
-                title: 'Nombre de jours travaillés',
+                title: 'Nombre des jours travaillés',
+                // Valeur du nombre de jours travaillé
                 ratio: user.info['hours_last_month'] / 24,
                 colorText: const Color.fromARGB(255, 112, 107, 168),
                 colorBackground: const Color.fromARGB(255, 191, 187, 248),
@@ -121,8 +121,10 @@ class _HomeState extends ConsumerState<HomeScreen> {
               CircularRatioIndicator(
                 suffix: 'Jours',
                 title: 'Nombre des jours de congé',
-                ratio: user.info['allocation_used_count'] /
-                    user.info['allocation_count'],
+                // Valeur du nombre de jours de congé
+                ratio: user.info['allocation_used_count'],
+
+                /// user.info['allocation_count'],
                 colorText: const Color.fromARGB(255, 165, 154, 104),
                 colorBackground: const Color.fromARGB(255, 248, 237, 187),
                 progressColor: const Color.fromARGB(255, 234, 232, 216),
@@ -135,9 +137,21 @@ class _HomeState extends ConsumerState<HomeScreen> {
                 vertical: (10 / baseHeightDesign) * height),
             child: Column(
               children: [
-                if (_lastContract.isNotEmpty) ContractDetail(contract: _lastContract),
+                ContractDetail(contract: _lastContract),
+                /*_lastContract.isNotEmpty
+                    ? ContractDetail(contract: _lastContract)
+                    : const Center(
+                        child: Text(
+                            'Pas de fiche de paie disponible pour le moment'),
+                      ),*/
                 SizedBox(height: (10 / baseHeightDesign) * height),
-                if (_lastPay.isNotEmpty) PayslipDetail(pay: _lastPay),
+                PayslipDetail(pay: _lastPay),
+                /*_lastPay.isNotEmpty
+                    ? PayslipDetail(pay: _lastPay)
+                    : const Center(
+                        child: Text(
+                            'Pas de fiche de paie disponible pour le moment'),
+                      ),*/
               ],
             ),
           ),
