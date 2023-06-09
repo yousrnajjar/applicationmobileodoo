@@ -16,7 +16,9 @@ class CheckInOut extends ConsumerStatefulWidget {
 }
 
 class _CheckInOutState extends ConsumerState<CheckInOut> {
-  void _updateAttendance() async {
+  EmployeeAllInfo? _employee;
+  bool _isLoading = false;
+  void _setEmployee() async {
     var user = ref.watch(userInfoProvider);
     var employeeData = await OdooModel("hr.employee").searchRead(
       domain: [
@@ -25,14 +27,23 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
       fieldNames: EmployeeAllInfo().allFields,
       limit: 1,
     );
-    user.employee = EmployeeAllInfo.fromJson(employeeData[0]);
-    ref.read(userInfoProvider.notifier).setUserInfo(user);
+    setState(() {
+      _employee = EmployeeAllInfo.fromJson(employeeData[0]);
+    });
+    
   }
+
 
   @override
   Widget build(BuildContext context) {
+    if (_employee == null && !_isLoading) {
+      _setEmployee();
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     var user = ref.watch(userInfoProvider);
-    EmployeeAllInfo employee = user.employee!;
+    EmployeeAllInfo employee = _employee!;
     bool employeeIn = employee.attendanceState == 'checked_in';
     double boxWith = 350;
     ThemeData theme = Theme.of(context);
@@ -107,7 +118,7 @@ class _CheckInOutState extends ConsumerState<CheckInOut> {
                                       color: Colors.black, size: 50)
                                   : const Icon(Icons.login,
                                       color: Colors.black, size: 50),
-                              onPressed: _updateAttendance,
+                              onPressed: _setEmployee,
                             ),
                           ),
                           Text(employeeIn ? '' : "Cliquez pour entrer"),

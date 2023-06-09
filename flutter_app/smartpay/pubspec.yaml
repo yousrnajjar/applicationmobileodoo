@@ -88,6 +88,8 @@ flutter:
     - assets/icons/pointage.png
     - assets/icons/recrutment.jpeg
     - assets/icons/deconnecter.png
+    - assets/icons/expense_list.png
+    - assets/icons/expense_add.png
     # Icons Holidays
     - assets/icons/holiday/icone_approuvee.png
     - assets/icons/holiday/icone_demande_allocation.png

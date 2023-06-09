@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/attendance.dart';
+import 'package:smartpay/ir/models/employee.dart';
 import 'package:smartpay/core/widgets/attendance/attendance_list.dart';
 import 'package:smartpay/core/widgets/attendance/check_in_out.dart';
 import 'package:smartpay/core/widgets/attendance/employee_list.dart';
@@ -29,6 +30,7 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
         domain: [
           ['user_id', '=', user.uid]
         ],
+        fieldNames: EmployeeAllInfo().allFields,
         limit: 1,
       );
       user.employee = EmployeeAllInfo.fromJson(employeeData[0]);
@@ -44,7 +46,8 @@ class _InOutScreenState extends ConsumerState<InOutScreen> {
       user.employee!.attendances = _attendances;
     } else if (_selectedPage == 'employee_list') {
       var employeesData = await OdooModel("hr.employee").searchRead(
-        domain: [[]],
+        domain: [],
+        fieldNames: EmployeeAllInfo().allFields,
         limit: 1000,
       );
       _employees =

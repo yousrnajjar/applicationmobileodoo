@@ -9,7 +9,10 @@ import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/core/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/screens/attendance.dart';
+import 'package:smartpay/core/screens/expense.dart';
 import 'package:smartpay/core/screens/home.dart';
+
+import 'menu.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
   final User user;
@@ -53,27 +56,17 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         _title = "Pointage";
         _screen = InOutScreen(onTitleChanged: setTitle);
       });
-      /*
-         await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => const InOutScreen(),
-        ),
-      );
-      */
     } else if (identifier == "leave") {
       setState(() {
         _title = "Congés";
         _screen = HolidayScreen(user: widget.user, onTitleChanged: setTitle);
       });
-      /*
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => HolidayScreen(user: widget.user),
-        ),
-      );
-      */
-    } else if (identifier == "login") {
-
+    } else if (identifier == "expense") {
+      setState(() {
+        _title = "Notes de frais";
+        _screen = ExpenseScreen(user: widget.user, onTitleChanged: setTitle);
+      });
+   } else if (identifier == "login") {
       ref.read(userInfoProvider.notifier).setUserInfo(User({}));
       ref.watch(sessionProvider.notifier).setSession(Session("", "", ""));
       await Navigator.of(context).push(
@@ -83,11 +76,13 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       );
     }
   }
+
   setTitle(String title) {
     setState(() {
       _title = title;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
@@ -157,49 +152,10 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         ],
       ),
       body: _screen,
-      drawer: Drawer(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              DrawerHeader(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.white.withOpacity(1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    child: Image.asset("assets/images/logo.jpeg"),
-                  )),
-              for (final sideMenu in _sideMenus)
-                ListTile(
-                  leading:
-                      CircleAvatar(backgroundImage: sideMenu.iconImage.image),
-                  title: Text(sideMenu.displayName, style: titleLarge),
-                  onTap: () {
-                    _setScreen(sideMenu.identifier);
-                  },
-                ),
-              const Spacer(),
-              ListTile(
-                leading: Image.asset("assets/icons/deconnecter.png"),
-                title: Text('Se déconnecter', style: titleLarge),
-                onTap: () {
-                  _setScreen("login");
-                },
-              )
-            ],
-          ),
-        ),
-      ),
+      drawer: SideMenuDrawer(
+          sideMenus: _sideMenus,
+          titleLarge: titleLarge,
+          onSetScreen: _setScreen),
     );
   }
 }
