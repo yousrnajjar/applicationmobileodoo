@@ -6,10 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
-
+import 'package:smartpay/ir/data/themes.dart';
 // smartpay
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/data/themes.dart';
 
 class AppForm extends StatefulWidget {
   final List<String> fieldNames;
@@ -42,7 +41,7 @@ class AppFormState extends State<AppForm> {
   Map<OdooField, dynamic> values = {};
   Map<OdooField, TextEditingController> controllers = {};
   String message = "Votre demande a été bien enregistrée!";
-  String emptyMsg = "Merci d\'entrer une valeur";
+  String emptyMsg = "Merci d'entrer une valeur";
 
   bool isSending = false;
 
@@ -57,6 +56,7 @@ class AppFormState extends State<AppForm> {
         OdooFieldType.char,
         OdooFieldType.text,
         OdooFieldType.float,
+        OdooFieldType.monetary,
         OdooFieldType.integer,
         OdooFieldType.html
       ];
@@ -64,12 +64,12 @@ class AppFormState extends State<AppForm> {
         controllers[field] = TextEditingController(text: "${value ?? ""}");
       }
     });
-    if (kDebugMode) {
-      print("Initial Data");
-      widget.initial.forEach((key, value) {
+
+    widget.initial.forEach((key, value) {
+      if (kDebugMode) {
         print('${key.name} === $value');
-      });
-    }
+      }
+    });
   }
 
   change(OdooField field) {
@@ -216,6 +216,8 @@ class AppFormState extends State<AppForm> {
       key: _formKey,
       child: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...formFieldsWidget,
             buildActionButtons(),
@@ -258,6 +260,45 @@ class AppFormState extends State<AppForm> {
         ),
       ],
     );
+  }
+
+  Widget buildComonField({
+    double? labelWidth = 80,
+    double? prefixWidth = 80,
+    Widget? label,
+    required Widget child,
+    Widget? prefix,
+  }) {
+    return Row(
+      children: [
+        if (label != null)
+          Container(
+            width: labelWidth!,
+            padding: const EdgeInsets.only(top: 15),
+            child: label,
+          ),
+        const SizedBox(width: 10),
+        SizedBox(width: 90, child: child),
+        const SizedBox(width: 10),
+        if (prefix != null)
+          Container(
+            width: prefixWidth!,
+            padding: const EdgeInsets.only(top: 15),
+            child: prefix,
+          ),
+      ],
+    );
+  }
+
+  String getValueFromM2OAsReadOnly(String fieldName) {
+    var valId = values.entries
+        .firstWhere((element) => element.key.name == fieldName)
+        .value;
+    var valName = values.keys
+        .firstWhere((element) => element.name == fieldName)
+        .selectionOptions
+        .firstWhere((element) => element['id'] == valId);
+    return valName != null ? valName['name'] : '';
   }
 
   /// Build a list of form fields based on the defaultGet of the model
@@ -362,7 +403,10 @@ class AppFormState extends State<AppForm> {
       controller: controllers.entries
           .firstWhere((element) => element.key.name == field.name)
           .value,
-      decoration: InputDecoration(labelText: field.fieldDescription),
+      decoration: InputDecoration(
+        labelText: field.fieldDescription,
+        contentPadding: const EdgeInsets.only(bottom: -15),
+      ),
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -411,8 +455,10 @@ class AppFormState extends State<AppForm> {
 
     return TextFormField(
       controller: controller,
-      decoration:
-          InputDecoration(labelText: showLabel ? field.fieldDescription : null),
+      decoration: InputDecoration(
+        labelText: showLabel ? field.fieldDescription : null,
+        contentPadding: const EdgeInsets.only(bottom: -15),
+      ),
       //keyboardType: TextInputType.number,
       validator: (val) {
         if (val == null || val.isEmpty) {
@@ -445,8 +491,10 @@ class AppFormState extends State<AppForm> {
       controller: controllers.entries
           .firstWhere((element) => element.key.name == field.name)
           .value,
-      decoration:
-          InputDecoration(labelText: showLabel ? field.fieldDescription : null),
+      decoration: InputDecoration(
+        labelText: showLabel ? field.fieldDescription : null,
+        contentPadding: const EdgeInsets.only(bottom: -15),
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return emptyMsg;
@@ -499,11 +547,12 @@ class AppFormState extends State<AppForm> {
       },
     );
 
-    // TODO: increase maxLines if field is a text field
     return TextFormField(
       controller: controller,
-      decoration:
-          InputDecoration(labelText: showLabel ? field.fieldDescription : null),
+      decoration: InputDecoration(
+        labelText: showLabel ? field.fieldDescription : null,
+        contentPadding: const EdgeInsets.only(bottom: -15),
+      ),
       minLines: minLines,
       maxLines: maxLines,
       validator: (value) {
@@ -550,7 +599,6 @@ class AppFormState extends State<AppForm> {
     } catch (e) {
       value = DateTime.now();
     }
-    var mediaQuery = MediaQuery.of(context);
     return InkWell(
       onTap: () async {
         if (field.readonly) {
@@ -586,23 +634,23 @@ class AppFormState extends State<AppForm> {
       },
       child: InputDecorator(
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.only(top: 22),
           labelText: showLabel ? field.fieldDescription : null,
-          icon: showCalendarIcon ? const Icon(Icons.calendar_today) : null,
-          suffixIcon: const Icon(
-            // Calendar month icon.
-            Icons.calendar_month,
-            color: kGreen,
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: mediaQuery.size.height * 0.01,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            dateFormat.format(value),
+          icon: showCalendarIcon
+              ? const Icon(Icons.calendar_today, size: 14)
+              : null,
+          suffixIcon: Container(
+            padding: const EdgeInsets.only(top: 15),
+            child: const Icon(
+              // Calendar month icon.
+              Icons.calendar_month,
+              color: kGreen,
+              size: 14,
+            ),
           ),
         ),
+        child: Text(dateFormat.format(value),
+            style: const TextStyle(fontSize: 14)),
       ),
     );
   }
@@ -671,6 +719,7 @@ class AppFormState extends State<AppForm> {
       },
       child: InputDecorator(
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.only(bottom: -15),
           labelText: field.fieldDescription,
           icon: const Icon(Icons.calendar_today),
         ),
@@ -751,6 +800,7 @@ class AppFormState extends State<AppForm> {
     return DropdownButtonFormField(
         value: values[field],
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.only(bottom: -15),
           labelText: field.fieldDescription,
         ),
         items: selectionOptions

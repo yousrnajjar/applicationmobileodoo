@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:smartpay/api/session.dart';
-import 'package:smartpay/core/providers/user_info_providers.dart';
-import 'package:smartpay/core/screens/holidays_screen.dart';
-import 'package:smartpay/ir/models/user.dart';
-import 'package:smartpay/core/providers/session_providers.dart';
-import 'package:smartpay/core/screens/login_screen.dart';
 import 'package:smartpay/core/models/side_menu.dart';
+import 'package:smartpay/core/providers/session_providers.dart';
+import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/core/screens/attendance.dart';
 import 'package:smartpay/core/screens/expense.dart';
+import 'package:smartpay/core/screens/holidays_screen.dart';
 import 'package:smartpay/core/screens/home.dart';
+import 'package:smartpay/core/screens/login_screen.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 import 'menu.dart';
 
@@ -153,9 +152,10 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       ),
       body: _screen,
       drawer: SideMenuDrawer(
-          sideMenus: _sideMenus,
-          titleLarge: titleLarge,
-          onSetScreen: _setScreen),
+        sideMenus: _sideMenus,
+        titleLarge: titleLarge,
+        onSetScreen: _setScreen,
+      ),
     );
   }
 }

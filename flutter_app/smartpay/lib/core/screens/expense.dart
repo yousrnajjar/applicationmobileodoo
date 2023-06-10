@@ -1,13 +1,13 @@
-
 import 'package:flutter/material.dart';
-
-import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/user.dart';
+import 'package:smartpay/core/widgets/hr_expense/expense_form.dart';
 import 'package:smartpay/core/widgets/hr_expense/expense_list.dart';
-
+import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/expense.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 class ExpenseScreen extends StatefulWidget {
   final User user;
+
   // onTitleChanged is a callback function to change the title of the page
   final Function(String) onTitleChanged;
 
@@ -32,35 +32,37 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   void initState() {
     super.initState();
     // Add the holiday list page
-    _pages.add(ExpenseList(user: widget.user));
+    _pages.add(ExpenseList(user: widget.user, onChangedPage: _changePage));
     // Add the holiday form page
     _pages.add(const Center(child: CircularProgressIndicator()));
   }
 
+  // Change the page
+  _changePage(int index) {
+    widget.onTitleChanged(_pageTitle[index]);
+    if ([1].contains(index)) {
+      _buildForm(index);
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
     return Scaffold(
       body: Container(
-        margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
-        child: _pages[_selectedIndex]
-      ),
+          margin: const EdgeInsets.only(top: 05, left: 15, right: 15),
+          child: _pages[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          widget.onTitleChanged(_pageTitle[index]);
-          if ([1].contains(index)) {
-            _buildForm(index);
-          }
-          setState(() {
-            _selectedIndex = index;
-          });
+          _changePage(index);
         },
         items: [
           BottomNavigationBarItem(
-            icon:
-                Image.asset("assets/icons/expense_list.png"),
+            icon: Image.asset("assets/icons/expense_list.png"),
             label: _pageTitle[0],
           ),
           BottomNavigationBarItem(
@@ -83,18 +85,17 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       });
     }
   }
-// Vim : replace Expense by Expense command :%s/Expense/Expense/g
   Future<Widget> buildExpenseForm() async {
     /*return await OdooModel("hr.expense").buildFormFields(
-      fieldNames: Expense.defaultFields,
-      onChangeSpec: Expense.onchangeSpec,
+      fieldNames: Expense({}).allFields,
+      onChangeSpec: Expense({}).onchangeSpec,
       formTitle: "Demande de congé",
-      displayFieldNames: Expense.displayFieldNames,
+      displayFieldNames: Expense({}).displayFieldNames,
     );*/
-    /*var fieldNames = Expense.defaultFields;
-    var displayFieldNames = Expense.displayFieldNames;
-    var onChangeSpec = Expense.onchangeSpec;
-    var formTitle = "Demande de congé";
+    var fieldNames = Expense({}).allFields;
+    var displayFieldNames = Expense({}).displayFieldNames;
+    var onChangeSpec = Expense({}).onchangeSpec;
+    var formTitle = "";
     var model = OdooModel("hr.expense");
 
     Map<OdooField, dynamic> initial =
@@ -118,9 +119,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       onSaved: (Map<OdooField, dynamic> values) async {
         return await model.create(values);
       },
-    );*/
-    return const Center(child: CircularProgressIndicator());
-   }
-
-
+    );
   }
+}

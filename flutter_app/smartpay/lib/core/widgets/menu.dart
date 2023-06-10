@@ -26,18 +26,21 @@ class SideMenuDrawer extends StatelessWidget {
           children: [
             DrawerHeader(
               // remove dividers
-              padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
+              //padding: const EdgeInsets.all(20),
+              /*decoration: BoxDecoration(
                   color: Colors.transparent,
-                ),
-                
-                child: Container(
-                  height: (160 / baseHeightDesign) * height,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Image.asset("assets/images/logo.jpeg"),
+                ),*/
+
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Image.asset(
+                  "assets/images/logo.jpeg",
+                  width: (200 / baseWidthDesign) * width,
+                  height: (110 / baseWidthDesign) * width,
                 ),
               ),
+            ),
             for (final sideMenu in sideMenus)
               Container(
                 height: (40 / baseHeightDesign) * height,
@@ -57,7 +60,7 @@ class SideMenuDrawer extends StatelessWidget {
                 child: ListTile(
                   dense: true,
                   visualDensity: VisualDensity.compact,
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                   ),
                   leading: Image(image: sideMenu.iconImage.image, width: 30, height: 30,),
@@ -72,27 +75,29 @@ class SideMenuDrawer extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 // add border top and bottom
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.grey.withOpacity(0.5),
-                    width: 0.5,
-                  ),
-                  bottom: BorderSide(
-                    color: Colors.grey.withOpacity(0.5),
-                    width: 0.5,
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.grey.withOpacity(0.5),
+                      width: 0.5,
+                    ),
+                    bottom: BorderSide(
+                      color: Colors.grey.withOpacity(0.5),
+                      width: 0.5,
+                    ),
                   ),
                 ),
-              ),
-              child:  ListTile(
-              leading: Image.asset("assets/icons/deconnecter.png", width: 30, height: 30,),
-              title: Text('Se déconnecter', style: titleLarge),
-              onTap: () {
-                onSetScreen("login");
-              },
-            )
-
-            ),
-                     ],
+                child: ListTile(
+                  leading: Image.asset(
+                    "assets/icons/deconnecter.png",
+                    width: 30,
+                    height: 30,
+                  ),
+                  title: Text('Se déconnecter', style: titleLarge),
+                  onTap: () {
+                    onSetScreen("login");
+                  },
+                )),
+          ],
         ),
       ),
     );

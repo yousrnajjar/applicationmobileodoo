@@ -1,27 +1,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/ir/models/user.dart';
-import 'package:smartpay/ir/models/expense.dart';
-
 import 'package:smartpay/core/widgets/hr_expense/expense_list_item.dart';
-
+import 'package:smartpay/ir/data/themes.dart';
+import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/expense.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 class ExpenseList extends StatefulWidget {
   final User user;
+  final Function(int) onChangedPage;
 
-  const ExpenseList({super.key, required this.user});
+  const ExpenseList(
+      {super.key, required this.user, required this.onChangedPage});
 
   @override
   State<ExpenseList> createState() => _ExpenseListState();
 }
 
 class _ExpenseListState extends State<ExpenseList> {
-  List<Expense> _expenses = [];
-  
   Future<List<Expense>> listenForExpenses() async {
     var result = await OdooModel('hr.expense').searchRead(
       domain: [
@@ -53,11 +50,6 @@ class _ExpenseListState extends State<ExpenseList> {
                     date: date,
                     category: expenses[index]['product_id'][1],
                     onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/expense_detail',
-                        arguments: expenses[index],
-                      );
                     },
                   );
                 },
@@ -74,9 +66,10 @@ class _ExpenseListState extends State<ExpenseList> {
           right: 20,
           child: FloatingActionButton(
             onPressed: () {
+              widget.onChangedPage(1);
             },
-            child: const Icon(Icons.add),
             backgroundColor: kGreen,
+            child: const Icon(Icons.add),
           ),
         ),
       ],

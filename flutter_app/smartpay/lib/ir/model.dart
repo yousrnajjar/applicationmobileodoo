@@ -26,6 +26,7 @@ enum OdooFieldType {
   binaryImage,
   binaryFile,
   serialized,
+  monetary,
   unknown,
 }
 
@@ -133,6 +134,8 @@ class OdooField {
         return OdooFieldType.binaryFile;
       case "serialized":
         return OdooFieldType.serialized;
+      case "monetary":
+        return OdooFieldType.monetary;
       default:
         return OdooFieldType.unknown;
     }
@@ -284,7 +287,6 @@ class OdooModel {
         valuesMap[field.name] = values[field];
       }
     }
-    int id = await session.create(modelName, valuesMap);
     /*print("=======================$id");
     List<dynamic> datas = await session.searchRead(
         modelName,

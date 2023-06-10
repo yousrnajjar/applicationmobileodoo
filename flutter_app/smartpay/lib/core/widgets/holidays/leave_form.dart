@@ -1,9 +1,8 @@
 /// Extend AppForm to create a form. and  customize it _setFormFields() method
 
 import 'package:flutter/material.dart';
-import 'package:smartpay/ir/views/form.dart';
-
 import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/views/form.dart';
 
 /// Extend base form [AppForm] for customise view rendered
 /// Features:
@@ -57,7 +56,8 @@ class _HolidayFormState extends AppFormState {
       } else if (field.type == OdooFieldType.char) {
         groupedField[field.name] = buildCharField(field, value, false);
       } else if (field.type == OdooFieldType.text) {
-        groupedField[field.name] = buildTextField(field, value);
+        groupedField[field.name] =
+            buildTextField(field, value, showLabel: true);
       } else if (field.type == OdooFieldType.date) {
         groupedField[field.name] = buildDateField(field, value, false, false);
       } else if (field.type == OdooFieldType.datetime) {
@@ -105,7 +105,9 @@ class _HolidayFormState extends AppFormState {
               Expanded(
                 child: Row(
                   children: [
-                    const Text('De', style: fontBold),
+                    Container(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: const Text('De', style: fontBold)),
                     const SizedBox(width: 10),
                     SizedBox(
                         width: 120, child: groupedField['request_date_from']!),
@@ -115,7 +117,9 @@ class _HolidayFormState extends AppFormState {
               Expanded(
                 child: Row(
                   children: [
-                    const Text('À', style: fontBold),
+                    Container(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: const Text('À', style: fontBold)),
                     const SizedBox(width: 10),
                     SizedBox(
                         width: 120, child: groupedField['request_date_to']!),
@@ -127,7 +131,13 @@ class _HolidayFormState extends AppFormState {
         ],
       ),
       const SizedBox(height: 10),
-      Row(
+      buildComonField(
+        labelWidth: 35,
+        label: const Text('Durée', style: fontBold),
+        child: groupedField['number_of_days']!,
+        prefix: const Text('jours', style: fontBold),
+      ),
+      /*Row(
         children: [
           const Text('Durée', style: fontBold),
           const SizedBox(width: 10),
@@ -135,7 +145,7 @@ class _HolidayFormState extends AppFormState {
           const SizedBox(width: 10),
           const Text('jours', style: fontBold),
         ],
-      ),
+      ),*/
       groupedField['notes']!,
       Container(
           margin: const EdgeInsets.only(top: 40, bottom: 40),
