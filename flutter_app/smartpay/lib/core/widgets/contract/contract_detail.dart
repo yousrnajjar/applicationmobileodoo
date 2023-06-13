@@ -146,8 +146,8 @@ class ContractDetail extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Text(
                         'Type de contrat : ',
                         style: TextStyle(
@@ -277,12 +277,12 @@ class ContractDetail extends StatelessWidget {
             Center(
                 child: TextButton(
                     style: TextButton.styleFrom(
+                      foregroundColor: kGrey,
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: const EdgeInsets.all(5),
                       shape: const BeveledRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(0))),
-                      primary: kGrey,
                       textStyle: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

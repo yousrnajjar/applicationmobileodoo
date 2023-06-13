@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/core/widgets/circular_ratio_indicator.dart';
-import 'package:smartpay/core/widgets/contract/hr_contract_detail.dart';
+import 'package:smartpay/core/widgets/contract/contract_detail.dart';
 import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
-import 'package:smartpay/core/widgets/hr_payslip/hr_payslip_detail.dart';
-
+import 'package:smartpay/core/widgets/hr_payslip/payslip_detail.dart';
+import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';
-import 'package:smartpay/ir/data/themes.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final User user;

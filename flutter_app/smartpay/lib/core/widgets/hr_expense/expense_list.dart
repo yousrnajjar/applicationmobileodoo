@@ -69,6 +69,7 @@ class _ExpenseListState extends State<ExpenseList> {
               widget.onChangedPage(1);
             },
             backgroundColor: kGreen,
+            foregroundColor: Colors.white,
             child: const Icon(Icons.add),
           ),
         ),

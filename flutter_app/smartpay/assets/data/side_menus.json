@@ -2,21 +2,27 @@
     "content": [
         {
             "icon": "e1b1",
-            "icon_image": "dashbord.jpeg",
+            "icon_image": "dashboard.jpeg",
             "display_name": "Tableau de bord",
-            "identifier":"dashbord"
+            "identifier": "dashboard"
+        },
+        {
+            "icon": "e1b8",
+            "icon_image": "employee.jpeg",
+            "display_name": "Salarié",
+            "identifier": "employee"
         },
         {
             "icon": "e1b6",
             "icon_image": "pointage.png",
             "display_name": "Pointage",
-            "identifier":"attendance"
+            "identifier": "attendance"
         },
         {
             "icon": "e317",
             "icon_image": "holiday.jpeg",
             "display_name": "Demande des congés",
-            "identifier":"leave"
+            "identifier": "leave"
         },
         {
             "icon": "e61c",

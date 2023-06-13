@@ -5,6 +5,7 @@ import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/core/screens/attendance.dart';
+import 'package:smartpay/core/screens/contract_paylips.dart';
 import 'package:smartpay/core/screens/expense.dart';
 import 'package:smartpay/core/screens/holidays_screen.dart';
 import 'package:smartpay/core/screens/home.dart';
@@ -50,7 +51,18 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
 
   void _setScreen(String identifier) async {
     Navigator.of(context).pop();
-    if (identifier == "attendance") {
+    if (identifier == "dashboard") {
+      setState(() {
+        _title = "Tableau de bord";
+        _screen = HomeScreen(widget.user);
+      });
+    } else if (identifier == "employee") {
+      setState(() {
+        _title = "Employé";
+        _screen =
+            ContractPayslipScreen(user: widget.user, onTitleChanged: setTitle);
+      });
+    } else if (identifier == "attendance") {
       setState(() {
         _title = "Pointage";
         _screen = InOutScreen(onTitleChanged: setTitle);
@@ -65,7 +77,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         _title = "Notes de frais";
         _screen = ExpenseScreen(user: widget.user, onTitleChanged: setTitle);
       });
-   } else if (identifier == "login") {
+    } else if (identifier == "login") {
       ref.read(userInfoProvider.notifier).setUserInfo(User({}));
       ref.watch(sessionProvider.notifier).setSession(Session("", "", ""));
       await Navigator.of(context).push(

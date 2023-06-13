@@ -391,4 +391,37 @@ class OdooModel {
           onSaved}) async {
     return const Text("No form yet");
   }
+
+  /// Render PDF report
+  static Future<dynamic> renderPdfReport({
+    required String reportName,
+    required List<int> resourceIds,
+  }) async {
+    var reportIds = await OdooModel('ir.actions.report').searchRead(
+      domain: [
+        ['report_name', '=', reportName]
+      ],
+      fieldNames: ['id'],
+      limit: 1,
+    );
+    if (reportIds.isEmpty) {
+      throw Exception("Report $reportName not found");
+    }
+    var reportId = reportIds[0]['id'];
+    var result = await OdooModel.session.callKw({
+      'model': 'ir.actions.report',
+      'method': 'render_qweb_pdf',
+      'args': [
+        [reportId]
+      ],
+      'kwargs': {'res_ids': resourceIds}
+    });
+    // print type of data
+    print("Type of data: ${result[1]}");
+    if (result[1] != 'pdf') {
+      throw Exception("PDF Report $reportName not found");
+    }
+    var bytes = result[0];
+    return bytes;
+  }
 }

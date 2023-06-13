@@ -40,12 +40,11 @@ dependencies:
   flutter_dotenv: ^5.0.2
   flutter_riverpod: ^2.3.6
   transparent_image: ^2.0.1
-  intl: 
-  syncfusion_flutter_calendar: 20.1.47
-  flutter_localization: ^0.1.11
-  syncfusion_localizations: ^21.2.4
-dependency_overrides:
-  syncfusion_flutter_core: 20.1.47
+  intl:
+  syncfusion_flutter_calendar:
+  flutter_localization:
+  syncfusion_localizations:
+  syncfusion_flutter_pdfviewer:
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -79,7 +78,7 @@ flutter:
     # Icons
     - assets/icons/menu.png
     - assets/icons/account.jpeg
-    - assets/icons/dashbord.jpeg
+    - assets/icons/dashboard.jpeg
     - assets/icons/employee.jpeg
     - assets/icons/expense.jpeg
     - assets/icons/holiday.jpeg
@@ -90,6 +89,10 @@ flutter:
     - assets/icons/deconnecter.png
     - assets/icons/expense_list.png
     - assets/icons/expense_add.png
+    - assets/icons/payslip.png
+    - assets/icons/contract.png
+    - assets/icons/telechargement.png
+    - assets/icons/imprimer.png
     # Icons Holidays
     - assets/icons/holiday/icone_approuvee.png
     - assets/icons/holiday/icone_demande_allocation.png
