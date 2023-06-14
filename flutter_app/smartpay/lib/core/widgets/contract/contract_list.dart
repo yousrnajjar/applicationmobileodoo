@@ -25,7 +25,7 @@ class _ContractListState extends State<ContractList> {
     List<Map<OdooField, dynamic>> res =
         await OdooModel("hr.contract").searchReadAsOdooField(
       domain: [
-        ["employee_id", "=", widget.user.info["employee_id"][0]]
+        ["employee_id", "=", widget.user.employeeId]
       ],
       fieldNames: [
         "id",

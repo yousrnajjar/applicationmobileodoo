@@ -28,7 +28,7 @@ class _PayslipListState extends State<PayslipList> {
   Future<List<Map<OdooField, dynamic>>> _loadPayslips() async {
     return OdooModel('hr.payslip').searchReadAsOdooField(
       domain: [
-        ['employee_id', '=', widget.user.info['employee_id'][0]]
+        ['employee_id', '=', widget.user.employeeId]
       ],
       fieldNames: [
         'id',

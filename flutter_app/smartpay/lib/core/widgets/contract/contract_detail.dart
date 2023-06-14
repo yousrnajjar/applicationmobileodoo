@@ -59,10 +59,10 @@ class ContractDetail extends StatelessWidget {
       // if the contract has no end date, then replace with : infinity
       // else compute the number of month between [dateStart] and [dateEnd]
       var numberOfMonthInContract =
-      (dateEnd.difference(dateStart).inDays / 365) as int;
+          (dateEnd.difference(dateStart).inDays / 365);
       // pad the number of month with 0 if it's less than 10 and replace with 'Indéterminé' if it's infinite
       numberOfMonthInContractString =
-      '${numberOfMonthInContract.toStringAsFixed(0).padLeft(2, '0')}An';
+          '${numberOfMonthInContract.toStringAsFixed(0).padLeft(2, '0')}An';
     }
 
     String state = contractDisplay['state'];

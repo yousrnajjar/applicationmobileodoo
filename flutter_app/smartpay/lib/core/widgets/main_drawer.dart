@@ -58,7 +58,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       });
     } else if (identifier == "employee") {
       setState(() {
-        _title = "Employé";
+        _title = "Salarié";
         _screen =
             ContractPayslipScreen(user: widget.user, onTitleChanged: setTitle);
       });

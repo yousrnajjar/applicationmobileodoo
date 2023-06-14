@@ -22,7 +22,7 @@ class _ExpenseListState extends State<ExpenseList> {
   Future<List<Expense>> listenForExpenses() async {
     var result = await OdooModel('hr.expense').searchRead(
       domain: [
-        ['employee_id', '=', widget.user.info['employee_id'][0]]
+        ['employee_id', '=', widget.user.employeeId]
       ],
       fieldNames: Expense({}).allFields,
       limit: 1000,

@@ -1,6 +1,5 @@
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/employee.dart';
-import 'package:smartpay/ir/models/holidays.dart';
 
 import '../model_helper.dart';
 
@@ -88,12 +87,12 @@ class User extends OdooModelHelper {
     return "$baseUrl/web/image?model=res.users&id=$uid&field=image_128";
   }
 
-  dynamic get employeeId {
+  /*dynamic get employeeId {
     if (info.containsKey("employee_id") && info["employee_id"] != false) {
-      return info['employee_id'];
+      return  employeeId// info['employee_id'];
     }
     return [];
-  }
+  }*/
 
   List<int> get employeeIds {
     if (info.containsKey("employee_ids") && info["employee_ids"] != false) {
@@ -121,9 +120,32 @@ class User extends OdooModelHelper {
     isManager = false;
   }
 
+  int? get employeeId {
+    var res = info['employee_id'];
+    if (res == false &&
+        info['employee_ids'] != false &&
+        info['employee_ids'].length > 0) {
+      res = info['employee_ids'][0];
+    } else {
+      res = null;
+    }
+    return res;
+    //info['employee_ids'][0];
+    /*(info['employee_id'] == false)
+        ? (info['employee_ids'] != false && info['employee_ids'].length > 0)
+            ? info['employee_ids'][0]
+            : null
+        : info['employee_id'];*/
+  }
+
   Future<List<Map<String, dynamic>>> getHolidayDetails(
       {bool onlyMe = false, required List<String> holidayFields}) async {
-    var employeeIdManaged = <int>[info['employee_id'][0]];
+    //info.forEach((key, value) => print('$key ======== $value'));
+    //print("=========================$employeeId");
+    List<dynamic> employeeIdManaged = (employeeId != null) ? [employeeId!] : [];
+    /*<int>[
+      info['employee_id'][0]
+    ];*/ // FixMe: Raise Error when is empty
     if (!onlyMe) {
       var subordinatesData = await OdooModel("hr.employee").searchRead(
         domain: [

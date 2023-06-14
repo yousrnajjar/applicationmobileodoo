@@ -57,7 +57,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
   Future<List<Map<OdooField, dynamic>>> _loadLastPayslipInfo() {
     return OdooModel('hr.payslip').searchReadAsOdooField(
       domain: [
-        ['employee_id', '=', widget.user.info['employee_id'][0]]
+        ['employee_id', '=', widget.user.employeeId]
       ],
       fieldNames: ['name', 'date_from', 'date_to', 'state', 'employee_id'],
       limit: 1,
@@ -67,7 +67,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
   Future<List<Map<OdooField, dynamic>>> _loadEmployeeInfo() {
     return OdooModel('hr.employee').searchReadAsOdooField(
       domain: [
-        ['id', '=', widget.user.info['employee_id'][0]]
+        ['id', '=', widget.user.employeeId]
       ],
       fieldNames: ['name', 'job_id', 'image_128'],
       limit: 1,
@@ -78,7 +78,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
     List<Map<OdooField, dynamic>> res =
         await OdooModel("hr.contract").searchReadAsOdooField(
       domain: [
-        ["employee_id", "=", widget.user.info["employee_id"][0]]
+        ["employee_id", "=", widget.user.employeeId]
       ],
       fieldNames: [
         "id",
