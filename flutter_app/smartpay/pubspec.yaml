@@ -45,6 +45,8 @@ dependencies:
   flutter_localization:
   syncfusion_localizations:
   syncfusion_flutter_pdfviewer:
+  permission_handler: ^10.3.0
+  path_provider: ^2.0.15
 dev_dependencies:
   flutter_test:
     sdk: flutter

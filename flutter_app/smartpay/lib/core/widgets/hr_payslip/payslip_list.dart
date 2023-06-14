@@ -64,7 +64,14 @@ class _PayslipListState extends State<PayslipList> {
                           .value;
                     });
                   },
-                  child: PayslipListDetail(pay: payslip),
+                  child: PayslipListDetail(
+                      pay: payslip,
+                      onPrintPdf: (int id) {
+                        setState(() {
+                          activeScreenName = 'pdf';
+                          activePayslipId = id;
+                        });
+                      }),
                 ),
               );
             },

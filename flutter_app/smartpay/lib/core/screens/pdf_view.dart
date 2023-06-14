@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/data/themes.dart';
+import 'package:smartpay/ir/download_pdf.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
@@ -128,11 +129,14 @@ class _AppPDFViewState extends State<AppPDFView> {
               ElevatedButton(
                 child: const Text('Télécharger'),
                 onPressed: () {
-                  if (widget.onReturn != null) {
-                    widget.onReturn!();
-                  } else {
-                    Navigator.pop(context);
-                  }
+                  var file = FileStorage.saveFile(
+                      bytes: _pdfBytes!, fileName: widget.reportName);
+                  // Show toast
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('PDF téléchargé'),
+                    ),
+                  );
                 },
               ),
             ],

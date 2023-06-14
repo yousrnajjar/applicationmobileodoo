@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/core/widgets/hr_payslip/payslip_detail.dart';
 import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/ir/download_pdf.dart';
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -107,12 +106,10 @@ class PayslipListDetail extends PayslipDetail {
         children: [
           TextButton(
             onPressed: () {
-              // Télécharger
-              download(
-                context: context,
-                resourceIds: [pay[id]],
-                reportName: reportName,
-              );
+              if (onPrintPdf == null) {
+                return;
+              }
+              onPrintPdf!(pay[id]);
             },
             style: TextButton.styleFrom(
               foregroundColor: kGreen,

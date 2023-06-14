@@ -2,9 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-
-//getExternalStorageDirectory
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:smartpay/ir/model.dart';
 
 /// function to download pdf
@@ -27,8 +26,7 @@ Future<void> download({
     List<int> bytes = bytesAsString.codeUnits;
     Uint8List pdfBytes = Uint8List.fromList(bytes);
     if (context.mounted) {
-      await saveFile(
-        context: context,
+      await FileStorage.saveFile(
         bytes: pdfBytes,
         fileName: reportName,
       );
@@ -44,23 +42,57 @@ Future<void> download({
 /// [bytes] is the bytes of the file to be saved
 /// [fileName] is the name of the file to be saved
 
-Future<void> saveFile({
-  required BuildContext context,
-  required Uint8List bytes,
-  required String fileName,
-}) async {
-  // get path to save file
-  Directory? directory = await getExternalStorageDirectory();
-  String path = directory!.path;
-  // save file
-  File file = File('$path/$fileName.pdf');
-  await file.writeAsBytes(bytes);
-  if (context.mounted) {
-    // show snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("File saved to $path/$fileName.pdf"),
-      ),
-    );
+// To save the file in the device
+class FileStorage {
+  static Future<String> getExternalDocumentPath() async {
+    // To check whether permission is given for this app or not.
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      // If not we will ask for permission first
+      await Permission.storage.request();
+    }
+    Directory _directory = Directory("");
+    if (Platform.isAndroid) {
+      // Redirects it to download folder in android
+      _directory = Directory("/storage/emulated/0/Download");
+    } else {
+      _directory = await getApplicationDocumentsDirectory();
+    }
+
+    final exPath = _directory.path;
+    print("Saved Path: $exPath");
+    await Directory(exPath).create(recursive: true);
+    return exPath;
+  }
+
+  static Future<String> get _localPath async {
+    // final directory = await getApplicationDocumentsDirectory();
+    // return directory.path;
+    // To get the external path from device of download folder
+    final String directory = await getExternalDocumentPath();
+    return directory;
+  }
+
+  static Future<File> writeCounter(String bytes, String name) async {
+    final path = await _localPath;
+    // Create a file for the path of
+    // device and file name with extension
+    File file = File('$path/$name');
+    ;
+    print("Save file");
+
+    // Write the data in the file you have created
+    return file.writeAsString(bytes);
+  }
+
+  static Future<File> saveFile({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    // get path to save file
+    final path = await _localPath;
+    // Create file
+    File file = File('$path/$fileName.pdf');
+    return file.writeAsBytes(bytes);
   }
 }
