@@ -117,7 +117,7 @@ class _AppPDFViewState extends State<AppPDFView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               OutlinedButton(
-                child: const Text('Imprimer'),
+                child: const Text('Retour'),
                 onPressed: () {
                   if (widget.onReturn != null) {
                     widget.onReturn!();

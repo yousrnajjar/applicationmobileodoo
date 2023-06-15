@@ -47,7 +47,7 @@ class _ContractPayslipScreenState extends State<ContractPayslipScreen> {
       //body: _widgetOptions.elementAt(_selectedIndex),
       body: Container(
         margin: EdgeInsets.only(
-            top: (65 / baseHeightDesign) * height,
+            top: (10 / baseHeightDesign) * height,
             left: 10,
             right: 10,
             bottom: 20),

@@ -141,7 +141,7 @@ class PayslipListDetail extends PayslipDetail {
             ),
           ),
           // Imprimer
-          TextButton(
+          /*TextButton(
             // ZeroPadding
             style: TextButton.styleFrom(
               foregroundColor: kGreen,
@@ -178,7 +178,7 @@ class PayslipListDetail extends PayslipDetail {
                 ),
               ],
             ),
-          ),
+          ),*/
         ],
       ),
     );
