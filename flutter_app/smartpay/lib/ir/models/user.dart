@@ -121,15 +121,14 @@ class User extends OdooModelHelper {
   }
 
   int? get employeeId {
-    var res = info['employee_id'];
-    if (res == false &&
-        info['employee_ids'] != false &&
-        info['employee_ids'].length > 0) {
-      res = info['employee_ids'][0];
-    } else {
-      res = null;
+    if (info['employee_id'] != false) {
+      return info['employee_id'][0];
     }
-    return res;
+    if (info['employee_ids'] != false && info['employee_ids'].length > 0) {
+      return info['employee_ids'][0];
+    }
+    return null;
+  
     //info['employee_ids'][0];
     /*(info['employee_id'] == false)
         ? (info['employee_ids'] != false && info['employee_ids'].length > 0)
