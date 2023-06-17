@@ -19,7 +19,7 @@ class TokenSession(http.Controller):
     Ajoute le l'authentification pas token
     """
     @http.route('/web/session/authenticate/token', type='json', auth="none", cors="*")
-    def authenticate_with_token(self, login, password, token):
+    def authenticate_with_token(self, db, login, password, token):
         """
         JSON Authentication via default database
         :param login: User login
@@ -28,10 +28,11 @@ class TokenSession(http.Controller):
         :param base_location:
         :return:
         """
+        request.session.db = db
         request.session['token'] = token
         request.session['check_token'] = True
         try:
-            request.session.authenticate(request.db, login, password)
+            request.session.authenticate(db, login, password)
         except http.AuthenticationError as exception:
             request.session.uid = False
             if not hasattr(request, "is_valid_token") or not request.token_send:
@@ -40,7 +41,7 @@ class TokenSession(http.Controller):
         return request.env['ir.http'].session_info()
 
     @http.route('/web/session/authenticate2', type='json', auth="none", cors="*")
-    def authenticate(self, login, password):
+    def authenticate(self, db, login, password):
         """
         JSON Authentication via default database
         :param login: User login
@@ -48,9 +49,10 @@ class TokenSession(http.Controller):
         :return:
         :raise: AuthenticationError if token is not send
         """
+        request.session.db = db
         request.session['check_token'] = False
         try:
-            request.session.authenticate(request.db, login, password)
+            request.session.authenticate(db, login, password)
         except odoo.exceptions.AccessDenied as exception:
             if not hasattr(request, "token_send") or not request.token_send:
                 raise http.AuthenticationError("Login ou mot de passe incorrect") from exception

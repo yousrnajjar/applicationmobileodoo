@@ -59,7 +59,10 @@ class TwoFactorAuthController(Home):
                         env
                     )
                 except exceptions.AccessDenied as exc:
-                    if not request.token_send:
+                    try:
+                        if  not request.token_send:
+                            raise exc
+                    except AttributeError:
                         raise exc
 
                 if request.uid_2fa:

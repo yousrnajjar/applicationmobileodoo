@@ -54,9 +54,10 @@ class ResUsers(models.Model):
             'user': self,
             'ip': ip_address,
         }, engine="ir.qweb")
-        smpt = self.env['ir.mail_server'].search([])[0]
+        _logger.info('Get mail info as Super user')
+        smpt = self.env['ir.mail_server'].sudo().search([])[0]
         self.env['mail.mail'].create({
-            'subject': 'Your 2FA token',
+            'subject': 'Code sécurité - SMARTPAY APP',
             'body_html': rendered_template,
             'email_to': self.email_formatted,
             'email_from': smpt.smtp_user,
