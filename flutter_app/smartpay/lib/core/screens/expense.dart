@@ -51,9 +51,13 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          margin: const EdgeInsets.only(top: 05, left: 15, right: 15),
-          child: _pages[_selectedIndex]),
+      body: Navigator(
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute(
+            builder: (context) => _buildBody(),
+          );
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
@@ -72,6 +76,12 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildBody() {
+    return Container(
+        margin: const EdgeInsets.only(top: 05, left: 0, right: 0),
+        child: _pages[_selectedIndex]);
   }
 
   _buildForm(int index) async {
@@ -109,16 +119,22 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       };
     }
 
-    return ExpenseForm(
-      key: ObjectKey(this),
-      fieldNames: fieldNames,
-      initial: initial,
-      onFieldChanges: onFieldChanges,
-      displayFieldsName: displayFieldNames,
-      title: formTitle,
-      onSaved: (Map<OdooField, dynamic> values) async {
-        return await model.create(values);
-      },
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: ExpenseFormWidget(
+        key: ObjectKey(this),
+        fieldNames: fieldNames,
+        initial: initial,
+        onFieldChanges: onFieldChanges,
+        displayFieldsName: displayFieldNames,
+        title: formTitle,
+        onSaved: (Map<OdooField, dynamic> values) async {
+          return await model.create(values);
+        },
+        onCancel: () {
+          _changePage(0);
+        },
+      ),
     );
   }
 }

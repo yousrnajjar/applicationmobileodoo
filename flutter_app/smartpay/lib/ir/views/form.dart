@@ -13,6 +13,7 @@ import 'package:smartpay/ir/model.dart';
 class AppForm extends StatefulWidget {
   final List<String> fieldNames;
   final Function(Map<OdooField, dynamic>) onSaved;
+  final Function()? onCancel;
   final Map<OdooField, dynamic> initial;
   final List<String> displayFieldsName;
   final String title;
@@ -24,6 +25,7 @@ class AppForm extends StatefulWidget {
 
   const AppForm({
     super.key,
+    this.onCancel,
     required this.onSaved,
     required this.fieldNames,
     required this.initial,
@@ -37,7 +39,7 @@ class AppForm extends StatefulWidget {
 }
 
 class AppFormState extends State<AppForm> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   Map<OdooField, dynamic> values = {};
   Map<OdooField, TextEditingController> controllers = {};
   String message = "Votre demande a été bien enregistrée!";
@@ -140,7 +142,7 @@ class AppFormState extends State<AppForm> {
     });
   }
 
-  _save() async {
+  save() async {
     var cleanedValues = cleanValues();
     cleanedValues.forEach((key, value) {});
     setState(() {
@@ -213,7 +215,7 @@ class AppFormState extends State<AppForm> {
   ///
   Widget buildForm(List<Widget> formFieldsWidget) {
     return Form(
-      key: _formKey,
+      key: formKey,
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -237,9 +239,9 @@ class AppFormState extends State<AppForm> {
           onPressed: isSending
               ? null
               : () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    _save();
+                  if (formKey.currentState!.validate()) {
+                    formKey.currentState!.save();
+                    save();
                   }
                 },
           child: isSending
@@ -254,7 +256,13 @@ class AppFormState extends State<AppForm> {
         ),
         OutlinedButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            if (widget.onCancel != null) {
+              widget.onCancel!();
+            } else {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            }
           },
           child: const Text("Annuler"),
         ),

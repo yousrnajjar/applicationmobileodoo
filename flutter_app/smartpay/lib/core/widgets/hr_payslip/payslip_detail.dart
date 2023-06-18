@@ -22,11 +22,17 @@ class PayslipDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> lastPay = {};
+    pay.forEach((k, v) {
+      lastPay[k.name] = v;
+    });
+
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     itemHeight = (86 / baseHeightDesign) * height;
     itemWidth = (60 / baseWidthDesign) * width;
-    backgroundColor = stateColor[pay['state']] ?? kGreen;
+    backgroundColor = stateColor[lastPay['state']] ?? kGreen;
+
     // Si aucune fiche de pay n'est disponible
     if (pay.isEmpty) {
       return Container(
@@ -41,11 +47,6 @@ class PayslipDetail extends StatelessWidget {
       );
     }
 
-    Map<String, dynamic> lastPay = {};
-    pay.forEach((k, v) {
-      lastPay[k.name] = v;
-    });
-
     var dateFormatter = DateFormat('yyyy-MM-dd');
     var date = dateFormatter.parse(lastPay['date_from']);
 
@@ -55,7 +56,7 @@ class PayslipDetail extends StatelessWidget {
         buildMonth(date, backgroundColor),
         buildBody(context, date, lastPay),
         if (footer != null)
-          // footer, --> Add vertical line
+        // footer, --> Add vertical line
           Container(
             width: 1,
             height: itemHeight,

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/expense.dart';
 import 'package:smartpay/ir/views/form.dart';
 
 /// Extend base form [AppForm] for customise view rendered
@@ -10,9 +11,10 @@ import 'package:smartpay/ir/views/form.dart';
 ///         * Add employee_id
 ///         * Adding Leave type
 ///         * Custom view rendered
-class ExpenseForm extends AppForm {
-  const ExpenseForm({
+class ExpenseFormWidget extends AppForm {
+  const ExpenseFormWidget({
     super.key,
+    super.onCancel,
     required super.onSaved,
     required super.fieldNames,
     required super.initial,
@@ -24,6 +26,58 @@ class ExpenseForm extends AppForm {
   @override
   State<AppForm> createState() {
     return _ExpenseFormState();
+  }
+
+  static Future<Widget> buildExpenseForm(
+      {required dynamic Function() onCancel,
+      Function(Expense)? afterSave}) async {
+    /*return await OdooModel("hr.expense").buildFormFields(
+      fieldNames: Expense({}).allFields,
+      onChangeSpec: Expense({}).onchangeSpec,
+      formTitle: "Demande de congé",
+      displayFieldNames: Expense({}).displayFieldNames,
+    );*/
+    var fieldNames = Expense({}).allFields;
+    var displayFieldNames = Expense({}).displayFieldNames;
+    var onChangeSpec = Expense({}).onchangeSpec;
+    var formTitle = "";
+    var model = OdooModel("hr.expense");
+
+    Map<OdooField, dynamic> initial =
+        await model.defaultGet(fieldNames, onChangeSpec);
+    Map<OdooField,
+            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+        onFieldChanges = {};
+    for (OdooField field in initial.keys) {
+      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+        return await model.onchange([field], currentValues, onChangeSpec);
+      };
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: ExpenseFormWidget(
+        fieldNames: fieldNames,
+        initial: initial,
+        onFieldChanges: onFieldChanges,
+        displayFieldsName: displayFieldNames,
+        title: formTitle,
+        onSaved: (Map<OdooField, dynamic> values) async {
+          //return await model.create(values);
+          return await model.create(values).then((value) {
+            if (afterSave != null) {
+              // convert value to  expense object
+              Map<String, dynamic> data = {};
+              for (var entry in value.entries) {
+                data[entry.key.name] = entry.value;
+              }
+              afterSave(Expense.fromJson(data));
+            }
+          });
+        },
+        onCancel: onCancel,
+      ),
+    );
   }
 }
 
@@ -68,6 +122,44 @@ class _ExpenseFormState extends AppFormState {
       _paymentMode[el['value']] = expense.value == el['value'];
     }
     return res;
+  }
+
+  @override
+  Widget buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: isSending
+              ? null
+              : () {
+                  if (super.formKey.currentState!.validate()) {
+                    super.formKey.currentState!.save();
+                    super.save();
+                  }
+                },
+          child: isSending
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                )
+              : const Text("Enregistrer"),
+        ),
+        OutlinedButton(
+          onPressed: () {
+            if (widget.onCancel != null) {
+              widget.onCancel!();
+            } else if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+          child: const Text("Annuler"),
+        ),
+      ],
+    );
   }
 
   @override

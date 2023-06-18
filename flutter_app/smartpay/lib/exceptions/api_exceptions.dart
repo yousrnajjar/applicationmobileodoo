@@ -36,3 +36,4 @@ class OdooValidationError extends OdooErrorException {
   @override
   String toString() => '$code - Odoo Validation error:  $errorType - $message';
 }
+

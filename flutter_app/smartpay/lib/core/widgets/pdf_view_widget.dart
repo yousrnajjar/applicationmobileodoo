@@ -63,7 +63,14 @@ class _AppPDFViewState extends State<AppPDFView> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(navigationText),
+                Text(
+                  navigationText,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
                 // Vertical line as separator
                 SizedBox(width: 10),
                 Container(
@@ -72,7 +79,8 @@ class _AppPDFViewState extends State<AppPDFView> {
                   color: Colors.black,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.arrow_forward),
+                  padding: const EdgeInsets.all(0),
+                  icon: const Icon(Icons.arrow_back),
                   onPressed: () {
                     if (widget.onReturn != null) {
                       widget.onReturn!();
