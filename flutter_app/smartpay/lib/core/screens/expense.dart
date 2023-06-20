@@ -87,7 +87,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   _buildForm(int index) async {
     Widget? content;
     if (index == 1) {
-      content = await buildExpenseForm();
+      content = await ExpenseFormWidget.buildExpenseForm(onCancel: () {
+        _changePage(0);
+      });
     }
     if (content != null) {
       setState(() {

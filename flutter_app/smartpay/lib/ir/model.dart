@@ -280,27 +280,28 @@ class OdooModel {
         try {
           valuesMap[field.name] = values[field][0];
         } catch (e) {
-          // FIXME: Handle correct exception
           valuesMap[field.name] = values[field];
         }
       } else {
         valuesMap[field.name] = values[field];
       }
     }
-    /*print("=======================$id");
+    int id = await session.create(modelName, valuesMap);
+    print("OdooModel.create: id = $id");
     List<dynamic> datas = await session.searchRead(
         modelName,
         [
           ["id", "=", id],
-          ['user_id', '=', session.uid]
         ],
         valuesMap.keys.toList(),
-        1000,
-        100,);
-    print("=======================$datas");
-    datas[0].forEach((key, value) {
-      values[values.keys.firstWhere((element) => element.name == key)] = value;
-    });*/
+        1,
+        0,
+    );
+     
+    // Update values with the new data
+    for (var field in values.keys) {
+      values[field] = datas[0][field.name];
+    }
     return values;
   }
 

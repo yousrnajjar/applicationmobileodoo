@@ -72,7 +72,7 @@ class _AppPDFViewState extends State<AppPDFView> {
                   ),
                 ),
                 // Vertical line as separator
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Container(
                   height: 30,
                   width: 1,
@@ -99,7 +99,7 @@ class _AppPDFViewState extends State<AppPDFView> {
               child: (_pdfBytes != null)
                   ? SfPdfViewer.memory(
                       _pdfBytes!,
-                      initialScrollOffset: Offset(0, 0),
+                      initialScrollOffset: const Offset(0, 0),
                       initialZoomLevel: 1.5,
                       pageSpacing: 2,
                       canShowScrollHead: true,
@@ -118,7 +118,7 @@ class _AppPDFViewState extends State<AppPDFView> {
                         showErrorDialog(context, details.error);
                       },
                     )
-                  : Center(child: CircularProgressIndicator()),
+                  : const Center(child: CircularProgressIndicator()),
             ),
           ),
           Row(
@@ -141,7 +141,7 @@ class _AppPDFViewState extends State<AppPDFView> {
                       bytes: _pdfBytes!, fileName: widget.reportName);
                   // Show toast
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('PDF téléchargé'),
                     ),
                   );

@@ -124,6 +124,7 @@ class _ExpenseListState extends State<ExpenseList> {
                   triggerNewAttachmentId(attachmentId);
                 },
                 onWorkFlowChanged: (workflow) {
+                  print('ExpenseList: workflow changed $workflow');
                   setState(() {
                     _takePictureWorkflow = workflow;
                   });

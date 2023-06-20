@@ -71,11 +71,12 @@ class ExpenseFormWidget extends AppForm {
               for (var entry in value.entries) {
                 data[entry.key.name] = entry.value;
               }
+
               afterSave(Expense.fromJson(data));
             }
           });
         },
-        onCancel: onCancel,
+        onCancel: () => onCancel(),
       ),
     );
   }

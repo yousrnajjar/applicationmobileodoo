@@ -14,7 +14,7 @@ import 'expense_list_item.dart';
 class SelectExpenseWidget extends StatefulWidget {
   final List<Expense> expenses;
   final Function(BuildContext context, Expense expense) onSelect;
-  final Function()? onCancel;
+  final Function(BuildContext context)? onCancel;
   final String? title;
 
   const SelectExpenseWidget({
@@ -135,9 +135,10 @@ class _SelectExpenseWidgetState extends State<SelectExpenseWidget> {
             child: const Text('Annuler'),
             onPressed: () {
               if (widget.onCancel != null) {
-                widget.onCancel!();
+                widget.onCancel!(context);
                 return;
               }
+              else
               if (context.mounted && Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }

@@ -247,7 +247,7 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () async {
+                  onPressed: () {
                     // modal for create expense
                     ExpenseFormWidget.buildExpenseForm(
                       onCancel: () {
@@ -255,12 +255,14 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                       },
                       afterSave: (Expense expense) {
                         Navigator.pop(context, expense);
+                        
                       },
                     ).then((Widget createdForm) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (ctx) => createdForm),
                       ).then((dynamic expense) {
+                        print('TakePictureForExpenseWidget: expense created: $expense');
                         Expense? newExpense = expense as Expense?;
                         if (newExpense != null) {
                           setState(() {
@@ -272,8 +274,8 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                           });
                         } else {
                           setState(() {
-                            _workflow =
-                                TakePictureForExpenseWorkflow.expenseCanceled;
+                            _workflow = TakePictureForExpenseWorkflow.pictureValidated;
+                                //TakePictureForExpenseWorkflow.expenseCanceled;
                             widget.onWorkFlowChanged(_workflow!);
                           });
                         }
@@ -321,12 +323,8 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                               title:
                                   'Selectionner une note de frais pour la photo',
                               expenses: _expenses,
-                              onCancel: () {
-                                setState(() {
-                                  _workflow = TakePictureForExpenseWorkflow
-                                      .expenseCanceled;
-                                  widget.onWorkFlowChanged(_workflow!);
-                                });
+                              onCancel: (BuildContext selectionContext) {
+                                Navigator.pop(selectionContext, null);
                               },
                               onSelect: (BuildContext selectionContext,
                                   Expense expense) {
@@ -342,8 +340,8 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                       });
                     } else {
                       setState(() {
-                        _workflow =
-                            TakePictureForExpenseWorkflow.expenseCanceled;
+                        _workflow = TakePictureForExpenseWorkflow.pictureValidated;
+                            //TakePictureForExpenseWorkflow.expenseCanceled;
                         widget.onWorkFlowChanged(_workflow!);
                       });
                     }

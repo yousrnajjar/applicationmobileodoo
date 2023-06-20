@@ -114,13 +114,10 @@ class AppFormState extends State<AppForm> {
   }
 
   setValues(Map<OdooField, dynamic> newValues) {
-    if (kDebugMode) {
-      print('===============');
-    }
     newValues.forEach((field, value) {
-      if (kDebugMode) {
-        print('${field.name} $value');
-      }
+      //if (kDebugMode) {
+        //print('${field.name} $value');
+      //}
       if (controllers.keys.map((e) => e.name).contains(field.name) &&
           value != null) {
         setState(() {
@@ -133,6 +130,7 @@ class AppFormState extends State<AppForm> {
               TextPosition(offset: '$value'.length),
             ),
           );
+
         });
       }
       var key = values.keys.firstWhere((e) => e.name == field.name);
@@ -150,6 +148,10 @@ class AppFormState extends State<AppForm> {
     });
     try {
       var newValues = await widget.onSaved(cleanedValues);
+
+      if (newValues == null) {
+        return;
+      }
       setState(() {
         values = newValues;
       });
@@ -157,6 +159,9 @@ class AppFormState extends State<AppForm> {
       message = e.message;
     } on OdooErrorException catch (e) {
       message = "Veuillez contactez l'admin: ${e.message}";
+    } catch (e) {
+      message = "Une erreur est survenue";
+      print(e);
     } finally {
       setState(() {
         isSending = false;
