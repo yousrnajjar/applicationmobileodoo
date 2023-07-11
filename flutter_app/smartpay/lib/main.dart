@@ -6,7 +6,7 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 import 'core/providers/user_info_providers.dart';
 import 'core/screens/login_screen.dart';
-import 'core/widgets/main_drawer.dart';
+import 'core/screens/main_drawer.dart';
 import 'ir/data/themes.dart';
 
 void main() async {

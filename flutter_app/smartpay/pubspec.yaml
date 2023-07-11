@@ -99,6 +99,8 @@ flutter:
     - assets/icons/contract.png
     - assets/icons/telechargement.png
     - assets/icons/imprimer.png
+    - assets/icons/fingerprint.png
+    - assets/icons/history.png
     # Icons Holidays
     - assets/icons/holiday/icone_approuvee.png
     - assets/icons/holiday/icone_demande_allocation.png

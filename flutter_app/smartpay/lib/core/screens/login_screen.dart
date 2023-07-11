@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 
 import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/core/widgets/main_drawer.dart';
+import 'package:smartpay/core/screens/main_drawer.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';
 import 'package:smartpay/core/providers/session_providers.dart';

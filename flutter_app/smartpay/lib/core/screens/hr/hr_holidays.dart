@@ -18,9 +18,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smartpay/core/widgets/holidays/allocation_form.dart';
-import 'package:smartpay/core/widgets/holidays/holidays_calendar_view.dart';
-import 'package:smartpay/core/widgets/holidays/leave_form.dart';
+import 'package:smartpay/core/widgets/hr_holidays/allocation_form.dart';
+import 'package:smartpay/core/widgets/hr_holidays/holidays_calendar_view.dart';
+import 'package:smartpay/core/widgets/hr_holidays/leave_form.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';

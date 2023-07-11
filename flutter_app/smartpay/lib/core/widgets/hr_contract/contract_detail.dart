@@ -4,15 +4,20 @@ import 'package:intl/intl.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 
-import '../month_card.dart';
+import '../utils/month_card.dart';
 
 class ContractDetail extends StatelessWidget {
   final Map<OdooField, dynamic> contract;
   double itemHeight = 0;
   double itemWidth = 0;
   Color backgroundColor = Colors.white;
+  final Function? onPrintPdf;
 
-  ContractDetail({super.key, required this.contract});
+  ContractDetail({
+    super.key,
+    required this.contract,
+    this.onPrintPdf,
+  });
 
   Map<String, Color> stateColor = {
     'draft': kGrey,
@@ -272,36 +277,95 @@ class ContractDetail extends StatelessWidget {
             )));
   }
 
+  // Widget? buildFooter(BuildContext context) {
+  //   return Container(
+  //       height: itemHeight,
+  //       width: (93 / baseWidthDesign) * MediaQuery.of(context).size.width,
+  //       // Ligne de séparation noire
+  //       decoration: const BoxDecoration(
+  //         color: Color.fromARGB(255, 230, 229, 225),
+  //         border: Border(
+  //           left: BorderSide(
+  //             color: Colors.black,
+  //             width: 1,
+  //           ),
+  //         ),
+  //       ),
+  //       child: Center(
+  //         child: TextButton(
+  //             style: TextButton.styleFrom(
+  //               foregroundColor: kGrey,
+  //               minimumSize: Size.zero,
+  //               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  //               padding: const EdgeInsets.all(5),
+  //               shape: const BeveledRectangleBorder(
+  //                   borderRadius: BorderRadius.all(Radius.circular(0))),
+  //               textStyle: const TextStyle(
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //             child: const Text('Consulter le contrat'),
+  //             onPressed: () {}),
+  //       ));
+  // }
   Widget? buildFooter(BuildContext context) {
+    var id = contract.keys.firstWhere((k) => k.name == 'id');
+
     return Container(
-        height: itemHeight,
-        width: (93 / baseWidthDesign) * MediaQuery.of(context).size.width,
-        // Ligne de séparation noire
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 230, 229, 225),
-          border: Border(
-            left: BorderSide(
-              color: Colors.black,
-              width: 1,
-            ),
+      height: itemHeight,
+      width: (93 / baseWidthDesign) * MediaQuery.of(context).size.width,
+      // Ligne de séparation noire
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 230, 229, 225),
+        border: Border(
+          left: BorderSide(
+            color: Colors.black,
+            width: 1,
           ),
         ),
-        child: Center(
-          child: TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: kGrey,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                padding: const EdgeInsets.all(5),
-                shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0))),
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            onPressed: () {
+              if (onPrintPdf == null) {
+                return;
+              }
+              onPrintPdf!(contract[id]);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: kGreen,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.all(5),
+              shape: const BeveledRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(0))),
+              textStyle: const TextStyle(
+                fontSize: 11,
               ),
-              child: const Text('Consulter le contrat'),
-              onPressed: () {}),
-        ));
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/icons/telechargement.png',
+                  width: 30,
+                  height: 30,
+                ),
+                const Text(
+                  'Télécharger',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

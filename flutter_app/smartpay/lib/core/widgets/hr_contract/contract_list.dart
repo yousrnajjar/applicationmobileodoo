@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smartpay/core/widgets/utils/pdf_view_widget.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';
@@ -21,6 +22,10 @@ class ContractList extends StatefulWidget {
 }
 
 class _ContractListState extends State<ContractList> {
+  String activeScreenName = 'list';
+
+  int? activeContractId;
+
   Future<List<Map<OdooField, dynamic>>> _loadContracts() async {
     List<Map<OdooField, dynamic>> res =
         await OdooModel("hr.contract").searchReadAsOdooField(
@@ -44,8 +49,7 @@ class _ContractListState extends State<ContractList> {
     return res;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildContractList(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return FutureBuilder(
       future: _loadContracts(),
@@ -56,9 +60,30 @@ class _ContractListState extends State<ContractList> {
             itemBuilder: (context, index) {
               Map<OdooField, dynamic> contract = snapshot.data![index];
               return Padding(
-                  padding:
-                      EdgeInsets.only(bottom: (10 * baseHeightDesign) / height),
-                  child: ContractDetail(contract: contract));
+                padding:
+                    EdgeInsets.only(bottom: (10 * baseHeightDesign) / height),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      activeScreenName = 'detail';
+                      activeContractId = contract.entries
+                          .firstWhere((element) => element.key.name == 'id')
+                          .value;
+                    });
+                  },
+                  child: ContractDetail(
+                    contract: contract,
+                    onPrintPdf: (int id) {
+                      setState(
+                        () {
+                          activeScreenName = 'pdf';
+                          activeContractId = id;
+                        },
+                      );
+                    },
+                  ),
+                ),
+              );
             },
           );
         } else {
@@ -66,5 +91,25 @@ class _ContractListState extends State<ContractList> {
         }
       },
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (activeScreenName == 'list') {
+      return _buildContractList(context);
+    } else {
+      var reportName = "om_hr_payroll.report_payslip";
+      return AppPDFView(
+        reportName: reportName,
+        resourceIds: [activeContractId!],
+        onReturn: () {
+          setState(
+            () {
+              activeScreenName = 'list';
+            },
+          );
+        },
+      );
+    }
   }
 }

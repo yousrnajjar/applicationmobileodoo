@@ -8,17 +8,29 @@ import 'package:transparent_image/transparent_image.dart';
 
 class EmployeeCardDetail extends StatelessWidget {
   final Map<OdooField, dynamic> employee;
-  final User user;
-  const EmployeeCardDetail({super.key, required this.employee, required this.user});
+  final User? user;
+  final showDetails;
+  const EmployeeCardDetail({
+    super.key, 
+    required this.employee, 
+    this.user,
+    this.showDetails,
+  });
 
   @override
   Widget build(BuildContext context) {
+    var showInfo = (showDetails == null) ? true : showDetails;
+    print('EmployeeCardDetail with showInfo: $showInfo');
     Map<String, dynamic> employeeKeyAsString = {};
     employee.forEach((key, value) {
       employeeKeyAsString[key.name] = value;
     });
-    employeeKeyAsString['vat'] =
-        user.info['vat'] == false ? '--/--' : user.info['vat'];
+    if (user != null){
+      employeeKeyAsString['vat'] =
+        user!.info['vat'] == false ? '--/--' : user!.info['vat'];
+    } else {
+      employeeKeyAsString['vat'] ='--/--';
+    }
 
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
@@ -42,6 +54,7 @@ class EmployeeCardDetail extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                if (showInfo)
                 // Vat in a circle and a background color white
                 Stack(
                   children: [
@@ -88,7 +101,19 @@ class EmployeeCardDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Image of employee
+                if (!showInfo)
+                  Spacer(),
+                // blank space
+                //Container(
+                  //width: smallCircleDiameter,
+                  //height: 10 + smallCircleDiameter + 10,
+                  //margin: const EdgeInsets.only(top: 10, bottom: 10),
+                  //decoration: const BoxDecoration(
+                    //color: Colors.transparent,
+                    //shape: BoxShape.circle,
+                  //),
+                //),
+                // Image of employee centered
                 Container(
                   padding: const EdgeInsets.all(5),
                   width: bigCircleDiameter,
@@ -107,12 +132,13 @@ class EmployeeCardDetail extends StatelessWidget {
                       image: Image.memory(
                               base64Decode(employeeKeyAsString['image_128']))
                           .image,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.contain
                       //height: 60,
                       //width: 60,
                     ),
                   ),
                 ),
+                if (showInfo)
                 // Number of work month
                 Stack(
                   children: [
@@ -160,7 +186,21 @@ class EmployeeCardDetail extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (!showInfo)
+                  Spacer(),
+                // blank space
+                //Container(
+                  //width: smallCircleDiameter,
+                  //height: 10 + smallCircleDiameter + 10,
+                  //margin: const EdgeInsets.only(top: 10, bottom: 10),
+                  //decoration: const BoxDecoration(
+                    //color: Colors.transparent,
+                    //shape: BoxShape.circle,
+                  //),
+                //),
+
               ],
+
             ),
             Center(
               child: Text(
@@ -193,11 +233,14 @@ class EmployeeCardDetail extends StatelessWidget {
 class EmployeeCard extends StatelessWidget {
   final Map<OdooField, dynamic> employee;
 
-  final User user;
+  final User? user;
+  final showDetails;
   const EmployeeCard(
-    this.employee,
-    this.user, {
+    {
+    required this.employee,
+    this.user,
     super.key,
+    this.showDetails,
   });
 
   @override
@@ -214,6 +257,7 @@ class EmployeeCard extends StatelessWidget {
           _buildBackgroundImage(cardHeight),
           // Container avec une couleur de fond et une opacité de 0.5 qui recouvre l'image
           _buildBackgroundContainer(cardHeight),
+          if (showDetails)
           // Bare horizontale
           Positioned(
             top: (96 / 650) * height,
@@ -225,7 +269,11 @@ class EmployeeCard extends StatelessWidget {
             ),
           ),
           // Informations de l'employé
-          EmployeeCardDetail(employee: employee, user: user),
+          EmployeeCardDetail(
+            employee: employee,
+            user: user ?? null,
+            showDetails: showDetails,
+          ),
         ],
       ),
     );

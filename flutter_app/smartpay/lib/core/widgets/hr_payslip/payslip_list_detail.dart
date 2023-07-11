@@ -85,7 +85,6 @@ class PayslipListDetail extends PayslipDetail {
 
   @override
   Widget? buildFooter(BuildContext context) {
-    var reportName = "om_hr_payroll.report_payslip";
     var id = pay.keys.firstWhere((k) => k.name == 'id');
 
     return Container(
@@ -140,45 +139,6 @@ class PayslipListDetail extends PayslipDetail {
               ],
             ),
           ),
-          // Imprimer
-          /*TextButton(
-            // ZeroPadding
-            style: TextButton.styleFrom(
-              foregroundColor: kGreen,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.all(5),
-              shape: const BeveledRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(0))),
-              textStyle: const TextStyle(
-                fontSize: 11,
-              ),
-            ),
-            onPressed: () {
-              // Imprimer
-              if (onPrintPdf != null) {
-                onPrintPdf!(pay[id]);
-                return;
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/icons/imprimer.png',
-                  width: 30,
-                  height: 30,
-                ),
-                const Text(
-                  'Imprimer',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),*/
         ],
       ),
     );

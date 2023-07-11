@@ -28,7 +28,7 @@ class ExpenseList extends StatefulWidget {
 class _ExpenseListState extends State<ExpenseList> {
   bool _showAddExpenseWidget = false;
   TakePictureForExpenseWorkflow _takePictureWorkflow =
-      TakePictureForExpenseWorkflow.notStarted;
+      TakePictureForExpenseWorkflow.cameraShowed;
   List<Expense> _loadedExpense = [];
 
   Future<List<Expense>> listenForExpenses() async {
@@ -107,6 +107,7 @@ class _ExpenseListState extends State<ExpenseList> {
           TakePictureForExpenseWorkflow.pictureCanceled,
           TakePictureForExpenseWorkflow.expenseCanceled,
           TakePictureForExpenseWorkflow.pictureSent,
+          TakePictureForExpenseWorkflow.pictureValidated, // Because we need to create the expense when the picture is validated
         ].contains(_takePictureWorkflow))
           Positioned(
             top: 0,
@@ -127,6 +128,20 @@ class _ExpenseListState extends State<ExpenseList> {
                   print('ExpenseList: workflow changed $workflow');
                   setState(() {
                     _takePictureWorkflow = workflow;
+                  });
+                },
+                onPictureValidated: (XFile f) {
+                  _createExpenseFromAttachment(f).then((value) {
+                    setState(() {
+                      _takePictureWorkflow =
+                          TakePictureForExpenseWorkflow.pictureValidated;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Note de frais $value créée'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
                   });
                 },
                 expenses: _loadedExpense,
@@ -216,7 +231,7 @@ class _ExpenseListState extends State<ExpenseList> {
             onTap: () {
               setState(() {
                 _showAddExpenseWidget = false;
-                _takePictureWorkflow = TakePictureForExpenseWorkflow.started;
+                _takePictureWorkflow = TakePictureForExpenseWorkflow.cameraShowed;
               });
               /*_takePicture(context);*/
             },
@@ -238,11 +253,17 @@ class _ExpenseListState extends State<ExpenseList> {
                     ),
                   );
                 } else {
+// Reload list
+                    setState(() {
+                      _showAddExpenseWidget = false;
+                    });
                   ScaffoldMessenger.of(context).showSnackBar(
+                    
                     const SnackBar(
                       content: Text('Document enregistré avec succès'),
                     ),
                   );
+
                 }
               }
             },
@@ -275,7 +296,19 @@ class _ExpenseListState extends State<ExpenseList> {
     if (result != null) {
       XFile file = XFile(result.files.single.path!);
       // Enregistrer le document dans Odoo
-      return await _postDocument(file);
+      //return await _postDocument(file);
+      try {
+        return await _createExpenseFromAttachment(file);
+      } catch (e) {
+        print(e);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Aucune expense n\'a été sélectionnée'),
+            ),
+          );
+        }
+      }
     } else {
       return null;
     }
@@ -315,6 +348,38 @@ class _ExpenseListState extends State<ExpenseList> {
     var res = await OdooModel.session.create('ir.attachment', attachment);
     return res;
   }
+
+  // Create Expense from attachment
+  // Permet de créer une expense depuis un document
+  Future<int> _createExpenseFromAttachment(XFile file) async {
+    var bytes = await file.readAsBytes();
+    var base64Document = base64Encode(bytes);
+    Map<String, dynamic> attachment = {
+      'name': file.name,
+      'datas': base64Document,
+      'res_model': 'hr.expense',
+      'mimetype': file.mimeType,
+      'type': 'binary',
+    };
+    print("_createExpenseFromAttachment: create attachment");
+    var attachmentId = await OdooModel.session.create('ir.attachment', attachment);
+    print("_createExpenseFromAttachment: create expense");
+    var res = await OdooModel.session.callKw({
+      'model': 'hr.expense',
+      'method': 'create_expense_from_attachments',
+      'args': ["", [attachmentId]],
+      'kwargs': {
+        'context': OdooModel.session.defaultContext,
+      },
+    });
+    print(res);
+    try {
+      return res['res_id'];
+    } catch (e) {
+      throw Exception('Impossible de créer une expense depuis le document');
+    }
+  } 
+  
 
   /// Selected Expense
   /// Permet de choisir une expense

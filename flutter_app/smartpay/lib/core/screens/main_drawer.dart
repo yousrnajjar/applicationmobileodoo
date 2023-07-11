@@ -4,15 +4,16 @@ import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/models/side_menu.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/core/providers/user_info_providers.dart';
-import 'package:smartpay/core/screens/attendance.dart';
-import 'package:smartpay/core/screens/contract_paylips.dart';
-import 'package:smartpay/core/screens/expense.dart';
-import 'package:smartpay/core/screens/holidays_screen.dart';
-import 'package:smartpay/core/screens/home.dart';
-import 'package:smartpay/core/screens/login_screen.dart';
+import 'package:smartpay/core/widgets/menu.dart';
 import 'package:smartpay/ir/models/user.dart';
 
-import 'menu.dart';
+import 'hr/hr_leave.dart';
+import 'hr/hr_contract_payslips.dart';
+import 'hr/hr_expense.dart';
+import 'hr/hr_holidays.dart';
+import 'home.dart';
+import 'login_screen.dart';
+
 
 class MainDrawer extends ConsumerStatefulWidget {
   final User user;
@@ -97,7 +98,6 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
   @override
   Widget build(BuildContext context) {
     var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
-    //Widget homeScreen = HomeScreen(widget.user);
     var titleLarge = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(

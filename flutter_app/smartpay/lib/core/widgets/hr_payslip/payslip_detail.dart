@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 
-import '../month_card.dart';
+import '../utils/month_card.dart';
 
 class PayslipDetail extends StatelessWidget {
   final Map<OdooField, dynamic> pay;

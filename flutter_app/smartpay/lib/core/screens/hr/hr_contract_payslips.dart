@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/core/widgets/contract/contract_list.dart';
+import 'package:smartpay/core/widgets/hr_contract/contract_list.dart';
 import 'package:smartpay/core/widgets/hr_payslip/payslip_list.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/models/user.dart';

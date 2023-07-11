@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smartpay/core/widgets/hr_expense/select_expense_widget.dart';
 import 'package:smartpay/core/widgets/hr_expense/take_picture_for_expense_worflow.dart';
-import 'package:smartpay/core/widgets/take_picture.dart';
+import 'package:smartpay/core/widgets/utils/take_picture.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
@@ -15,6 +15,7 @@ import 'expense_form.dart';
 
 /// Take a picture for an expense
 class TakePictureExpenseWidget extends StatefulWidget {
+  final Function(XFile)? onPictureValidated;
   final TakePictureForExpenseWorkflow workflow;
   final List<Expense> expenses;
   final Function(TakePictureForExpenseWorkflow) onWorkFlowChanged;
@@ -24,6 +25,7 @@ class TakePictureExpenseWidget extends StatefulWidget {
 
   const TakePictureExpenseWidget(
       {super.key,
+      this.onPictureValidated,
       required this.workflow,
       required this.expenses,
       required this.onWorkFlowChanged,
@@ -50,6 +52,7 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
 
   @override
   Widget build(BuildContext context) {
+    print('TakePictureExpenseWidget.build: _workflow=$_workflow');
     return Column(
       children: [
         _buildMessageOnTop(context),
@@ -230,12 +233,17 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
+                      if (widget.onPictureValidated != null) {
+                        widget.onPictureValidated!(_imageFile!);
+                      } else {
+                      setState(() {
                       _workflow =
                           TakePictureForExpenseWorkflow.pictureValidated;
-                      widget.onWorkFlowChanged(_workflow!);
-                    });
+                        widget.onWorkFlowChanged(_workflow!);
+                      });
+                      }
                   },
+
                   child: const Text('Valider'),
                 ),
               ],
