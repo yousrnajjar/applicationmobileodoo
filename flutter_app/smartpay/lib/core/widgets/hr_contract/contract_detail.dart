@@ -37,6 +37,7 @@ class ContractDetail extends StatelessWidget {
     itemHeight = (86 / baseHeightDesign) * height;
     itemWidth = (60 / baseWidthDesign) * width;
     backgroundColor = stateColor[lastContact['state']] ?? kGreen;
+    var montBgColor = kPink;
 
     // Si aucune fiche de pay n'est disponible
     if (contract.isEmpty) {
@@ -55,7 +56,7 @@ class ContractDetail extends StatelessWidget {
     var date = DateTime.now();
     var footer = buildFooter(context);
     return Row(children: [
-      buildMonth(date, backgroundColor),
+      buildMonth(date, kLightPink, textColor: Colors.black),
       buildBody(context, DateTime.now(), lastContact),
       if (footer != null)
         // footer, --> Add vertical line
@@ -68,8 +69,9 @@ class ContractDetail extends StatelessWidget {
     ]);
   }
 
-  Widget buildMonth(DateTime date, backgroundColor) {
-    return MonthCard(date: date, backgroundColor: backgroundColor);
+  Widget buildMonth(DateTime date, backgroundColor, {Color? textColor}) {
+    return MonthCard(
+        date: date, backgroundColor: backgroundColor, textColor: textColor);
   }
 
   Widget buildBody(
@@ -190,89 +192,89 @@ class ContractDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                Row(
-                  children: [
-                    const Text(
-                      '+ ',
-                      style: TextStyle(
-                        color: kGrey,
-                        // FixME: Get right color with status
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                      ),
-                    ),
-                    TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: kGreen,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.all(5),
-                          shape: const BeveledRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(0))),
-                          textStyle: const TextStyle(
-                            fontSize: 11,
-                          ),
-                        ),
-                        child: const Text('Consulter le contrat'),
-                        onPressed: () {
-                          // Modal to display contract
-                          // state , wage, name, date_start, date_end, trial_date_end, resource_calendar_id, hr_responsible_id.
+                // Row(
+                //   children: [
+                //     const Text(
+                //       '+ ',
+                //       style: TextStyle(
+                //         color: kGrey,
+                //         // FixME: Get right color with status
+                //         fontWeight: FontWeight.bold,
+                //         fontSize: 11,
+                //       ),
+                //     ),
+                //     TextButton(
+                //         style: TextButton.styleFrom(
+                //           foregroundColor: kGreen,
+                //           minimumSize: Size.zero,
+                //           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                //           padding: const EdgeInsets.all(5),
+                //           shape: const BeveledRectangleBorder(
+                //               borderRadius:
+                //                   BorderRadius.all(Radius.circular(0))),
+                //           textStyle: const TextStyle(
+                //             fontSize: 11,
+                //           ),
+                //         ),
+                //         child: const Text('Consulter le contrat'),
+                //         onPressed: () {
+                //           // Modal to display contract
+                //           // state , wage, name, date_start, date_end, trial_date_end, resource_calendar_id, hr_responsible_id.
 
-                          var state = lastContract['state'];
-                          var stateString = contract.keys
-                              .firstWhere((element) => element.name == 'state')
-                              .selectionOptions
-                              .firstWhere((element) =>
-                                  element['value'] == state)['display_name'];
-                          var wage = lastContract['wage'];
-                          var name = lastContract['name'];
-                          var dateStart = lastContract['date_start'];
-                          var dateEnd = lastContract['date_end'];
-                          var trialDateEnd = lastContract['trial_date_end'];
-                          var resourceCalendarName =
-                              lastContract['resource_calendar_id'][1];
-                          var hrResponsibleName =
-                              lastContract['hr_responsible_id'] == false
-                                  ? ''
-                                  : lastContract['hr_responsible_id'][1];
+                //           var state = lastContract['state'];
+                //           var stateString = contract.keys
+                //               .firstWhere((element) => element.name == 'state')
+                //               .selectionOptions
+                //               .firstWhere((element) =>
+                //                   element['value'] == state)['display_name'];
+                //           var wage = lastContract['wage'];
+                //           var name = lastContract['name'];
+                //           var dateStart = lastContract['date_start'];
+                //           var dateEnd = lastContract['date_end'];
+                //           var trialDateEnd = lastContract['trial_date_end'];
+                //           var resourceCalendarName =
+                //               lastContract['resource_calendar_id'][1];
+                //           var hrResponsibleName =
+                //               lastContract['hr_responsible_id'] == false
+                //                   ? ''
+                //                   : lastContract['hr_responsible_id'][1];
 
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(name),
-                                content: SingleChildScrollView(
-                                  child: ListBody(
-                                    children: <Widget>[
-                                      Text('État : $stateString'),
-                                      Text('Salaire : $wage'),
-                                      Text('Nom : $name'),
-                                      Text('Date de début : $dateStart'),
-                                      Text('Date de fin : $dateEnd'),
-                                      Text(
-                                          'Date de fin d\'essai : $trialDateEnd'),
-                                      Text(
-                                          'Heure de travail : $resourceCalendarName'),
-                                      Text(
-                                          'Responsable RH : $hrResponsibleName'),
-                                    ],
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('Fermer'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        })
-                  ],
-                ),
+                //           showDialog(
+                //             context: context,
+                //             builder: (BuildContext context) {
+                //               return AlertDialog(
+                //                 title: Text(name),
+                //                 content: SingleChildScrollView(
+                //                   child: ListBody(
+                //                     children: <Widget>[
+                //                       Text('État : $stateString'),
+                //                       Text('Salaire : $wage'),
+                //                       Text('Nom : $name'),
+                //                       Text('Date de début : $dateStart'),
+                //                       Text('Date de fin : $dateEnd'),
+                //                       Text(
+                //                           'Date de fin d\'essai : $trialDateEnd'),
+                //                       Text(
+                //                           'Heure de travail : $resourceCalendarName'),
+                //                       Text(
+                //                           'Responsable RH : $hrResponsibleName'),
+                //                     ],
+                //                   ),
+                //                 ),
+                //                 actions: <Widget>[
+                //                   TextButton(
+                //                     child: const Text('Fermer'),
+                //                     onPressed: () {
+                //                       Navigator.of(context).pop();
+                //                     },
+                //                   ),
+                //                 ],
+                //               );
+                //             },
+                //           );
+                //         })
+                //   ],
+                // ),
               ],
             )));
   }
@@ -355,7 +357,7 @@ class ContractDetail extends StatelessWidget {
                   height: 30,
                 ),
                 const Text(
-                  'Télécharger',
+                  'Consulter',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 12,

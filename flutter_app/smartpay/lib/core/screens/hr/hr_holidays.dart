@@ -501,7 +501,8 @@ class _HolidayListState extends State<HolidayList> {
               itemCount: filteredHolidays.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
                   child: HolidayItem(
                     key: ValueKey(filteredHolidays[index]['id']),
                     holiday: filteredHolidays[index],
@@ -532,7 +533,9 @@ class _HolidayListState extends State<HolidayList> {
               },
             ),
           ),
-          HolidayCalendar(holidays: filteredHolidays.map((e) => Holiday.fromJSON(e)).toList())
+          HolidayCalendar(
+              holidays:
+                  filteredHolidays.map((e) => Holiday.fromJSON(e)).toList())
         ],
       );
     }
@@ -553,7 +556,8 @@ class HolidayScreen extends StatefulWidget {
   // onTitleChanged is a callback function to change the title of the page
   final Function(String) onTitleChanged;
 
-  const HolidayScreen({super.key, required this.user, required this.onTitleChanged});
+  const HolidayScreen(
+      {super.key, required this.user, required this.onTitleChanged});
 
   @override
   State<HolidayScreen> createState() => _HolidayScreenState();
@@ -567,7 +571,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
   final List<Widget> _pages = [];
   final List<String> _pageTitle = [
     'Congés',
-    'Demande de congés',
+    'Demande de congé',
     'Demande d\'allocation'
   ];
 
@@ -587,9 +591,8 @@ class _HolidayScreenState extends State<HolidayScreen> {
     var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
     return Scaffold(
       body: Container(
-        margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
-        child: _pages[_selectedIndex]
-      ),
+          margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
+          child: _pages[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
@@ -606,7 +609,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
           BottomNavigationBarItem(
             icon:
                 Image.asset("assets/icons/holiday/icone_historique_conge.png"),
-            label: 'Liste de congé',
+            label: 'Liste des congés',
           ),
           BottomNavigationBarItem(
             icon: Image.asset("assets/icons/holiday/icone_demande_conge.png"),
@@ -714,5 +717,4 @@ class _HolidayScreenState extends State<HolidayScreen> {
       },
     );
   }
-
 }

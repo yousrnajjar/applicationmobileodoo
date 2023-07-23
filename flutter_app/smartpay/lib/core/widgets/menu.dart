@@ -47,10 +47,10 @@ class SideMenuDrawer extends StatelessWidget {
                 decoration: BoxDecoration(
                   // add border top and bottom
                   border: Border(
-                    top: BorderSide(
+                    /*top: BorderSide(
                       color: Colors.grey.withOpacity(0.5),
                       width: 0.5,
-                    ),
+                    ),*/
                     bottom: BorderSide(
                       color: Colors.grey.withOpacity(0.5),
                       width: 0.5,
@@ -63,18 +63,22 @@ class SideMenuDrawer extends StatelessWidget {
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                   ),
-                  leading: Image(image: sideMenu.iconImage.image, width: 30, height: 30,),
-                      //CircleAvatar(backgroundImage: sideMenu.iconImage.image)
+                  leading: Image(
+                    image: sideMenu.iconImage.image,
+                    width: 30,
+                    height: 30,
+                  ),
+                  //CircleAvatar(backgroundImage: sideMenu.iconImage.image)
                   title: Text(sideMenu.displayName, style: titleLarge),
                   onTap: () {
                     onSetScreen(sideMenu.identifier);
                   },
                 ),
-            ),
+              ),
             const Spacer(),
             Container(
-              decoration: BoxDecoration(
-                // add border top and bottom
+                decoration: BoxDecoration(
+                  // add border top and bottom
                   border: Border(
                     top: BorderSide(
                       color: Colors.grey.withOpacity(0.5),

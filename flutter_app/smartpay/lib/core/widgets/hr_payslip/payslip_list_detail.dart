@@ -57,18 +57,18 @@ class PayslipListDetail extends PayslipDetail {
                 const SizedBox(height: 5),
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       'État : ',
                       style: TextStyle(
-                        color: stateColor[lastPay['state']],
+                        color: kGreen, //stateColor[lastPay['state']],
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
                     ),
                     Text(
                       '$stateDisplay',
-                      style: TextStyle(
-                        color: stateColor[lastPay['state']],
+                      style: const TextStyle(
+                        color: kGreen, //stateColor[lastPay['state']],
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
@@ -85,6 +85,9 @@ class PayslipListDetail extends PayslipDetail {
 
   @override
   Widget? buildFooter(BuildContext context) {
+    // pay.keys.forEach((element) {
+    //   print(element.name);
+    // });
     var id = pay.keys.firstWhere((k) => k.name == 'id');
 
     return Container(
@@ -130,7 +133,7 @@ class PayslipListDetail extends PayslipDetail {
                   height: 30,
                 ),
                 const Text(
-                  'Télécharger',
+                  'Consulter',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 12,

@@ -13,14 +13,17 @@ import 'hr/hr_expense.dart';
 import 'hr/hr_holidays.dart';
 import 'home.dart';
 import 'login_screen.dart';
-
+import 'notification.dart'; // Notification Screen
 
 class MainDrawer extends ConsumerStatefulWidget {
   final User user;
 
-  const MainDrawer({
+  String? activePageName;
+
+  MainDrawer({
     required this.user,
     super.key,
+    this.activePageName,
   });
 
   @override
@@ -30,15 +33,50 @@ class MainDrawer extends ConsumerStatefulWidget {
 class _MainDrawerState extends ConsumerState<MainDrawer> {
   late String title;
   final List<SideMenu> _sideMenus = [];
+  int _notificationCount = 0;
 
-  String _title = "Tableau de bord";
+  String _title = '';
   late Widget _screen;
 
   @override
   void initState() {
     super.initState();
     listenForSideMenus();
-    _screen = HomeScreen(widget.user);
+    var page = _initPage();
+    _screen = page.value;
+    _title = page.key;
+    _refreshNotificationCount();
+  }
+
+  Future<void> _refreshNotificationCount() async {
+    var count = await getNotificationsCount(widget.user.partnerId);
+    if (count == _notificationCount) return;
+    setState(() {
+      _notificationCount = count;
+    });
+  }
+
+  MapEntry<String, Widget> _initPage() {
+    Map<String, Widget> res = {_title: HomeScreen(widget.user)};
+    var identifier = widget.activePageName;
+    if (identifier == "employee") {
+      res = {
+        'Contrat':
+            ContractPayslipScreen(user: widget.user, onTitleChanged: setTitle),
+      };
+    } else if (identifier == "attendance") {
+      res = {"Pointage": InOutScreen(onTitleChanged: setTitle)};
+    } else if (identifier == "leave") {
+      res = {
+        "Congé": HolidayScreen(user: widget.user, onTitleChanged: setTitle)
+      };
+    } else if (identifier == "expense") {
+      res = {
+        "Note de frais":
+            ExpenseScreen(user: widget.user, onTitleChanged: setTitle)
+      };
+    }
+    return res.entries.first;
   }
 
   void listenForSideMenus() async {
@@ -52,6 +90,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
 
   void _setScreen(String identifier) async {
     Navigator.of(context).pop();
+    // NotifCount
     if (identifier == "dashboard") {
       setState(() {
         _title = "Tableau de bord";
@@ -90,6 +129,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
   }
 
   setTitle(String title) {
+    _refreshNotificationCount();
     setState(() {
       _title = title;
     });
@@ -120,9 +160,9 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         actions: [
           InkWell(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Notification'),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => NotificationScreen(user: widget.user),
                 ),
               );
             },
@@ -147,9 +187,9 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
                       minWidth: 16,
                       minHeight: 16,
                     ),
-                    child: const Text(
-                      '10',
-                      style: TextStyle(
+                    child: Text(
+                      '$_notificationCount',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                       ),

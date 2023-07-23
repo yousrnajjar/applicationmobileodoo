@@ -53,10 +53,10 @@ class PayslipDetail extends StatelessWidget {
     var footer = buildFooter(context);
     return Row(
       children: [
-        buildMonth(date, backgroundColor),
+        buildMonth(date, kLightGreen, textColor: Colors.black),
         buildBody(context, date, lastPay),
         if (footer != null)
-        // footer, --> Add vertical line
+          // footer, --> Add vertical line
           Container(
             width: 1,
             height: itemHeight,
@@ -111,18 +111,18 @@ class PayslipDetail extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       'État : ',
                       style: TextStyle(
-                        color: stateColor[lastPay['state']],
+                        color: kGreen, //stateColor[lastPay['state']],
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
                     ),
                     Text(
                       '$stateDisplay',
-                      style: TextStyle(
-                        color: stateColor[lastPay['state']],
+                      style: const TextStyle(
+                        color: kGreen, //stateColor[lastPay['state']],
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
@@ -164,8 +164,9 @@ class PayslipDetail extends StatelessWidget {
     );
   }
 
-  Widget buildMonth(DateTime date, backgroundColor) {
-    return MonthCard(date: date, backgroundColor: backgroundColor);
+  Widget buildMonth(DateTime date, backgroundColor, {Color? textColor}) {
+    return MonthCard(
+        date: date, backgroundColor: backgroundColor, textColor: textColor);
   }
 
   Widget? buildFooter(BuildContext context) {

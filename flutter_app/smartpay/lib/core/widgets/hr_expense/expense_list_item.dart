@@ -1,7 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smartpay/ir/data/themes.dart';
 
 class ExpenseListItem extends StatelessWidget {
   const ExpenseListItem({
@@ -25,11 +24,11 @@ class ExpenseListItem extends StatelessWidget {
     var date = dateFormatter.format(dateFormatter.parse(expense['date']));
     return ExpenseListItem(
       title: expense['name'],
-      amount: expense['total_amount'].toString(),
+      amount: '${expense['total_amount']} £',
       date: date,
       category: (expense['product_id'] is List)
           ? expense['product_id'][1]
-          : "${expense['product_id']}",
+          : "${expense['product_id'] == false ? '' : expense['product_id']}",
       onTap: () {
         if (onTap != null) {
           onTap();
@@ -45,11 +44,15 @@ class ExpenseListItem extends StatelessWidget {
         category.length > 20 ? '${category.substring(0, 20)}...' : category;
     var titleDisplay =
         title.length > 20 ? '${title.substring(0, 20)}...' : title;
+    var textSmall = Theme.of(context).textTheme.bodySmall!.copyWith(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        );
     return InkWell(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
@@ -62,15 +65,31 @@ class ExpenseListItem extends StatelessWidget {
             ),
           ),
         ),
-        child: 
-        ListTile(
-          title: Text(titleDisplay, style: Theme.of(context).textTheme.bodyLarge),
+        child: ListTile(
+          leading: const CircleAvatar(
+            backgroundColor: kGreen,
+            foregroundColor: Colors.white,
+            child: Icon(Icons.local_drink),
+          ),
+          title: Text(
+            titleDisplay,
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
+          ),
           subtitle: Row(
             children: [
-              Text("Le ", style: Theme.of(context).textTheme.bodySmall),
-              Text(date, style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500)),
+              Text("Le ", style: textSmall),
+              Text(
+                date,
+                style: textSmall,
+              ),
               const SizedBox(width: 10),
-              Text(categoryDisplay, style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w500)),
+              Text(
+                categoryDisplay,
+                style: textSmall,
+              ),
             ],
           ),
           trailing: Text(amount, style: Theme.of(context).textTheme.bodyLarge),

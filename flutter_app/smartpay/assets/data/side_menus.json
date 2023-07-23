@@ -13,28 +13,28 @@
             "identifier": "employee"
         },
         {
-            "icon": "e1b6",
-            "icon_image": "pointage.png",
-            "display_name": "Pointage",
-            "identifier": "attendance"
-        },
-        {
             "icon": "e317",
             "icon_image": "holiday.jpeg",
-            "display_name": "Demande des congés",
+            "display_name": "Congés",
             "identifier": "leave"
+        },
+        {
+            "icon": "e1b6",
+            "icon_image": "pointage.png",
+            "display_name": "Présences",
+            "identifier": "attendance"
         },
         {
             "icon": "e61c",
             "icon_image": "expense.jpeg",
-            "display_name": "Notes de frais",
+            "display_name": "Notes des frais",
             "identifier":"expense"
         },
         {
             "icon": "e043",
-            "icon_image": "account.jpeg",
-            "display_name": "Mon compte",
-            "identifier":"my_account"
+            "icon_image": "message.jpeg",
+            "display_name": "Messages",
+            "identifier":"message"
         }
     ]
 }

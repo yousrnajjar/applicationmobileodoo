@@ -28,8 +28,10 @@ class ExpenseList extends StatefulWidget {
 class _ExpenseListState extends State<ExpenseList> {
   bool _showAddExpenseWidget = false;
   TakePictureForExpenseWorkflow _takePictureWorkflow =
-      TakePictureForExpenseWorkflow.cameraShowed;
+      TakePictureForExpenseWorkflow.notStarted;
   List<Expense> _loadedExpense = [];
+
+  bool _isFirstView = true;
 
   Future<List<Expense>> listenForExpenses() async {
     var result = await OdooModel('hr.expense').searchRead(
@@ -90,6 +92,7 @@ class _ExpenseListState extends State<ExpenseList> {
             onPressed: () {
               //widget.onChangedPage(1);
               setState(() {
+                _isFirstView = false;
                 _showAddExpenseWidget = !_showAddExpenseWidget;
               });
             },
@@ -102,13 +105,16 @@ class _ExpenseListState extends State<ExpenseList> {
           ),
         ),
         // Take Picture Workflow Widget
-        if (![
-          TakePictureForExpenseWorkflow.notStarted,
-          TakePictureForExpenseWorkflow.pictureCanceled,
-          TakePictureForExpenseWorkflow.expenseCanceled,
-          TakePictureForExpenseWorkflow.pictureSent,
-          TakePictureForExpenseWorkflow.pictureValidated, // Because we need to create the expense when the picture is validated
-        ].contains(_takePictureWorkflow))
+        if (!_isFirstView &&
+            ![
+              TakePictureForExpenseWorkflow.notStarted,
+              TakePictureForExpenseWorkflow.pictureCanceled,
+              TakePictureForExpenseWorkflow.expenseCanceled,
+              TakePictureForExpenseWorkflow
+                  .pictureSent, // TODO: Remove camera when
+              TakePictureForExpenseWorkflow
+                  .pictureValidated, // Because we need to create the expense when the picture is validated
+            ].contains(_takePictureWorkflow))
           Positioned(
             top: 0,
             left: 0,
@@ -231,7 +237,8 @@ class _ExpenseListState extends State<ExpenseList> {
             onTap: () {
               setState(() {
                 _showAddExpenseWidget = false;
-                _takePictureWorkflow = TakePictureForExpenseWorkflow.cameraShowed;
+                _takePictureWorkflow =
+                    TakePictureForExpenseWorkflow.cameraShowed;
               });
               /*_takePicture(context);*/
             },
@@ -254,16 +261,14 @@ class _ExpenseListState extends State<ExpenseList> {
                   );
                 } else {
 // Reload list
-                    setState(() {
-                      _showAddExpenseWidget = false;
-                    });
+                  setState(() {
+                    _showAddExpenseWidget = false;
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(
-                    
                     const SnackBar(
                       content: Text('Document enregistré avec succès'),
                     ),
                   );
-
                 }
               }
             },
@@ -362,12 +367,16 @@ class _ExpenseListState extends State<ExpenseList> {
       'type': 'binary',
     };
     print("_createExpenseFromAttachment: create attachment");
-    var attachmentId = await OdooModel.session.create('ir.attachment', attachment);
+    var attachmentId =
+        await OdooModel.session.create('ir.attachment', attachment);
     print("_createExpenseFromAttachment: create expense");
     var res = await OdooModel.session.callKw({
       'model': 'hr.expense',
       'method': 'create_expense_from_attachments',
-      'args': ["", [attachmentId]],
+      'args': [
+        "",
+        [attachmentId]
+      ],
       'kwargs': {
         'context': OdooModel.session.defaultContext,
       },
@@ -378,8 +387,7 @@ class _ExpenseListState extends State<ExpenseList> {
     } catch (e) {
       throw Exception('Impossible de créer une expense depuis le document');
     }
-  } 
-  
+  }
 
   /// Selected Expense
   /// Permet de choisir une expense

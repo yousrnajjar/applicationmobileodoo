@@ -11,7 +11,8 @@ class ExpenseScreen extends StatefulWidget {
   // onTitleChanged is a callback function to change the title of the page
   final Function(String) onTitleChanged;
 
-  const ExpenseScreen({super.key, required this.user, required this.onTitleChanged});
+  const ExpenseScreen(
+      {super.key, required this.user, required this.onTitleChanged});
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -24,7 +25,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   // List of pages
   final List<Widget> _pages = [];
   final List<String> _pageTitle = [
-    'Liste de notes',
+    'Liste des notes',
     'Ajout d\'une note de frais',
   ];
 
@@ -97,6 +98,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       });
     }
   }
+
   Future<Widget> buildExpenseForm() async {
     /*return await OdooModel("hr.expense").buildFormFields(
       fieldNames: Expense({}).allFields,

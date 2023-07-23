@@ -5,8 +5,13 @@ class MonthCard extends StatelessWidget {
   final DateTime date;
   final Color backgroundColor;
 
-  const MonthCard(
-      {super.key, required this.date, required this.backgroundColor});
+  Color? textColor;
+
+  MonthCard(
+      {super.key,
+      required this.date,
+      required this.backgroundColor,
+      this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +29,18 @@ class MonthCard extends StatelessWidget {
         color: backgroundColor,
       ),
       child: Column(children: [
-        const Text(
+        Text(
           'Mois',
           style: TextStyle(
-            color: Colors.white,
+            color: textColor ?? Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.w900,
           ),
         ),
         Text(
           date.month.toString().padLeft(2, '0'),
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: textColor ?? Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.w500,
           ),

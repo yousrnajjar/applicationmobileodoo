@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+
+import 'package:smartpay/core/widgets/hr_payslip/payslip_list_detail.dart';
 import 'package:smartpay/core/widgets/utils/circular_ratio_indicator.dart';
 import 'package:smartpay/core/widgets/hr_contract/contract_detail.dart';
 import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
-import 'package:smartpay/core/widgets/hr_payslip/payslip_detail.dart';
+import 'package:smartpay/core/widgets/utils/pdf_view_widget.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';
+
+import 'main_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -25,6 +29,13 @@ class _HomeState extends State<HomeScreen> {
   Map<OdooField, dynamic> _lastContract = {};
   Map<OdooField, dynamic> _lastPay = {};
   Map<OdooField, dynamic> _employee = {};
+  String activeScreenName = 'dashboard';
+  int? activeObjectId;
+  String? objectName;
+  var reports = {
+    'contract': "hr_contract.report_contract",
+    'payslip': 'om_hr_payroll.report_payslip',
+  };
 
   @override
   void initState() {
@@ -58,7 +69,14 @@ class _HomeState extends State<HomeScreen> {
       domain: [
         ['employee_id', '=', widget.user.employeeId]
       ],
-      fieldNames: ['name', 'date_from', 'date_to', 'state', 'employee_id'],
+      fieldNames: [
+        'id',
+        'name',
+        'date_from',
+        'date_to',
+        'state',
+        'employee_id'
+      ],
       limit: 1,
     );
   }
@@ -96,20 +114,19 @@ class _HomeState extends State<HomeScreen> {
     return res;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDashboard(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var user = widget.user;
     return Scaffold(
       body: ListView(
         children: [
-          if (_employee.isNotEmpty) 
-          EmployeeCard(
-            employee: _employee,
-            user: user,
-            showDetails: true,
-          ),
+          if (_employee.isNotEmpty)
+            EmployeeCard(
+              employee: _employee,
+              user: user,
+              showDetails: true,
+            ),
           Row(
             children: [
               CircularRatioIndicator(
@@ -140,21 +157,29 @@ class _HomeState extends State<HomeScreen> {
                 vertical: (10 / baseHeightDesign) * height),
             child: Column(
               children: [
-                ContractDetail(contract: _lastContract),
-                /*_lastContract.isNotEmpty
-                    ? ContractDetail(contract: _lastContract)
-                    : const Center(
-                        child: Text(
-                            'Pas de fiche de paie disponible pour le moment'),
-                      ),*/
+                ContractDetail(
+                  contract: _lastContract,
+                  onPrintPdf: (int id) {
+                    setState(
+                      () {
+                        activeScreenName = 'pdf';
+                        objectName = 'contract';
+                        activeObjectId = id;
+                      },
+                    );
+                  },
+                ),
                 SizedBox(height: (10 / baseHeightDesign) * height),
-                PayslipDetail(pay: _lastPay),
-                /*_lastPay.isNotEmpty
-                    ? PayslipDetail(pay: _lastPay)
-                    : const Center(
-                        child: Text(
-                            'Pas de fiche de paie disponible pour le moment'),
-                      ),*/
+                //PayslipDetail(pay: _lastPay),
+                PayslipListDetail(
+                    pay: _lastPay,
+                    onPrintPdf: (int id) {
+                      setState(() {
+                        activeScreenName = 'pdf';
+                        objectName = 'payslip';
+                        activeObjectId = id;
+                      });
+                    }),
               ],
             ),
           ),
@@ -162,6 +187,7 @@ class _HomeState extends State<HomeScreen> {
       ),
       // bottomNavigationBar: Salarié, Congé, Présence, Notes de frais
       bottomNavigationBar: BottomNavigationBar(
+        onTap: _setPage,
         currentIndex: 0,
         // show more than 3 items
         type: BottomNavigationBarType.fixed,
@@ -174,12 +200,12 @@ class _HomeState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon:
                 Image.asset('assets/icons/holiday.jpeg', width: 30, height: 30),
-            label: 'Congé',
+            label: 'Congés',
           ),
           BottomNavigationBarItem(
             icon:
                 Image.asset('assets/icons/pointage.png', width: 30, height: 30),
-            label: 'Présence',
+            label: 'Présences',
           ),
           BottomNavigationBarItem(
             icon:
@@ -189,5 +215,45 @@ class _HomeState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (activeScreenName == 'dashboard') {
+      return _buildDashboard(context);
+    } else {
+      var reportName = reports[objectName!]!;
+      return AppPDFView(
+        reportName: reportName,
+        resourceIds: [activeObjectId!],
+        onReturn: () {
+          setState(
+            () {
+              activeScreenName = 'dashboard';
+            },
+          );
+        },
+      );
+    }
+  }
+
+  void _setPage(int identifier) {
+    String page = 'dashboard';
+    Navigator.of(context).pop();
+    if (identifier == 0) {
+      page = 'employee';
+    } else if (identifier == 1) {
+      page = "leave";
+    } else if (identifier == 2) {
+      page = "attendance";
+    } else if (identifier == 3) {
+      page = "expense";
+    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return MainDrawer(
+        user: widget.user,
+        activePageName: page,
+      );
+    }));
   }
 }

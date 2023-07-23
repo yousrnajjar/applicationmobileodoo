@@ -14,6 +14,8 @@ class User extends OdooModelHelper {
 
   User.fromJson(super.info);
 
+  int get partnerId => super.info['partner_id'];
+
   @override
   Map<String, dynamic> toJson() {
     // TODO: implement toJson
@@ -22,6 +24,7 @@ class User extends OdooModelHelper {
 
   @override
   List<String> get allFields => [
+        'partner_id',
         // Related Employee
         'employee_ids',
         // Company Employee
