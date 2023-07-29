@@ -36,33 +36,140 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     CheckInCheckOutFormState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
   };
 
+  /// attendanceFields
+  final List<String> attendanceFields = [
+    'id',
+    'employee_id',
+    'check_in',
+    'check_out',
+    'worked_hours',
+  ];
+
+  /// get Latest Attendance
+  Future<Map<String, dynamic>> _getLatestAttendance() async {
+    try {
+      // Récupérer la dernière entrée de pointage de l'employé
+      var response = await OdooModel("hr.attendance").searchRead(
+        domain: [
+          ["employee_id", "=", widget.employee.id]
+        ],
+        fieldNames: attendanceFields,
+        limit: 1
+      );
+      return response[0];
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      throw e;
+    }
+  }
+   
+  /// Update attendance with check out
+  Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
+    try {
+      // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
+      var isUpdated = await OdooModel.session.write(
+        "hr.attendance",
+        [attendanceId],
+        {
+          "check_out": dateTimeFormatter.format(DateTime.now()),
+        },
+      );
+      // Récupérer le pointage
+      return await OdooModel("hr.attendance").searchRead(
+        domain: [
+          ["id", "=", attendanceId]
+        ],
+        fieldNames: attendanceFields,
+        limit: 1,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      throw e;
+    }
+  }
+  /// Get latest check in with no check out
+  Future<List<Map<String, dynamic>>> _getLatestCheckInWithNoCheckOut() async {
+    try {
+      // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
+      return await OdooModel("hr.attendance").searchRead(
+        domain: [
+          ["employee_id", "=", widget.employee.id],
+          ["check_in", "!=", false],
+          ["check_out", "=", false],
+        ],
+        fieldNames: attendanceFields,
+        limit: 1,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      throw e;
+    }
+  }
+
+  /// Ccréer un pointage
+  Future<List<Map<String, dynamic>>> _createAttendance() async {
+    try {
+        var model = "hr.attendance";
+        var data = {
+          "employee_id": widget.employee.id,
+          "check_in": dateTimeFormatter.format(now),
+        };
+        // Créer un pointage
+        var id = await OdooModel.session.create(model, data);
+        // Récupérer le pointage
+        return await OdooModel("hr.attendance").searchRead(
+          domain: [
+            ["id", "=", id]
+          ],
+          fieldNames: attendanceFields,
+          limit: 1,
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+        throw e;
+      }
+  }
+  /// Get or create or update attendance
+  /// Si l'employé n'a pas de pointage, il faut créer un pointage
+  /// Si l'employé a un pointage, il faut le récupérer
+  /// L'heure de pointage est l'heure actuelle
+  Future<Map<String, dynamic>> _getOrCreateOrUpdateAttendance() async {
+    // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
+    List<Map<String, dynamic>> response = await _getLatestCheckInWithNoCheckOut();
+    
+    if (response.length == 0) {
+      print("No attendance");
+        // Si l'employé n'a pas de pointage, il faut créer un pointage
+        response = await _createAttendance();
+    } else {
+      print("Attendance ${response[0]['id']}");
+      // Si l'employé a un pointage, il faut faire une mise à jour
+      var attendanceId = response[0]['id'];
+      response = await _updateAttendance(attendanceId);
+    }
+    return response[0];
+  }
+        
+
   ///Checkin, Checkout
   Future<Map<String, dynamic>> _check() async {
-    var data = {
-      "args": [
-        [1],
-        "hr_attendance.hr_attendance_action_my_attendances"
-      ],
-      "model": "hr.employee",
-      "method": "attendance_manual",
-      "kwargs": {
-        "context": OdooModel.session.defaultContext,
+    Map<String, dynamic> attendance;
+    try {
+      attendance = await _getOrCreateOrUpdateAttendance();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
       }
-    };
-    var response = await OdooModel.session.callKw(data);
-    // if response have not action--> id key raise error
-    if (response['action'] == null ||
-        response['action']['id'] == null ||
-        response['action']['attendance'] == null) {
-      throw Exception('Error in check in');
+      throw e;
     }
-
-    //var response = await _makeCheckInCheckOutRequest();
-    if (kDebugMode) {
-      print('response: $response');
-    }
-
-    var attendance = response['action']['attendance'];
     DateTime? day;
     DateTime? checkIn;
     DateTime? checkOut;
@@ -92,10 +199,11 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       if (kDebugMode) {
         print(e);
       }
-      throw Exception('Error in check in');
+      throw e;
     }
 
     return {
+      //'success': true,
       'day': day,
       'startTime': checkIn,
       'endTime': checkOut,
@@ -105,22 +213,16 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   }
 
   Future<Map<String, dynamic>> _getCheckInCheckOutInfo() async {
-    List<Map<String, dynamic>> response = [];
+    Map<String, dynamic> response;
     try {
-      response = await OdooModel("hr.attendance").searchRead(
-        domain: [
-          ["employee_id", "=", widget.employee.id]
-        ],
-        fieldNames: ["check_in", "check_out", "worked_hours"],
-        limit: 1,
-      );
+      response = await _getLatestAttendance();
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      throw Exception('Error in check in');
+      throw e;
     }
-    var attendance = response[0];
+    var attendance = response;
     CheckInCheckOutFormState? state;
     DateTime? day = attendance['check_in'] != false
         ? dateFormatter.parse(attendance['check_in'])
@@ -151,6 +253,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     }
 
     return {
+      //'success': true,
       'workTime': workTime,
       'day': day,
       'startTime': startTime,
@@ -187,6 +290,11 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 var data = snapshot.data;
                 if (kDebugMode) {
                   print('CheckInCheckOutForm build data: $data');
+                }
+                if (data['success'] == false) {
+                  return Center(
+                    child: Text(data['message']),
+                  );
                 }
                 var workTime = data['workTime'];
                 var day = data['day'];
@@ -390,8 +498,27 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       child: Column(
         children: [
           ElevatedButton(
-            onPressed: () {
-              _getOrCheck(check: true).then((value) => {setState(() {})});
+            onPressed: () async {
+              //_getOrCheck(check: true).then((value) => {setState(() {})});
+              try {
+                await _getOrCheck(check: true);
+                setState(() {});
+              } catch (e) {
+                // Message d'erreur dans l'interface utilisateur
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Erreur lors du démarrage de la journée: $e",
+                      style: TextStyle(
+                        fontSize: 12 * widthRatio,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -440,8 +567,27 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       height: 50 * heightRatio,
       alignment: Alignment.center,
       child: ElevatedButton(
-        onPressed: () {
-          _getOrCheck(check: true).then((value) => {setState(() {})});
+        onPressed: () async {
+          //_getOrCheck(check: true).then((value) => {setState(() {})});
+          try {
+            await _getOrCheck(check: true);
+            setState(() {});
+          } catch (e) {
+            // Message d'erreur dans l'interface utilisateur
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Erreur lors de la clôture de la journée: $e",
+                  style: TextStyle(
+                    fontSize: 12 * widthRatio,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                  ),
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
         child: Text(
           checkOutButtonText,

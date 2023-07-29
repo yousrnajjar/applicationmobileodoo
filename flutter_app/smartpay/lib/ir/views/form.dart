@@ -142,33 +142,40 @@ class AppFormState extends State<AppForm> {
 
   save() async {
     var cleanedValues = cleanValues();
+    String resMessage = "";
     cleanedValues.forEach((key, value) {});
     setState(() {
       isSending = true;
     });
+    var newValues;
     try {
-      var newValues = await widget.onSaved(cleanedValues);
-
-      if (newValues == null) {
-        return;
-      }
-      setState(() {
-        values = newValues;
-      });
+      newValues = await widget.onSaved(cleanedValues);
+      resMessage = message;
+      print("newValues: $newValues");
     } on OdooValidationError catch (e) {
-      message = e.message;
+      resMessage = e.message;
+      print("OdooValidationError: $e");
     } on OdooErrorException catch (e) {
-      message = "Veuillez contactez l'admin: ${e.message}";
+      resMessage = "Veuillez contactez l'admin: ${e.message}";
+      print("OdooErrorException: $e");
     } catch (e) {
-      message = "Une erreur est survenue";
-      print(e);
+      resMessage = "Erreur inconnue: $e, veuillez contactez l'admin";
+      print("Erreur inconnue: $e");
     } finally {
       setState(() {
         isSending = false;
+      }); 
+    }
+    if (newValues != null) {
+      setState(() {
+        values = newValues;
       });
+    }
+    if (resMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(resMessage),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -808,10 +815,20 @@ class AppFormState extends State<AppForm> {
   ///
   /// The field is the Widget that contains the [DropdownButtonFormField].
   Widget buildMany2oneField(OdooField field, dynamic value) {
-    var selectionOptions = field.selectionOptions;
+    List<Map<String, dynamic>> selectionOptions = field.selectionOptions as List<Map<String, dynamic>>;
 
+    print("selectionOptions $selectionOptions");
+    print("values[field] ${values[field]}"); // int or list
+    var intValue = values[field];
+    if (intValue is List) {
+      intValue = intValue[0];
+    }
+
+    //var matchedValue = selectionOptions.firstWhere(
+        //(element) => element['id'] == intValue,
+        //orElse: () => {'id': null, 'name': ''})['id'];
     return DropdownButtonFormField(
-        value: values[field],
+        value: intValue,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.only(bottom: -15),
           labelText: field.fieldDescription,

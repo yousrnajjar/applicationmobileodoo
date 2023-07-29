@@ -627,16 +627,22 @@ class _HolidayScreenState extends State<HolidayScreen> {
 
   _buildForm(int index) async {
     Widget? content;
-    if (index == 1) {
-      content = await buildHolidayForm();
-    } else if (index == 2) {
-      /*content = await OdooModel("hr.leave.allocation").buildFormFields(
-        fieldNames: Allocation.defaultFields,
-        onChangeSpec: Allocation.onchangeSpec,
-        formTitle: "Demande d'Allocation",
-        displayFieldNames: Allocation.displayFieldNames,
-      );*/
-      content = await buildAllocationForm();
+    try{
+      if (index == 1) {
+        content = await buildHolidayForm();
+      } else if (index == 2) {
+        content = await buildAllocationForm();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+      setState(() {
+        _pages[index] = Center(child: Text("Erreur lors de la récupération du formulaire: ${e.toString()}"));
+      });
+      return;
     }
     if (content != null) {
       setState(() {
@@ -657,7 +663,6 @@ class _HolidayScreenState extends State<HolidayScreen> {
     var onChangeSpec = Holiday.onchangeSpec;
     var formTitle = "Demande de congé";
     var model = OdooModel("hr.leave");
-
     Map<OdooField, dynamic> initial =
         await model.defaultGet(fieldNames, onChangeSpec);
     Map<OdooField,

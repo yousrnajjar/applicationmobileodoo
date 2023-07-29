@@ -85,11 +85,16 @@ class _HolidayFormState extends AppFormState {
     var employeeId = values.entries
         .firstWhere((element) => element.key.name == 'employee_id')
         .value;
-    var employeeName = values.keys
+    var employeeNames = values.keys
         .firstWhere((element) => element.name == 'employee_id')
-        .selectionOptions
-        .firstWhere((element) => element['id'] == employeeId);
-    employeeName = employeeName != null ? employeeName['name'] : '';
+        .selectionOptions;
+    String employeeName = '';
+    for (var employeeName in employeeNames) {
+      if (employeeName['id'] == employeeId) {
+        employeeName = employeeName;
+        break;
+      }
+    }
 
     formFields.addAll([
       groupedField['holiday_status_id']!,
