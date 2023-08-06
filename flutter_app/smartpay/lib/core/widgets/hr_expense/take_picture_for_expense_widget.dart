@@ -15,12 +15,16 @@ import 'expense_form.dart';
 
 /// Take a picture for an expense
 class TakePictureExpenseWidget extends StatefulWidget {
+  /// Perform an action when the picture is validated (may be stop the workflow and save picture as attachment)
   final Function(XFile)? onPictureValidated;
+  /// Workflow state (notStarted, started, cameraShowed, pictureTaken, pictureValidated, pictureNotValidated, pictureCanceled)
   final TakePictureForExpenseWorkflow workflow;
+  /// List of expenses to select one to attach the picture to
   final List<Expense> expenses;
+  /// onWorkFlowChanged is a callback function to change the workflow state (notStarted, started, cameraShowed, pictureTaken, pictureValidated, pictureNotValidated, pictureCanceled)
   final Function(TakePictureForExpenseWorkflow) onWorkFlowChanged;
 
-  // onAttachmentCreated
+  /// onAttachmentCreated is a callback function to create the attachment in the database (and optionally stop the workflow)
   final Function(int) onAttachmentCreated;
 
   const TakePictureExpenseWidget(
@@ -243,7 +247,6 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                       });
                       }
                   },
-
                   child: const Text('Valider'),
                 ),
               ],

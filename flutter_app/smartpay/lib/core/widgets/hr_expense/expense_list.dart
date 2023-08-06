@@ -110,10 +110,8 @@ class _ExpenseListState extends State<ExpenseList> {
               TakePictureForExpenseWorkflow.notStarted,
               TakePictureForExpenseWorkflow.pictureCanceled,
               TakePictureForExpenseWorkflow.expenseCanceled,
-              TakePictureForExpenseWorkflow
-                  .pictureSent, // TODO: Remove camera when
-              TakePictureForExpenseWorkflow
-                  .pictureValidated, // Because we need to create the expense when the picture is validated
+              TakePictureForExpenseWorkflow.pictureSent, // TODO: Remove camera when
+              //TakePictureForExpenseWorkflow.pictureValidated, // Because we need to create the expense when the picture is validated
             ].contains(_takePictureWorkflow))
           Positioned(
             top: 0,
@@ -136,7 +134,9 @@ class _ExpenseListState extends State<ExpenseList> {
                     _takePictureWorkflow = workflow;
                   });
                 },
-                onPictureValidated: (XFile f) {
+                onPictureValidated: null,
+                  // Commented because we need to create the expense when the picture is validated
+                  /*(XFile f) {
                   _createExpenseFromAttachment(f).then((value) {
                     setState(() {
                       _takePictureWorkflow =
@@ -149,7 +149,11 @@ class _ExpenseListState extends State<ExpenseList> {
                       ),
                     );
                   });
-                },
+                  setState(() {
+                    _takePictureWorkflow =
+                        TakePictureForExpenseWorkflow.pictureValidated;
+                  });
+                },*/
                 expenses: _loadedExpense,
               ),
             ),
