@@ -25,5 +25,3 @@ class HrLeave(models.Model):
         'cancel': 'Votre demande de congé {} a été annulée',
     }
     _allowed_notif_status = ['confirm', 'validate1', 'validate', 'refuse', 'cancel']
-
-

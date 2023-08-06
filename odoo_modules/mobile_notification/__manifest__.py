@@ -13,7 +13,7 @@ Ce module permet d'enregistrer les notifications quand certaines actions ou chan
 Ce module est developpé par @jp-sft pour permettre l'integration des notifications dans l'app mobile @SmartPay où les utilisateurs peuvent consulter les notifications.
 """,
     'author': '@jp-sft',
-    'depends': ['base', 'hr', 'hr_holidays', 'mail', 'om_hr_payroll'],
+    'depends': ['base', 'hr', 'hr_holidays', 'mail', 'om_hr_payroll', 'hr_attendance'],
     'data': [
     ],
     'installable': True,
