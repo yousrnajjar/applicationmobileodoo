@@ -31,6 +31,13 @@ class _EmployeeCheckInCheckOutState extends State<EmployeeCheckInCheckOut> {
   Widget build(BuildContext context) {
     //return EmployeeCard(employee: widget.employee);
     return FutureBuilder(
+      initialData: [
+        {
+          OdooField.fromMap({"name": "name"}): '------',
+          OdooField.fromMap({"name": "job_id"}): const [-1, '------'],
+          OdooField.fromMap({"name": "image_128"}): false
+        }
+      ],
       future: _loadEmployeeInfo(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {

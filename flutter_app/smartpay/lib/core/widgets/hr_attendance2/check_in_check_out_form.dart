@@ -1,16 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:smartpay/core/widgets/hr_attendance2/hr_attendance.dart';
 import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/allocation.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
 import 'package:smartpay/ir/models/employee.dart';
 
 // Base size
 var baseSize = const Size(319, 512);
-var dateTimeFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
-var dateFormatter = DateFormat('yyyy-MM-dd');
-var timeFormatter = DateFormat('HH:mm:ss');
 
 class CheckInCheckOutForm extends StatefulWidget {
   final EmployeeAllInfo employee;
@@ -29,6 +26,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   double widthRatio = 1;
   double heightRatio = 1;
   DateTime now = DateTime.now();
+  late HrAttendance attendance;
 
   final Map<CheckInCheckOutFormState, String> _header = {
     CheckInCheckOutFormState.hourNotReached: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
@@ -36,237 +34,10 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     CheckInCheckOutFormState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
   };
 
-  /// attendanceFields
-  final List<String> attendanceFields = [
-    'id',
-    'employee_id',
-    'check_in',
-    'check_out',
-    'worked_hours',
-  ];
-
-  /// get Latest Attendance
-  Future<Map<String, dynamic>> _getLatestAttendance() async {
-    try {
-      // Récupérer la dernière entrée de pointage de l'employé
-      var response = await OdooModel("hr.attendance").searchRead(
-        domain: [
-          ["employee_id", "=", widget.employee.id]
-        ],
-        fieldNames: attendanceFields,
-        limit: 1
-      );
-      return response[0];
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-  }
-   
-  /// Update attendance with check out
-  Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
-    try {
-      // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
-      var isUpdated = await OdooModel.session.write(
-        "hr.attendance",
-        [attendanceId],
-        {
-          "check_out": dateTimeFormatter.format(DateTime.now()),
-        },
-      );
-      // Récupérer le pointage
-      return await OdooModel("hr.attendance").searchRead(
-        domain: [
-          ["id", "=", attendanceId]
-        ],
-        fieldNames: attendanceFields,
-        limit: 1,
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-  }
-  /// Get latest check in with no check out
-  Future<List<Map<String, dynamic>>> _getLatestCheckInWithNoCheckOut() async {
-    try {
-      // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
-      return await OdooModel("hr.attendance").searchRead(
-        domain: [
-          ["employee_id", "=", widget.employee.id],
-          ["check_in", "!=", false],
-          ["check_out", "=", false],
-        ],
-        fieldNames: attendanceFields,
-        limit: 1,
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-  }
-
-  /// Ccréer un pointage
-  Future<List<Map<String, dynamic>>> _createAttendance() async {
-    try {
-        var model = "hr.attendance";
-        var data = {
-          "employee_id": widget.employee.id,
-          "check_in": dateTimeFormatter.format(now),
-        };
-        // Créer un pointage
-        var id = await OdooModel.session.create(model, data);
-        // Récupérer le pointage
-        return await OdooModel("hr.attendance").searchRead(
-          domain: [
-            ["id", "=", id]
-          ],
-          fieldNames: attendanceFields,
-          limit: 1,
-        );
-      } catch (e) {
-        if (kDebugMode) {
-          print(e);
-        }
-        throw e;
-      }
-  }
-  /// Get or create or update attendance
-  /// Si l'employé n'a pas de pointage, il faut créer un pointage
-  /// Si l'employé a un pointage, il faut le récupérer
-  /// L'heure de pointage est l'heure actuelle
-  Future<Map<String, dynamic>> _getOrCreateOrUpdateAttendance() async {
-    // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
-    List<Map<String, dynamic>> response = await _getLatestCheckInWithNoCheckOut();
-    
-    if (response.length == 0) {
-      print("No attendance");
-        // Si l'employé n'a pas de pointage, il faut créer un pointage
-        response = await _createAttendance();
-    } else {
-      print("Attendance ${response[0]['id']}");
-      // Si l'employé a un pointage, il faut faire une mise à jour
-      var attendanceId = response[0]['id'];
-      response = await _updateAttendance(attendanceId);
-    }
-    return response[0];
-  }
-        
-
-  ///Checkin, Checkout
-  Future<Map<String, dynamic>> _check() async {
-    Map<String, dynamic> attendance;
-    try {
-      attendance = await _getOrCreateOrUpdateAttendance();
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-    DateTime? day;
-    DateTime? checkIn;
-    DateTime? checkOut;
-    Duration? workedHours;
-    try {
-      //var checkIn = DateTime.parse(attendance['check_in']);
-      checkIn = attendance['check_in'] != false
-          ? dateTimeFormatter.parse(attendance['check_in'])
-          : null;
-      //var checkOut = attendance['check_out'] != false ? DateTime.parse(attendance['check_out']) : null;
-      checkOut = attendance['check_out'] != false
-          ? dateTimeFormatter.parse(attendance['check_out'])
-          : null;
-      day = checkIn != null
-          ? dateFormatter.parse(dateFormatter.format(checkIn))
-          : null;
-
-      double hoursRaw = attendance['worked_hours'] != false
-          ? attendance['worked_hours']
-          : 0.0;
-
-      workedHours = Duration(
-          hours: hoursRaw.floor(),
-          minutes: ((hoursRaw - hoursRaw.floor()) * 60).floor(),
-          seconds: hoursRaw.floor() * 3600);
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-
-    return {
-      //'success': true,
-      'day': day,
-      'startTime': checkIn,
-      'endTime': checkOut,
-      //'state: state,
-      'workTime': workedHours,
-    };
-  }
-
-  Future<Map<String, dynamic>> _getCheckInCheckOutInfo() async {
-    Map<String, dynamic> response;
-    try {
-      response = await _getLatestAttendance();
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      throw e;
-    }
-    var attendance = response;
-    CheckInCheckOutFormState? state;
-    DateTime? day = attendance['check_in'] != false
-        ? dateFormatter.parse(attendance['check_in'])
-        : null;
-
-    DateTime? startTime = attendance['check_in'] != false
-        ? dateTimeFormatter.parse(attendance['check_in'])
-        : null;
-
-    // DateTime? endTime = attendance['check_out'] != false
-    //     ? dateTimeFormatter.parse(attendance['check_out'])
-    //     : null;
-
-    double hoursRaw =
-        attendance['worked_hours'] != false ? attendance['worked_hours'] : 0.0;
-    Duration workTime = Duration(
-        hours: hoursRaw.floor(),
-        minutes: ((hoursRaw - hoursRaw.floor()) * 60).floor(),
-        seconds: hoursRaw.floor() * 3600);
-    // if current time in 08:00 - 18:00
-    if (now.hour <= 8 && now.hour >= 18) {
-      state = CheckInCheckOutFormState.hourNotReached;
-    } else if (attendance['check_out'] == false) {
-      state = CheckInCheckOutFormState.canCheckOut;
-    } else if (attendance['check_out'] != false &&
-        attendance['check_in'] != false) {
-      state = CheckInCheckOutFormState.canCheckIn;
-    }
-
-    return {
-      //'success': true,
-      'workTime': workTime,
-      'day': day,
-      'startTime': startTime,
-      'state': state
-    };
-  }
-
-  Future<Map<String, dynamic>> _getOrCheck({bool check = false}) async {
-    if (check) {
-      return _check();
-    } else {
-      return _getCheckInCheckOutInfo();
-    }
+  @override
+  void initState() {
+    super.initState();
+    attendance = HrAttendance(widget.employee.id!);
   }
 
   @override
@@ -284,8 +55,18 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
           setState(() {});
         },
         child: FutureBuilder(
-            future: _getOrCheck(),
+            initialData: {
+              'success': true,
+              'message': '',
+              'day': dayFormatter.parse(dayFormatter.format(DateTime.now())),
+              'startTime': null,
+              'state': CheckInCheckOutFormState.hourNotReached
+            },
+            future: attendance.getOrCheck(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (kDebugMode) {
+                print(snapshot);
+              }
               if (snapshot.hasData) {
                 var data = snapshot.data;
                 if (kDebugMode) {
@@ -296,7 +77,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                     child: Text(data['message']),
                   );
                 }
-                var workTime = data['workTime'];
+                //var workTime = data['workTime'];
                 var day = data['day'];
                 var startTime = data['startTime'];
                 var endTime = data['endTime'];
@@ -354,7 +135,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                             height: 5 * heightRatio,
                           ),
                           // workTime
-                          _buildWorkTime(context, workTime: workTime),
+                          _buildWorkTime(context),
                           SizedBox(
                             height: 5 * heightRatio,
                           ),
@@ -458,27 +239,36 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     );
   }
 
-  Widget _buildWorkTime(BuildContext context, {Duration? workTime}) {
+  Widget _buildWorkTime(BuildContext context) {
     var workTimeTextStyle = TextStyle(
       fontSize: 37 * widthRatio,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );
-
-    var workTimeText = "";
-    if (workTime != null) {
-      workTimeText = workTime.toString().substring(0, 7);
-    } else {
-      workTimeText = "00:00:00";
-    }
-
-    return Text(
-      workTimeText,
-      style: workTimeTextStyle,
+    return FutureBuilder(
+      initialData: const {"worked_hours": 0.0},
+      future: attendance.getLatestAttendance(),
+      builder: (context, snapshot) {
+        var text = "--:--:--";
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          if (kDebugMode) {
+            print(snapshot.data!);
+          }
+          double wh = snapshot.data!['worked_hours'];
+          int h = wh.toInt();
+          double minRestant = (wh - h) * 60;
+          int m = minRestant.toInt();
+          double secRestant = (minRestant - m) * 60;
+          int s = secRestant.toInt();
+          text =
+              "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}";
+        }
+        return Text(text, style: workTimeTextStyle);
+      },
     );
   }
 
-  /// CheckInButton
+  /// CheckInButtonwh
   /// Le contenu du bouton est :
   ///   - "DÉMARRER"
   ///   - un icône de flèche vers la droite du style `>`
@@ -501,7 +291,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
             onPressed: () async {
               //_getOrCheck(check: true).then((value) => {setState(() {})});
               try {
-                await _getOrCheck(check: true);
+                await attendance.getOrCheck(check: true);
                 setState(() {});
               } catch (e) {
                 // Message d'erreur dans l'interface utilisateur
@@ -570,7 +360,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
         onPressed: () async {
           //_getOrCheck(check: true).then((value) => {setState(() {})});
           try {
-            await _getOrCheck(check: true);
+            await attendance.getOrCheck(check: true);
             setState(() {});
           } catch (e) {
             // Message d'erreur dans l'interface utilisateur

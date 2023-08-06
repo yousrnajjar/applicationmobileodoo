@@ -25,9 +25,9 @@ class EmployeeCardDetail extends StatelessWidget {
     employee.forEach((key, value) {
       employeeKeyAsString[key.name] = value;
     });
-    if (user != null){
+    if (user != null) {
       employeeKeyAsString['vat'] =
-        user!.info['vat'] == false ? '--/--' : user!.info['vat'];
+          user!.info['vat'] == false ? '--/--' : user!.info['vat'];
     } else {
       employeeKeyAsString['vat'] = '--/--';
     }
@@ -128,9 +128,11 @@ class EmployeeCardDetail extends StatelessWidget {
                           // Convertit des bytes en images
                           kTransparentImage, // Cree une image transparente en bytes
                         ),
-                        image: Image.memory(
-                                base64Decode(employeeKeyAsString['image_128']))
-                            .image,
+                        image: employeeKeyAsString['image_128'] != false
+                            ? Image.memory(base64Decode(
+                                    employeeKeyAsString['image_128']))
+                                .image
+                            : Image.asset("assets/icons/employee.jpeg").image,
                         fit: BoxFit.contain
                         //height: 60,
                         //width: 60,
@@ -196,9 +198,7 @@ class EmployeeCardDetail extends StatelessWidget {
                 //shape: BoxShape.circle,
                 //),
                 //),
-
               ],
-
             ),
             Center(
               child: Text(

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smartpay/core/widgets/hr_attendance/attendance_list.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/employee.dart';
-import 'package:smartpay/core/widgets/hr_leave/check_in_check_out.dart';
-
+import 'package:smartpay/core/widgets/hr_attendance2/check_in_check_out.dart';
 
 class InOutScreen extends StatefulWidget {
   final Function(String) onTitleChanged;
@@ -30,6 +29,7 @@ class _InOutScreenState extends State<InOutScreen> {
     );
     return EmployeeAllInfo.fromJson(employeeData[0]);
   }
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +42,7 @@ class _InOutScreenState extends State<InOutScreen> {
       });
     });
   }
-  
+
   void _selectPage(int index) {
     setState(() {
       _selectedPageIndex = index;
@@ -61,6 +61,7 @@ class _InOutScreenState extends State<InOutScreen> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +86,6 @@ class _InOutScreenState extends State<InOutScreen> {
         ],
       ),
       body: _activePage,
-    ); 
+    );
   }
 }
