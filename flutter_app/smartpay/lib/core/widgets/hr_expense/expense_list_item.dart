@@ -78,20 +78,30 @@ class ExpenseListItem extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
           ),
-          subtitle: Row(
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Le ", style: textSmall),
-              Text(
-                date,
-                style: textSmall,
+              Row(
+                children: [
+                  Text("Nom: ", style: textSmall),
+                  Text(
+                    titleDisplay,
+                    style: textSmall,
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Text(
-                categoryDisplay,
-                style: textSmall,
-              ),
+              Row(
+                children: [
+                  Text("Date: ", style: textSmall),
+                  Text(
+                    date,
+                    style: textSmall,
+                  ),
+                ],
+              )
             ],
           ),
+
           trailing: Text(amount, style: Theme.of(context).textTheme.bodyLarge),
         ),
       ),
