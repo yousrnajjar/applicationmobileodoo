@@ -29,12 +29,6 @@
             "icon_image": "expense.jpeg",
             "display_name": "Notes des frais",
             "identifier":"expense"
-        },
-        {
-            "icon": "e043",
-            "icon_image": "message.jpeg",
-            "display_name": "Messages",
-            "identifier":"message"
         }
     ]
 }
