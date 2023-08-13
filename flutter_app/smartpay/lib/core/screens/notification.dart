@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart'; // OdooModel
 
+import 'main_drawer.dart';
+
 Future<List<Map<String, dynamic>>> getNotifications(int resPartnerId) async {
   OdooModel model = OdooModel('mail.notification');
   List<Map<String, dynamic>> result = await model.searchRead(
@@ -96,6 +98,26 @@ class _NotificationScreenState extends State<NotificationScreen> {
     'hr.leave': 'assets/icons/holiday.jpeg'
   };
 
+  void onNotificationTap(String model, int resId) {
+    String page = 'dashboard';
+    Navigator.of(context).pop();
+    if (model == 'hr.employee') {
+      page = 'employee';
+    } else if (model == 'hr.leave') {
+      page = "leave";
+    } else if (model == 'hr.attendance') {
+      page = "attendance";
+    } else if (model == 'hr.expense') {
+      page = "expense";
+    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return MainDrawer(
+        user: widget.user,
+        activePageName: page,
+      );
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,6 +180,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       });
                     },
                   ),
+                  onTap: () {
+                    onNotificationTap(model, message['res_id']);
+                  },
                 );
               },
             );
