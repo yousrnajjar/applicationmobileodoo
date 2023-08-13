@@ -24,7 +24,7 @@ class ExpenseListItem extends StatelessWidget {
     var date = dateFormatter.format(dateFormatter.parse(expense['date']));
     return ExpenseListItem(
       title: expense['name'],
-      amount: '${expense['total_amount']} £',
+      amount: '${expense['total_amount']} ${expense['currency_id']}',
       date: date,
       category: (expense['product_id'] is List)
           ? expense['product_id'][1]

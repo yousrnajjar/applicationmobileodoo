@@ -41,6 +41,25 @@ class _ExpenseListState extends State<ExpenseList> {
       fieldNames: Expense({}).allFields,
       limit: 1000,
     );
+    // currency symbol
+    var currencyIds = result.map((e) => e['currency_id'][0]).toSet().toList();
+    var currencies = await OdooModel('res.currency').searchRead(
+      domain: [
+        ['id', 'in', currencyIds]
+      ],
+      fieldNames: [
+        'id',
+        'symbol',
+      ],
+    );
+    result = result.map((e) {
+      var currency = currencies.firstWhere(
+        (element) => element['id'] == e['currency_id'][0],
+        orElse: () => {'symbol': ''},
+      );
+      e['currency_id'] = currency['symbol'];
+      return e;
+    }).toList();
     var expenses = result.map((e) => Expense.fromJson(e)).toList();
     _loadedExpense = expenses;
     return expenses;
@@ -185,12 +204,24 @@ class _ExpenseListState extends State<ExpenseList> {
           return ListView.builder(
             itemCount: expenses.length,
             itemBuilder: (context, index) {
+              /*
               return ExpenseListItem.fromMap(context, expenses[index],
                   onTap: () {
                 if (onExpenseTap != null) {
                   onExpenseTap(context, expenses[index]);
                 }
-              });
+              });*/
+              try {
+                return ExpenseListItem.fromMap(context, expenses[index],
+                    onTap: () {
+                  if (onExpenseTap != null) {
+                    onExpenseTap(context, expenses[index]);
+                  }
+                }) as Widget;
+              } catch (e) {
+                print('Error: $e');
+                return Container();
+              }
             },
           );
         } else {
