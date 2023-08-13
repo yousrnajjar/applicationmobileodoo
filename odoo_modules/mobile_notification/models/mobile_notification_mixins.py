@@ -37,6 +37,24 @@ class MobileNotificationMixins(models.AbstractModel):
         super(MobileNotificationMixins, self).__init__(pool, cursor)
         self._check_mixin()
 
+    def _get_user_role(self, user_id: int) -> str:
+        """
+        Get the user role
+        :param user_id:
+        :return:
+        """
+        return 'current_user'
+
+    def _get_notif_message(self, status: str, user_id: int) -> str:
+        """
+        Renvoyer le message de notification
+        """
+        role = self._get_user_role(user_id)
+        msg = self._notif_message_by_status.get(status, {})
+        if isinstance(msg, dict):
+            return msg.get(role, None)
+        return msg
+
     @api.model
     def _get_target_users(self):
         """
@@ -45,7 +63,7 @@ class MobileNotificationMixins(models.AbstractModel):
         """
         return self.env.user
 
-    def _create_notif(self, msg, model, res_id, user):
+    def _create_notif(self, model, res_id, user, msg=None, status=None):
         """
         Create a notification for a partner
         :param msg: message to display
@@ -54,6 +72,15 @@ class MobileNotificationMixins(models.AbstractModel):
         :param partner_id: partner id
         :return:
         """
+        if not status:
+            status = self[self._status_field]
+            if status not in self._allowed_notif_status:
+                return
+        if not msg:
+            msg = self._get_notif_message(status, user.id)
+            if not msg:
+                _logger.warning('No notification message for %s %s' , self._name, status)
+                return
         message_vals = {
             'body': msg,
             'model': model,
@@ -72,17 +99,18 @@ class MobileNotificationMixins(models.AbstractModel):
             }
         ])
 
-    def _create_notifs(self, msg, model, res_id):
+    def _create_notifs(self, model, res_id, msg=None, status=None):
         """
         Create notifications for all target users
         :param msg: message to display
         :param model: model name
         :param res_id: record id
+        :param status: status
         :return:
         """
         for user in self._get_target_users():
             _logger.info('Create notification for user %s' % user.name)
-            self._create_notif(msg, model, res_id, user)
+            self._create_notif(model, res_id, user, msg=msg, status=status)
 
     def _get_readable_name(self):
         res = []
@@ -100,8 +128,8 @@ class MobileNotificationMixins(models.AbstractModel):
         _logger.info('Create %s' % self._name)
         res = super(MobileNotificationMixins, self).create(vals)
         # Création de la notification de confirmation de la demande
-        msg = self._notif_message_by_status.get(self._start_status, '').format(res._get_readable_name())
-        self._create_notifs(msg, res._name, res.id)
+        # msg = self._notif_message_by_status.get(self._start_status, '').format(res._get_readable_name())
+        res._create_notifs(res._name, res.id, msg=None, status=self._start_status)
         return res
 
     def write(self, vals):
@@ -120,8 +148,8 @@ class MobileNotificationMixins(models.AbstractModel):
                 continue
             # check if status has changed
             if old_rec_state != new_rec_state:
-                msg = self._notif_message_by_status.get(vals[self._status_field], '').format(rec._get_readable_name())
-                self._create_notifs(msg, rec._name, rec.id)
+                # msg = self._notif_message_by_status.get(vals[self._status_field], '').format(rec._get_readable_name())
+                self._create_notifs(rec._name, rec.id, msg=None)
             else:
                 _logger.warning('Vous devez définir le champ _status_field dans le modèle %s' % rec._name)
         return res
