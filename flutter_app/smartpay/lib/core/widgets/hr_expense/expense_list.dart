@@ -13,6 +13,7 @@ import 'package:smartpay/ir/models/user.dart';
 
 import 'select_expense_widget.dart';
 import 'take_picture_for_expense_widget.dart';
+import 'expense_detail.dart';
 
 class ExpenseList extends StatefulWidget {
   final User user;
@@ -27,6 +28,8 @@ class ExpenseList extends StatefulWidget {
 
 class _ExpenseListState extends State<ExpenseList> {
   bool _showAddExpenseWidget = false;
+  bool _showDetailExpenseWidget = false;
+  Widget _expenseWidget = Container();
   TakePictureForExpenseWorkflow _takePictureWorkflow =
       TakePictureForExpenseWorkflow.notStarted;
   List<Expense> _loadedExpense = [];
@@ -65,6 +68,52 @@ class _ExpenseListState extends State<ExpenseList> {
     return expenses;
   }
 
+  Future<void> showExpenseDetails(BuildContext context, int expenseId) async {
+    var expenseResponse = await OdooModel('hr.expense').searchRead(
+      domain: [
+        ['id', '=', expenseId]
+      ],
+      fieldNames: Expense({}).allFields,
+      limit: 1,
+    );
+    if (expenseResponse.isEmpty) {
+      throw Exception('Expense not found');
+    }
+    var expenseInfo = expenseResponse.first;
+    print(expenseInfo);
+    var expenseDetailWidget;
+    try {
+      expenseDetailWidget = ExpenseDetail(
+        expense: expenseInfo,
+        onEdit: (BuildContext context, Map<String, dynamic> expenceInfo) {},
+        onDelete: (BuildContext context, Map<String, dynamic> expenceInfo) {},
+        onAttachment: (BuildContext context, Map<String, dynamic> expenceInfo) {},
+      );
+    } catch (e) {
+      print(e);
+      throw Exception('Error while loading expense detail');
+    }
+    setState(() {
+      _showDetailExpenseWidget = true;
+      _expenseWidget = Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 10,
+              color: Colors.black.withOpacity(0.2),
+            ),
+          ],
+        ),
+        child: expenseDetailWidget,
+      );
+    });
+   }
+
   @override
   Widget build(BuildContext context) {
     var addExpenseWidget = buildAddExpenseWidget(context);
@@ -76,8 +125,40 @@ class _ExpenseListState extends State<ExpenseList> {
             left: 20,
             right: 20,
           ),
-          child: buildExpenseList(context), // Expense List
+          child: buildExpenseList(
+            context, 
+            onExpenseTap: (BuildContext context, Map<String, dynamic> expense) {
+              var expenseId = expense['id'];
+              showExpenseDetails(context, expenseId);
+            },
+          ),// Expense List
         ),
+        // detail expense
+        if (_showDetailExpenseWidget == true && _expenseWidget != null)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showDetailExpenseWidget = false;
+                });
+              },
+              child: Container(
+                color: Colors.black.withOpacity(0.2),
+              ),
+            ),
+          ),
+        if (_showDetailExpenseWidget == true && _expenseWidget != null)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _expenseWidget,
+          ),
+        
         if (_showAddExpenseWidget == true && addExpenseWidget != null)
           // Ajoute un décoration légèrement grise transparente
           Positioned(
