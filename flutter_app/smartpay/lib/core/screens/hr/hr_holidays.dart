@@ -553,11 +553,17 @@ class _HolidayListState extends State<HolidayList> {
 // for allocation form page, we just print Text : Allocation form page
 class HolidayScreen extends StatefulWidget {
   final User user;
+
   // onTitleChanged is a callback function to change the title of the page
   final Function(String) onTitleChanged;
+  final Map<String, dynamic>? dataKwargs;
 
-  const HolidayScreen(
-      {super.key, required this.user, required this.onTitleChanged});
+  const HolidayScreen({
+    super.key,
+    required this.user,
+    required this.onTitleChanged,
+    this.dataKwargs,
+  });
 
   @override
   State<HolidayScreen> createState() => _HolidayScreenState();
@@ -565,7 +571,13 @@ class HolidayScreen extends StatefulWidget {
 
 class _HolidayScreenState extends State<HolidayScreen> {
   // The current page
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  // The current holiday id
+  int? _holidayId = null;
+
+  // The current allocation id
+  int? _allocationId = null;
 
   // List of pages
   final List<Widget> _pages = [];
@@ -578,12 +590,43 @@ class _HolidayScreenState extends State<HolidayScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.dataKwargs != null) {
+      var model = widget.dataKwargs!['model'];
+      var resId = widget.dataKwargs!['res_id'];
+      if (model == 'hr.leave') {
+        _holidayId = resId;
+      } else if (model == 'hr.leave.allocation') {
+        _allocationId = resId;
+      }
+      if (_holidayId != null) {
+        _selectedIndex = 1;
+      } else if (_allocationId != null) {
+        _selectedIndex = 2;
+      } else {
+        _selectedIndex = 0;
+      }
+    } else {
+      _selectedIndex = 0;
+    }
     // Add the holiday list page
     _pages.add(HolidayList(user: widget.user));
     // Add the holiday form page
     _pages.add(const Center(child: CircularProgressIndicator()));
     // Add the allocation form page
     _pages.add(const Center(child: CircularProgressIndicator()));
+    // Build the form
+    _buildForm(_selectedIndex);
+  }
+
+  /// Change the current page
+  void changePage(int index) {
+    widget.onTitleChanged(_pageTitle[index]);
+    if ([1, 2].contains(index)) {
+      _buildForm(index);
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -596,15 +639,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          widget.onTitleChanged(_pageTitle[index]);
-          if ([1, 2].contains(index)) {
-            _buildForm(index);
-          }
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onTap: changePage,
         items: [
           BottomNavigationBarItem(
             icon:
@@ -627,11 +662,13 @@ class _HolidayScreenState extends State<HolidayScreen> {
 
   _buildForm(int index) async {
     Widget? content;
-    try{
+    try {
       if (index == 1) {
-        content = await buildHolidayForm();
+        content = (await buildHolidayForm(id: _holidayId)) as Widget?;
+        _holidayId = null;
       } else if (index == 2) {
-        content = await buildAllocationForm();
+        content = (await buildAllocationForm(id: _allocationId)) as Widget?;
+        _allocationId = null;
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -640,7 +677,9 @@ class _HolidayScreenState extends State<HolidayScreen> {
         ),
       );
       setState(() {
-        _pages[index] = Center(child: Text("Erreur lors de la récupération du formulaire: ${e.toString()}"));
+        _pages[index] = Center(
+            child: Text(
+                "Erreur lors de la récupération du formulaire: ${e.toString()}"));
       });
       return;
     }
@@ -650,76 +689,74 @@ class _HolidayScreenState extends State<HolidayScreen> {
       });
     }
   }
+}
 
-  Future<Widget> buildHolidayForm() async {
-    /*return await OdooModel("hr.leave").buildFormFields(
-      fieldNames: Holiday.defaultFields,
-      onChangeSpec: Holiday.onchangeSpec,
-      formTitle: "Demande de congé",
-      displayFieldNames: Holiday.displayFieldNames,
-    );*/
-    var fieldNames = Holiday.defaultFields;
-    var displayFieldNames = Holiday.displayFieldNames;
-    var onChangeSpec = Holiday.onchangeSpec;
-    var formTitle = "Demande de congé";
-    var model = OdooModel("hr.leave");
-    Map<OdooField, dynamic> initial =
-        await model.defaultGet(fieldNames, onChangeSpec);
-    Map<OdooField,
-            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
-        onFieldChanges = {};
-    for (OdooField field in initial.keys) {
-      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
-        return await model.onchange([field], currentValues, onChangeSpec);
-      };
-    }
-
-    return HolidayForm(
-      key: ObjectKey(this),
-      fieldNames: fieldNames,
-      initial: initial,
-      onFieldChanges: onFieldChanges,
-      displayFieldsName: displayFieldNames,
-      title: formTitle,
-      onSaved: (Map<OdooField, dynamic> values) async {
-        return await model.create(values);
-      },
-    );
+Future<HolidayForm> buildHolidayForm({bool? editable, int? id}) async {
+  var fieldNames = Holiday.defaultFields;
+  var displayFieldNames = Holiday.displayFieldNames;
+  var onChangeSpec = Holiday.onchangeSpec;
+  var formTitle = "Demande de congé";
+  var model = OdooModel("hr.leave");
+  Map<OdooField, dynamic> initial =
+      await model.defaultGet(fieldNames, onChangeSpec);
+  Map<OdooField,
+          Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+      onFieldChanges = {};
+  for (OdooField field in initial.keys) {
+    onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+      return await model.onchange([field], currentValues, onChangeSpec);
+    };
   }
 
-  Future<Widget> buildAllocationForm() async {
-    /*return await OdooModel("hr.leave.allocation").buildFormFields(
-      fieldNames: Allocation.defaultFields,
-      onChangeSpec: Allocation.onchangeSpec,
-      formTitle: "Demande de congé",
-      displayFieldNames: Allocation.displayFieldNames,
-    );*/
-    var fieldNames = Allocation.defaultFields;
-    var displayFieldNames = Allocation.displayFieldNames;
-    var onChangeSpec = Allocation.onchangeSpec;
-    var formTitle = "Demande de congé";
-    var model = OdooModel("hr.leave.allocation");
+  return HolidayForm(
+    key: UniqueKey(),
+    fieldNames: fieldNames,
+    initial: initial,
+    onFieldChanges: onFieldChanges,
+    displayFieldsName: displayFieldNames,
+    title: formTitle,
+    editable: id != null ? false : editable,
+    id: id,
+    model: model,
+    editableFields: id != null ? []:
+      Holiday().editableFields,
+    onSaved: (Map<OdooField, dynamic> values) async {
+      return await model.create(values);
+    },
+  );
+}
 
-    Map<OdooField, dynamic> initial =
-        await model.defaultGet(fieldNames, onChangeSpec);
-    Map<OdooField,
-            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
-        onFieldChanges = {};
-    for (OdooField field in initial.keys) {
-      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
-        return await model.onchange([field], currentValues, onChangeSpec);
-      };
-    }
-    return AllocationForm(
-      key: ObjectKey(this),
-      fieldNames: fieldNames,
-      initial: initial,
-      onFieldChanges: onFieldChanges,
-      displayFieldsName: displayFieldNames,
-      title: formTitle,
-      onSaved: (Map<OdooField, dynamic> values) async {
-        return await model.create(values);
-      },
-    );
+Future<AllocationForm> buildAllocationForm({bool? editable, int? id}) async {
+  var fieldNames = Allocation.defaultFields;
+  var displayFieldNames = Allocation.displayFieldNames;
+  var onChangeSpec = Allocation.onchangeSpec;
+  var formTitle = "Demande de congé";
+  var model = OdooModel("hr.leave.allocation");
+
+  Map<OdooField, dynamic> initial =
+      await model.defaultGet(fieldNames, onChangeSpec);
+  Map<OdooField,
+          Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
+      onFieldChanges = {};
+  for (OdooField field in initial.keys) {
+    onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
+      return await model.onchange([field], currentValues, onChangeSpec);
+    };
   }
+  return AllocationForm(
+    key: UniqueKey(),
+    fieldNames: fieldNames,
+    initial: initial,
+    onFieldChanges: onFieldChanges,
+    displayFieldsName: displayFieldNames,
+    title: formTitle,
+    editable: id != null ? false : editable,
+    model: model,
+    id: id,
+    editableFields: id != null ? []:
+      Allocation().editableFields,
+    onSaved: (Map<OdooField, dynamic> values) async {
+      return await model.create(values);
+    },
+  );
 }

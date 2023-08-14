@@ -10,6 +10,7 @@ import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
 import 'package:smartpay/ir/models/user.dart';
+import 'package:smartpay/core/screens/main_drawer.dart';
 
 import 'select_expense_widget.dart';
 import 'take_picture_for_expense_widget.dart';
@@ -126,10 +127,24 @@ class _ExpenseListState extends State<ExpenseList> {
             right: 20,
           ),
           child: buildExpenseList(
-            context, 
+            context,
             onExpenseTap: (BuildContext context, Map<String, dynamic> expense) {
               var expenseId = expense['id'];
-              showExpenseDetails(context, expenseId);
+              //showExpenseDetails(context, expenseId);
+              // Go to main drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainDrawer(
+                    user: widget.user,
+                    activePageName: 'expense',
+                    dataKwargs: {
+                      'model': 'hr.expense',
+                      'res_id': expenseId,
+                    }
+                  ),
+                ),
+              );
             },
           ),// Expense List
         ),
@@ -158,7 +173,7 @@ class _ExpenseListState extends State<ExpenseList> {
             right: 0,
             child: _expenseWidget,
           ),
-        
+
         if (_showAddExpenseWidget == true && addExpenseWidget != null)
           // Ajoute un décoration légèrement grise transparente
           Positioned(

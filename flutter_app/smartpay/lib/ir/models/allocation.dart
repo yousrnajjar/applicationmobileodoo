@@ -54,6 +54,14 @@ class Allocation {
       'notes', // Description
       //'employee_id', // Salarié
     ];
+  List<String> get editableFields => [
+      'holiday_status_id', // Type de congé
+      'number_of_days', // Durée 
+      //'holiday_type', // Mode
+      'allocation_type', // Type d'allocation
+      'notes', // Description
+      //'employee_id', // Salarié
+    ];
   ///Onchange spec for hr.leave
   static Map<String, String> onchangeSpec = {
     'can_reset': '',

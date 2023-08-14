@@ -18,12 +18,15 @@ import 'notification.dart'; // Notification Screen
 class MainDrawer extends ConsumerStatefulWidget {
   final User user;
 
-  String? activePageName;
+  final String? activePageName;
 
-  MainDrawer({
+  final Map<String,dynamic>? dataKwargs;
+
+  const MainDrawer({
     required this.user,
     super.key,
     this.activePageName,
+    this.dataKwargs,
   });
 
   @override
@@ -68,12 +71,12 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       res = {"Pointage": InOutScreen(onTitleChanged: setTitle)};
     } else if (identifier == "leave") {
       res = {
-        "Congé": HolidayScreen(user: widget.user, onTitleChanged: setTitle)
+        "Congé": HolidayScreen(user: widget.user, onTitleChanged: setTitle, dataKwargs: widget.dataKwargs)
       };
     } else if (identifier == "expense") {
       res = {
         "Note de frais":
-            ExpenseScreen(user: widget.user, onTitleChanged: setTitle)
+            ExpenseScreen(user: widget.user, onTitleChanged: setTitle, dataKwargs: widget.dataKwargs)
       };
     }
     return res.entries.first;

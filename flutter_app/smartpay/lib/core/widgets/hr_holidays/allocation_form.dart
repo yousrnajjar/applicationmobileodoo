@@ -20,6 +20,10 @@ class AllocationForm extends AppForm {
     required super.onFieldChanges,
     required super.displayFieldsName,
     required super.title,
+    super.editable,
+    super.id,
+    super.model,
+    super.editableFields,
   });
 
   @override

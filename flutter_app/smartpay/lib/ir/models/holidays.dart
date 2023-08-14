@@ -29,6 +29,14 @@ class Holiday {
     'notes',
     'number_of_days',
   ];
+  
+  List<String> get editableFields => [
+    'request_date_from',
+    'request_date_to',
+    'holiday_status_id',
+    'notes',
+    'number_of_days',
+  ];
 
   ///
   static List<String> defaultFields = [

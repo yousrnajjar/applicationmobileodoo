@@ -100,6 +100,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   void onNotificationTap(String model, int resId) {
     String page = 'dashboard';
+    Map<String, dynamic> dataKwargs = {
+      'model': model,
+      'res_id': resId,
+    };
     Navigator.of(context).pop();
     if (model == 'hr.employee') {
       page = 'employee';
@@ -114,6 +118,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       return MainDrawer(
         user: widget.user,
         activePageName: page,
+        dataKwargs: dataKwargs,
       );
     }));
   }

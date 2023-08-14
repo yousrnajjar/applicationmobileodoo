@@ -11,8 +11,14 @@ class ExpenseScreen extends StatefulWidget {
   // onTitleChanged is a callback function to change the title of the page
   final Function(String) onTitleChanged;
 
-  const ExpenseScreen(
-      {super.key, required this.user, required this.onTitleChanged});
+  final Map<String, dynamic>? dataKwargs;
+
+  const ExpenseScreen({
+    super.key,
+    required this.user,
+    required this.onTitleChanged,
+    this.dataKwargs,
+  });
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -21,6 +27,8 @@ class ExpenseScreen extends StatefulWidget {
 class _ExpenseScreenState extends State<ExpenseScreen> {
   // The current page
   int _selectedIndex = 0;
+
+  int? _expenseId;
 
   // List of pages
   final List<Widget> _pages = [];
@@ -32,6 +40,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.dataKwargs != null) {
+      var model = widget.dataKwargs!['model'];
+      if (model == 'hr.expense') {
+        _expenseId = widget.dataKwargs!['res_id'];
+        if (_expenseId != null) {
+          _selectedIndex = 1;
+        }
+      }
+    }
     // Add the holiday list page
     _pages.add(ExpenseList(user: widget.user, onChangedPage: _changePage));
     // Add the holiday form page
@@ -51,32 +68,68 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Navigator(
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => _buildBody(),
+    var navigationBar = BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      currentIndex: _selectedIndex,
+      onTap: (index) {
+        _changePage(index);
+      },
+      items: [
+        BottomNavigationBarItem(
+          icon: Image.asset("assets/icons/expense_list.png"),
+          label: _pageTitle[0],
+        ),
+        BottomNavigationBarItem(
+          icon: Image.asset("assets/icons/expense_add.png"),
+          label: (_expenseId == null) ? _pageTitle[1] : 'Note de frais',
+        ),
+      ],
+    );
+    if (_expenseId != null) {
+      var future = ExpenseFormWidget.buildExpenseForm(
+        id: _expenseId!,
+        editable: false,
+        onCancel: () {
+          _changePage(0);
+        },
+      );
+      return FutureBuilder(
+        future: future,
+        builder: (context, snapshot) {
+          Widget content;
+          if (snapshot.hasError) {
+            content = const Center(child: Text('Error'));
+          } else if (snapshot.hasData) {
+            content = snapshot.data as Widget;
+          } else {
+            content = const Center(child: CircularProgressIndicator());
+          }
+          _expenseId = null;
+          _selectedIndex = 1;
+          return Scaffold(
+            body: content,
+            bottomNavigationBar: navigationBar,
           );
         },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          _changePage(index);
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Image.asset("assets/icons/expense_list.png"),
-            label: _pageTitle[0],
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset("assets/icons/expense_add.png"),
-            label: _pageTitle[1],
-          ),
-        ],
-      ),
-    );
+      );
+    } else {
+      var body;
+      if (_selectedIndex == 0) {
+        body = _buildBody();
+      } else {
+        body = Navigator(
+          onGenerateRoute: (settings) {
+            return MaterialPageRoute(
+              builder: (context) => _buildBody(),
+            );
+          },
+        );
+      }
+      return Scaffold(
+        body: body,
+        bottomNavigationBar: navigationBar,
+      );
+    }
   }
 
   Widget _buildBody() {
@@ -88,57 +141,16 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   _buildForm(int index) async {
     Widget? content;
     if (index == 1) {
-      content = await ExpenseFormWidget.buildExpenseForm(onCancel: () {
-        _changePage(0);
-      });
+      content = await ExpenseFormWidget.buildExpenseForm(
+        onCancel: () {
+          _changePage(0);
+        },
+      );
     }
     if (content != null) {
       setState(() {
         _pages[index] = content!;
       });
     }
-  }
-
-  Future<Widget> buildExpenseForm() async {
-    /*return await OdooModel("hr.expense").buildFormFields(
-      fieldNames: Expense({}).allFields,
-      onChangeSpec: Expense({}).onchangeSpec,
-      formTitle: "Demande de congé",
-      displayFieldNames: Expense({}).displayFieldNames,
-    );*/
-    var fieldNames = Expense({}).allFields;
-    var displayFieldNames = Expense({}).displayFieldNames;
-    var onChangeSpec = Expense({}).onchangeSpec;
-    var formTitle = "";
-    var model = OdooModel("hr.expense");
-
-    Map<OdooField, dynamic> initial =
-        await model.defaultGet(fieldNames, onChangeSpec);
-    Map<OdooField,
-            Future<Map<OdooField, dynamic>> Function(Map<OdooField, dynamic>)>
-        onFieldChanges = {};
-    for (OdooField field in initial.keys) {
-      onFieldChanges[field] = (Map<OdooField, dynamic> currentValues) async {
-        return await model.onchange([field], currentValues, onChangeSpec);
-      };
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: ExpenseFormWidget(
-        key: ObjectKey(this),
-        fieldNames: fieldNames,
-        initial: initial,
-        onFieldChanges: onFieldChanges,
-        displayFieldsName: displayFieldNames,
-        title: formTitle,
-        onSaved: (Map<OdooField, dynamic> values) async {
-          return await model.create(values);
-        },
-        onCancel: () {
-          _changePage(0);
-        },
-      ),
-    );
   }
 }

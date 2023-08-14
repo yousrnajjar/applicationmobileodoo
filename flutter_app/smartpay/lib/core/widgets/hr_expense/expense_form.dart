@@ -21,6 +21,10 @@ class ExpenseFormWidget extends AppForm {
     required super.onFieldChanges,
     required super.displayFieldsName,
     required super.title,
+    super.editable,
+    super.editableFields,
+    super.id,
+    super.model,
   });
 
   @override
@@ -30,13 +34,9 @@ class ExpenseFormWidget extends AppForm {
 
   static Future<Widget> buildExpenseForm(
       {required dynamic Function() onCancel,
-      Function(Expense)? afterSave}) async {
-    /*return await OdooModel("hr.expense").buildFormFields(
-      fieldNames: Expense({}).allFields,
-      onChangeSpec: Expense({}).onchangeSpec,
-      formTitle: "Demande de congé",
-      displayFieldNames: Expense({}).displayFieldNames,
-    );*/
+      Function(Expense)? afterSave,
+      int? id,
+      bool? editable}) async {
     var fieldNames = Expense({}).allFields;
     var displayFieldNames = Expense({}).displayFieldNames;
     var onChangeSpec = Expense({}).onchangeSpec;
@@ -62,6 +62,10 @@ class ExpenseFormWidget extends AppForm {
         onFieldChanges: onFieldChanges,
         displayFieldsName: displayFieldNames,
         title: formTitle,
+        editableFields: Expense({}).editableFields,
+        id: id,
+        model: model,
+        editable: editable,
         onSaved: (Map<OdooField, dynamic> values) async {
           //return await model.create(values);
           return await model.create(values).then((value) {
@@ -129,25 +133,26 @@ class _ExpenseFormState extends AppFormState {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ElevatedButton(
-          onPressed: isSending
-              ? null
-              : () {
-                  if (super.formKey.currentState!.validate()) {
-                    super.formKey.currentState!.save();
-                    super.save();
-                  }
-                },
-          child: isSending
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                )
-              : const Text("Enregistrer"),
-        ),
+        if (super.formEditable)
+          ElevatedButton(
+            onPressed: isSending
+                ? null
+                : () {
+                    if (super.formKey.currentState!.validate()) {
+                      super.formKey.currentState!.save();
+                      super.save();
+                    }
+                  },
+            child: isSending
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text("Enregistrer"),
+          ),
         OutlinedButton(
           onPressed: () {
             if (widget.onCancel != null) {
@@ -179,6 +184,8 @@ class _ExpenseFormState extends AppFormState {
         paymentModeAsCheckBox = field.selectionOptions.map((e) {
           var value = _paymentMode[e['value']]!;
           return CheckboxListTile(
+            enabled: formEditable &&
+                (formEditableFields.contains(field.name) || !field.readonly),
             value: value,
             title: Text(
               e['display_name'],
@@ -274,50 +281,51 @@ class _ExpenseFormState extends AppFormState {
       ]),
       //
       Container(
-          margin: const EdgeInsets.only(top: 20, bottom: 20),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                    child: Text('Date:', style: fontBold),
-                  ),
-                  Text(date),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                    child: Text('Compte:', style: fontBold),
-                  ),
-                  Text(account),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                    child: Text('Salarié:', style: fontBold),
-                  ),
-                  Text(employee),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                    child: Text('Devise:', style: fontBold),
-                  ),
-                  Text(currency),
-                ],
-              ),
-            ],
-          )),
+        margin: const EdgeInsets.only(top: 20, bottom: 20),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const SizedBox(
+                  width: 100,
+                  child: Text('Date:', style: fontBold),
+                ),
+                Text(date),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 100,
+                  child: Text('Compte:', style: fontBold),
+                ),
+                Text(account),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 100,
+                  child: Text('Salarié:', style: fontBold),
+                ),
+                Text(employee),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 100,
+                  child: Text('Devise:', style: fontBold),
+                ),
+                Text(currency),
+              ],
+            ),
+          ],
+        ),
+      ),
     ]);
   }
 }

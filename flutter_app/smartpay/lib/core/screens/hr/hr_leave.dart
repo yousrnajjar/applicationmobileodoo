@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/core/widgets/hr_attendance/attendance_list.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/employee.dart';
 import 'package:smartpay/core/widgets/hr_attendance2/check_in_check_out.dart';
+
+import '../../widgets/hr_attendance/attendance_list.dart';
 
 class InOutScreen extends StatefulWidget {
   final Function(String) onTitleChanged;

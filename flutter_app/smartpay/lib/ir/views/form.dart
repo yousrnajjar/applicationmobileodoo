@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
+
 // smartpay
 import 'package:smartpay/ir/model.dart';
 
@@ -17,6 +18,10 @@ class AppForm extends StatefulWidget {
   final Map<OdooField, dynamic> initial;
   final List<String> displayFieldsName;
   final String title;
+  final bool? editable;
+  final List<String>? editableFields;
+  final int? id;
+  final OdooModel? model;
 
   /// accept onFieldChangeFunction that is map of field name and an [async] function
   /// that take as parameter an Map<OdooField, dynamic> and return a Map<OdooField, dynamic>
@@ -32,6 +37,10 @@ class AppForm extends StatefulWidget {
     required this.onFieldChanges,
     required this.displayFieldsName,
     required this.title,
+    this.editable,
+    this.id,
+    this.model,
+    this.editableFields,
   });
 
   @override
@@ -40,6 +49,9 @@ class AppForm extends StatefulWidget {
 
 class AppFormState extends State<AppForm> {
   final formKey = GlobalKey<FormState>();
+  bool initialized = false;
+  late bool formEditable;
+  List<String> formEditableFields = [];
   Map<OdooField, dynamic> values = {};
   Map<OdooField, TextEditingController> controllers = {};
   String message = "Votre demande a été bien enregistrée!";
@@ -47,54 +59,77 @@ class AppFormState extends State<AppForm> {
 
   bool isSending = false;
 
+  /// read initial values and return a Map<String, dynamic>
+  Future<Map<OdooField, dynamic>> readInitial(int id) async {
+    var res = await widget.model!.searchReadAsOdooField(
+      domain: [
+        ['id', '=', id]
+      ],
+      fieldNames: widget.fieldNames,
+    );
+    if (res.length == 0) {
+      throw Exception("No record found");
+    }
+    return res[0];
+  }
+
   @override
   void initState() {
     super.initState();
+    formEditable = widget.editable ?? true;
     controllers = {};
+    formEditableFields = widget.editableFields ?? [];
+  }
 
-    widget.initial.forEach((field, value) {
-      values[field] = value;
-      var textField = [
-        OdooFieldType.char,
-        OdooFieldType.text,
-        OdooFieldType.float,
-        OdooFieldType.monetary,
-        OdooFieldType.integer,
-        OdooFieldType.html
-      ];
-      if (textField.contains(field.type)) {
-        controllers[field] = TextEditingController(text: "${value ?? ""}");
-      }
-    });
-
-    widget.initial.forEach((key, value) {
-      if (kDebugMode) {
-        print('${key.name} === $value');
-      }
-    });
+  Future<void> initValues() async {
+    if (widget.id != null && widget.model != null) {
+      var record = await readInitial(widget.id!);
+      record.forEach((field, value) {
+        values[field] = value;
+        var textField = [
+          OdooFieldType.char,
+          OdooFieldType.text,
+          OdooFieldType.float,
+          OdooFieldType.monetary,
+          OdooFieldType.integer,
+          OdooFieldType.html
+        ];
+        if (textField.contains(field.type)) {
+          controllers[field] = TextEditingController(text: "${value ?? ""}");
+        }
+      });
+    } else {
+      widget.initial.forEach((field, value) {
+        values[field] = value;
+        var textField = [
+          OdooFieldType.char,
+          OdooFieldType.text,
+          OdooFieldType.float,
+          OdooFieldType.monetary,
+          OdooFieldType.integer,
+          OdooFieldType.html
+        ];
+        if (textField.contains(field.type)) {
+          controllers[field] = TextEditingController(text: "${value ?? ""}");
+        }
+      });
+    }
   }
 
   change(OdooField field) {
-    if (kDebugMode) {
-      print(values[field]);
-      print(values.entries.firstWhere((e) => e.key.name == field.name).value);
-    }
-    /*widget.onFieldChanges.forEach((key, func) {
-      if (key.name == field.name) {
-        func(cleanValues()).then((newValues) {
-          setValues(newValues);
-        });
-      }
-    });*/
+    //if (kDebugMode) {
+    //print(values[field]);
+    //print(values.entries.firstWhere((e) => e.key.name == field.name).value);
+    //}
   }
 
-  @override
-  dispose() {
-    controllers.forEach((field, controller) {
-      controller.dispose();
-    });
-    super.dispose();
-  }
+  //@override
+  //dispose() {
+  //controllers.forEach((field, controller) {
+  //controller.dispose();
+  //});
+  //super.dispose();
+  //}
 
   Map<OdooField, dynamic> cleanValues() {
     Map<OdooField, dynamic> res = {};
@@ -115,13 +150,9 @@ class AppFormState extends State<AppForm> {
 
   setValues(Map<OdooField, dynamic> newValues) {
     newValues.forEach((field, value) {
-      //if (kDebugMode) {
-        //print('${field.name} $value');
-      //}
       if (controllers.keys.map((e) => e.name).contains(field.name) &&
           value != null) {
         setState(() {
-          //_controllers[field]!.text = "$value";
           controllers[field]!.dispose();
           controllers[field] = TextEditingController(text: "${value ?? ""}");
           controllers[field]!.value = TextEditingValue(
@@ -130,7 +161,6 @@ class AppFormState extends State<AppForm> {
               TextPosition(offset: '$value'.length),
             ),
           );
-
         });
       }
       var key = values.keys.firstWhere((e) => e.name == field.name);
@@ -141,6 +171,8 @@ class AppFormState extends State<AppForm> {
   }
 
   save() async {
+    print(
+        "===========================================Cleaned Values===========================================");
     var cleanedValues = cleanValues();
     String resMessage = "";
     cleanedValues.forEach((key, value) {});
@@ -149,9 +181,11 @@ class AppFormState extends State<AppForm> {
     });
     var newValues;
     try {
+      print(
+          "===========================================On Saved===========================================");
       newValues = await widget.onSaved(cleanedValues);
       resMessage = message;
-      print("newValues: $newValues");
+      //print("newValues: $newValues");
     } on OdooValidationError catch (e) {
       resMessage = e.message;
       print("OdooValidationError: $e");
@@ -164,7 +198,7 @@ class AppFormState extends State<AppForm> {
     } finally {
       setState(() {
         isSending = false;
-      }); 
+      });
     }
     if (newValues != null) {
       setState(() {
@@ -172,6 +206,8 @@ class AppFormState extends State<AppForm> {
       });
     }
     if (resMessage != null) {
+      print(
+          "===========================================Res Message===========================================");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(resMessage),
@@ -183,29 +219,37 @@ class AppFormState extends State<AppForm> {
 
   @override
   Widget build(BuildContext context) {
-    setValues(values);
+    Widget content;
 
-    /// use defaultGet of the model to build an flutter Form widget
-    final List<Widget> formFields = [];
-    setFormFields(formFields);
-    final List<Widget> formFieldsWidget = [];
-    for (var element in formFields) {
-      formFieldsWidget.add(element);
-      formFieldsWidget.add(const SizedBox(
-        height: 10,
-      ));
+    if (!initialized) {
+      initValues().then((value) {
+        setState(() {
+          initialized = true;
+        });
+      });
+      content = const Center(child: CircularProgressIndicator());
+    } else {
+      final List<Widget> formFields = [];
+      setFormFields(formFields);
+      final List<Widget> formFieldsWidget = [];
+      for (var element in formFields) {
+        formFieldsWidget.add(element);
+        formFieldsWidget.add(const SizedBox(
+          height: 10,
+        ));
+      }
+      var title = buildTitle();
+      content = SingleChildScrollView(
+        child: Column(
+          children: [
+            if (title != null) title,
+            buildForm(formFieldsWidget),
+          ],
+        ),
+      );
     }
-    var title = buildTitle();
-    //var mediaQuery = MediaQuery.of(context);
-    //var horizPadding = mediaQuery.size.width * 0.1;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          if (title != null) title,
-          buildForm(formFieldsWidget),
-        ],
-      ),
-    );
+
+    return content;
   }
 
   /// Build the title of the form
@@ -247,25 +291,26 @@ class AppFormState extends State<AppForm> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ElevatedButton(
-          onPressed: isSending
-              ? null
-              : () {
-                  if (formKey.currentState!.validate()) {
-                    formKey.currentState!.save();
-                    save();
-                  }
-                },
-          child: isSending
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                )
-              : const Text("Enregistrer"),
-        ),
+        if (formEditable)
+          ElevatedButton(
+            onPressed: isSending
+                ? null
+                : () {
+                    if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      save();
+                    }
+                  },
+            child: isSending
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text("Enregistrer"),
+          ),
         OutlinedButton(
           onPressed: () {
             if (widget.onCancel != null) {
@@ -314,11 +359,22 @@ class AppFormState extends State<AppForm> {
     var valId = values.entries
         .firstWhere((element) => element.key.name == fieldName)
         .value;
-    var valName = values.keys
+    var options = values.keys
         .firstWhere((element) => element.name == fieldName)
-        .selectionOptions
-        .firstWhere((element) => element['id'] == valId);
-    return valName != null ? valName['name'] : '';
+        .selectionOptions;
+
+    if (options == null) {
+      return '';
+    } else {
+      //.firstWhere((element) => element['id'] == valId);
+      for (var option in options) {
+        if (option['id'] == valId) {
+          return option['name'];
+        }
+      }
+      return '';
+    }
+    //return valName != null ? valName['name'] : '';
   }
 
   /// Build a list of form fields based on the defaultGet of the model
@@ -335,6 +391,7 @@ class AppFormState extends State<AppForm> {
       if (!widget.displayFieldsName.contains(field.name)) {
         return;
       }
+
       if (field.type == OdooFieldType.boolean) {
         formFields.add(buildBooleanField(field));
       } else if (field.type == OdooFieldType.integer) {
@@ -381,7 +438,8 @@ class AppFormState extends State<AppForm> {
     var value = values[field] ?? false;
     return CheckboxListTile(
       key: ObjectKey(field),
-      enabled: field.readonly,
+      enabled: formEditable &&
+          (formEditableFields.contains(field.name) || !field.readonly),
       value: value,
       title: Text(field.fieldDescription),
       subtitle: Text(
@@ -420,6 +478,9 @@ class AppFormState extends State<AppForm> {
 
   Widget buildIntegerField(OdooField field, dynamic controller) {
     return TextFormField(
+      key: ObjectKey(field),
+      enabled: formEditable &&
+          (!field.readonly || formEditableFields.contains(field.name)),
       controller: controllers.entries
           .firstWhere((element) => element.key.name == field.name)
           .value,
@@ -460,9 +521,6 @@ class AppFormState extends State<AppForm> {
     controller.addListener(
       () {
         values[field] = controller.text;
-        if (kDebugMode) {
-          print(values[field]);
-        }
         widget.onFieldChanges.forEach((key, func) {
           if (key.name == field.name) {
             func(cleanValues()).then((newValues) {
@@ -474,6 +532,9 @@ class AppFormState extends State<AppForm> {
     );
 
     return TextFormField(
+      key: ObjectKey(field),
+      enabled: formEditable &&
+          (!field.readonly || formEditableFields.contains(field.name)),
       controller: controller,
       decoration: InputDecoration(
         labelText: showLabel ? field.fieldDescription : null,
@@ -506,6 +567,9 @@ class AppFormState extends State<AppForm> {
 
   Widget buildCharField(OdooField field, dynamic controller, bool showLabel) {
     return TextFormField(
+      key: ObjectKey(field),
+      enabled: formEditable &&
+          (!field.readonly || formEditableFields.contains(field.name)),
       /*initialValue: value.toString(),*/
 
       controller: controllers.entries
@@ -554,9 +618,6 @@ class AppFormState extends State<AppForm> {
     controller.addListener(
       () {
         values[field] = controller.text;
-        if (kDebugMode) {
-          print(values[field]);
-        }
         widget.onFieldChanges.forEach((key, func) {
           if (key.name == field.name) {
             func(cleanValues()).then((newValues) {
@@ -568,6 +629,9 @@ class AppFormState extends State<AppForm> {
     );
 
     return TextFormField(
+      key: ObjectKey(field),
+      enabled: formEditable &&
+          (!field.readonly || formEditableFields.contains(field.name)),
       controller: controller,
       decoration: InputDecoration(
         labelText: showLabel ? field.fieldDescription : null,
@@ -621,7 +685,8 @@ class AppFormState extends State<AppForm> {
     }
     return InkWell(
       onTap: () async {
-        if (field.readonly) {
+        if (!formEditable ||
+            (field.readonly && !formEditableFields.contains(field.name))) {
           return;
         }
         final DateTime? picked = await showDatePicker(
@@ -705,7 +770,8 @@ class AppFormState extends State<AppForm> {
     }
     return InkWell(
       onTap: () async {
-        if (field.readonly) {
+        if (!formEditable ||
+            (field.readonly && !formEditableFields.contains(field.name))) {
           return;
         }
         final DateTime? picked = await showDatePicker(
@@ -767,6 +833,7 @@ class AppFormState extends State<AppForm> {
     var selectionOptions = field.selectionOptions;
     return DropdownButtonFormField(
       value: values[field],
+      disabledHint: Text(values[field].toString() ?? ''),
       decoration: InputDecoration(
         labelText: field.fieldDescription,
       ),
@@ -789,18 +856,22 @@ class AppFormState extends State<AppForm> {
           values[field] = newValue;
         });
       },
-      onChanged: (Object? value) {
-        setState(() {
-          values[field] = value;
-        });
-        widget.onFieldChanges.forEach((key, func) {
-          if (key.name == field.name) {
-            func(cleanValues()).then((newValues) {
-              setValues(newValues);
-            });
-          }
-        });
-      },
+      onChanged: (!formEditable &&
+              field.readonly &&
+              !formEditableFields.contains(field.name))
+          ? null
+          : (Object? value) {
+              setState(() {
+                values[field] = value;
+              });
+              widget.onFieldChanges.forEach((key, func) {
+                if (key.name == field.name) {
+                  func(cleanValues()).then((newValues) {
+                    setValues(newValues);
+                  });
+                }
+              });
+            },
     );
   }
 
@@ -815,20 +886,25 @@ class AppFormState extends State<AppForm> {
   ///
   /// The field is the Widget that contains the [DropdownButtonFormField].
   Widget buildMany2oneField(OdooField field, dynamic value) {
-    List<Map<String, dynamic>> selectionOptions = field.selectionOptions as List<Map<String, dynamic>>;
+    List<Map<String, dynamic>> selectionOptions =
+        field.selectionOptions as List<Map<String, dynamic>>;
 
-    print("selectionOptions $selectionOptions");
-    print("values[field] ${values[field]}"); // int or list
     var intValue = values[field];
+    var displayValue = '';
     if (intValue is List) {
       intValue = intValue[0];
+      try {
+        displayValue = selectionOptions
+            .firstWhere((element) => element['id'] == intValue)['name'];
+      } catch (e) {
+        displayValue = '';
+      }
+    } else if (intValue == false) {
+      intValue = null;
     }
-
-    //var matchedValue = selectionOptions.firstWhere(
-        //(element) => element['id'] == intValue,
-        //orElse: () => {'id': null, 'name': ''})['id'];
     return DropdownButtonFormField(
         value: intValue,
+        disabledHint: Text(displayValue),
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.only(bottom: -15),
           labelText: field.fieldDescription,
@@ -850,16 +926,19 @@ class AppFormState extends State<AppForm> {
             values[field] = newValue;
           });
         },
-        onChanged: (Object? value) {
-          values[field] = value;
-          widget.onFieldChanges.forEach((key, func) {
-            if (key.name == field.name) {
-              func(cleanValues()).then((newValues) {
-                setValues(newValues);
+        onChanged: (!formEditable ||
+                (field.readonly && !formEditableFields.contains(field.name)))
+            ? null
+            : (Object? value) {
+                values[field] = value;
+                widget.onFieldChanges.forEach((key, func) {
+                  if (key.name == field.name) {
+                    func(cleanValues()).then((newValues) {
+                      setValues(newValues);
+                    });
+                  }
+                });
               });
-            }
-          });
-        });
   }
 
   /// TODO: Test Me
