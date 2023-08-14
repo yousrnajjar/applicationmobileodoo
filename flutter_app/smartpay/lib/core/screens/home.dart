@@ -86,7 +86,7 @@ class _HomeState extends State<HomeScreen> {
       domain: [
         ['id', '=', widget.user.employeeId]
       ],
-      fieldNames: ['name', 'job_id', 'image_128'],
+      fieldNames: ['name', 'job_id', 'image_128', 'remaining_leaves'],
       limit: 1,
     );
   }
@@ -118,6 +118,12 @@ class _HomeState extends State<HomeScreen> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var user = widget.user;
+    var remaningLeaves = 0.0;
+    for (var item in _employee.entries) {
+      if (item.key.name == 'remaining_leaves') {
+        remaningLeaves = item.value;
+      }
+    }
     return Scaffold(
       body: ListView(
         children: [
@@ -151,6 +157,44 @@ class _HomeState extends State<HomeScreen> {
               ),
             ],
           ),
+          // Remaning leaves in progress bar
+          Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: (10 / baseWidthDesign) * width,
+                vertical: (10 / baseHeightDesign) * height),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Congés restants',
+                      style: TextStyle(
+                        fontSize: (15 / baseWidthDesign) * width,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '$remaningLeaves',
+                      style: TextStyle(
+                        fontSize: (15 / baseWidthDesign) * width,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: (10 / baseHeightDesign) * height),
+                LinearProgressIndicator(
+                  value: remaningLeaves / 30,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           Container(
             padding: EdgeInsets.symmetric(
                 horizontal: (10 / baseWidthDesign) * width,

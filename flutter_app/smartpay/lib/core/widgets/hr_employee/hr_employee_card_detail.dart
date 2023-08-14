@@ -20,7 +20,6 @@ class EmployeeCardDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var showInfo = (showDetails == null) ? true : showDetails;
-    print('EmployeeCardDetail with showInfo: $showInfo');
     Map<String, dynamic> employeeKeyAsString = {};
     employee.forEach((key, value) {
       employeeKeyAsString[key.name] = value;
