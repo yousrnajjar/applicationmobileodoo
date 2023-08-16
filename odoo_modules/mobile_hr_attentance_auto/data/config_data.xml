@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Attendance Automation Settings -->
+        <record id="hr_attendance_config_settings" model="res.config.settings">
+            <field name="check_in_start_time">08:00:00</field>
+            <field name="check_out_start_time">16:00:00</field>
+            <field name="check_out_end_time">18:00:00</field>
+            <field name="app_check_out_forget_notification_message">Please check out your attendance.</field>
+            <field name="app_check_in_auto_notification_message">Welcome to work.</field>
+        </record>
+    </data>
+</odoo>

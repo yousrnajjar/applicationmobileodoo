@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Check In Auto -->
+        <record id="ir_cron_employee_check_in_auto" model="ir.cron">
+            <field name="name">Employee Check In Auto</field>
+            <field name="model_id" ref="model_hr_employee"/>
+            <field name="code">model.do_check_in_auto()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+        <!-- Check Out Notification -->
+        <record id="ir_cron_attendance_check_out_notif" model="ir.cron">
+            <field name="name">Attendance Check Out Notification</field>
+            <field name="model_id" ref="model_hr_attendance"/>
+            <field name="code">model.check_out_notif()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+    </data>
+</odoo>
