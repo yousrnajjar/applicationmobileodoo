@@ -35,7 +35,7 @@ class HrEmployee(models.Model):
         # Loop for each employee
         for employee in employees:
             # Get employee's timezone
-            employee_tz = pytz.timezone(employee.tz)
+            employee_tz = pytz.timezone(employee.tz or 'UTC')
             # Convert current datetime to employee's timezone
             current_datetime_tz = pytz.utc.localize(current_datetime).astimezone(
                 employee_tz
