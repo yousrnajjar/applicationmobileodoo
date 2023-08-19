@@ -19,13 +19,14 @@ class HrEmployee(models.Model):
     def do_check_in_auto(self):
         """ Check In Auto Process """
         # Get attendance automation settings
-        config_settings = self.env["res.config.settings"].sudo().get_values()
-        check_in_start_time = config_settings.get("check_in_start_time")
+        # config_settings = self.env["res.config.settings"].sudo().get_values()
+        # check_in_start_time = config_settings.get("check_in_start_time")
+        check_in_start_time = '08:00:00'
         # Get employee with check_in_auto enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_in_auto", "=", True)]
         )
-        notification_message = config_settings.get("app_check_out_notification_message")
+        notification_message ="Welcome to work."# config_settings.get("app_check_out_notification_message")
         # Get current datetime
         current_datetime = fields.Datetime.now()
         # Get current date

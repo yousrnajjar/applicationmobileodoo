@@ -16,8 +16,8 @@ class HrAttendance(models.Model):
         """ Check Out Notification Process """
         # Get attendance automation settings
         config_settings = self.env["res.config.settings"].sudo().get_values()
-        check_out_start_time = config_settings.get("check_out_start_time")
-        check_out_end_time = config_settings.get("check_out_end_time")
+        #check_out_start_time = config_settings.get("check_out_start_time")
+        #check_out_end_time = config_settings.get("check_out_end_time")
         # Get employee with check_out_notif enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_out_notif", "=", True)]
@@ -68,8 +68,8 @@ class HrAttendance(models.Model):
     def _send_check_out_notif(self):
         """ Send Check Out Notification """
         # Get attendance automation settings
-        config_settings = self.env["res.config.settings"].sudo().get_values()
-        notification_message = config_settings.get("app_check_out_notification_message")
+        #config_settings = self.env["res.config.settings"].sudo().get_values()
+        notification_message = "Please check out your attendance."# config_settings.get("app_check_out_notification_message")
         # Loop attendance
         for attendance in self:
             message_vals = {
@@ -88,9 +88,4 @@ class HrAttendance(models.Model):
                     'notification_status': 'ready',
                     'mail_message_id': self.env['mail.message'].create(message_vals).id,
                 }
-            ])
-            # Send notification
-            attendance.employee_id.user_id.notify_info(
-                notification_message, title="Check Out Notification"
-            )
-            
+            ]) 
