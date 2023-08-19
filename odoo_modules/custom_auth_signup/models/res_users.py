@@ -40,7 +40,7 @@ class ResUsers(models.Model):
     def generate_token_and_send(self):
         """Crée un nouveau token et l'envoie."""
         self.generate_token()
-        self.sent_auth_code_mail()
+       # self.sent_auth_code_mail()
         return True
 
     def sent_auth_code_mail(self):
@@ -79,11 +79,11 @@ class ResUsers(models.Model):
             request.token_send = True
             request.uid_2fa = self.id
             raise AccessDenied("Veuillez confirmer le token.")
-        provided_token = request.session.get("provided_token")
-        true_token = request.session.get('true_token')
-        if provided_token != true_token:
-            request.is_valid_token = False
-            raise AuthenticationError("Invalid Token")
+        # provided_token = request.session.get("provided_token")
+        # true_token = request.session.get('true_token')
+        # if provided_token != true_token:
+            # request.is_valid_token = False
+            # raise AuthenticationError("Invalid Token")
 
     @classmethod
     def authenticate(cls, database, login, password, user_agent_env):
