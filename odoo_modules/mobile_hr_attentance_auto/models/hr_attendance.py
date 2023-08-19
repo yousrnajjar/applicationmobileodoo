@@ -37,7 +37,7 @@ class HrAttendance(models.Model):
         # Get current time
         current_time = current_datetime.time()
         # Get current timezone
-        current_timezone = self.env.user.tz or pytz.utc
+        current_timezone = self.env.user.tz or 'UTC'
         # Convert current datetime to current timezone
         current_datetime = pytz.utc.localize(current_datetime).astimezone(
             pytz.timezone(current_timezone)
