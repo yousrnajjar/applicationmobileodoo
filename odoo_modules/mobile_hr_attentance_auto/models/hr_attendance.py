@@ -17,7 +17,9 @@ class HrAttendance(models.Model):
         # Get attendance automation settings
         config_settings = self.env["res.config.settings"].sudo().get_values()
         #check_out_start_time = config_settings.get("check_out_start_time")
+        check_out_start_time = '17:00:00'
         #check_out_end_time = config_settings.get("check_out_end_time")
+        check_out_end_time = '23:59:59'
         # Get employee with check_out_notif enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_out_notif", "=", True)]
