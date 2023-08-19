@@ -20,8 +20,8 @@ class HrAttendance(models.Model):
     _status_field = 'status'
     _start_status = 'check_in'
     _notif_message_by_status = {
-        'check_in': 'Votre pointage {} a été créé',
-        'check_out': 'Votre pointage {} a été cloturé',
+        'check_in': 'Votre pointage a été créé',
+        'check_out': 'Votre pointage a été cloturé',
     }
     _allowed_notif_status = ['check_in', 'check_out']
 
