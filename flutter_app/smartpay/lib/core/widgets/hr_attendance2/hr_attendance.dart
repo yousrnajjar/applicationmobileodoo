@@ -7,6 +7,37 @@ import 'package:smartpay/ir/models/check_in_check_out_state.dart';
 double HEURE_FIN_DE_JOURNE = 17.0;
 double HEURE_DEBUT_DE_JOURNE = 8.0;
 
+// heure de fin de journe
+Future<List<double>> getWorkedHours() async {
+  List<Map<String, dynamic>> responses;
+  try {
+    responses = await OdooModel("res.config.settings").searchRead(
+      domain: [],
+      fieldNames: ["id", "start_work_time", "end_work_time"],
+    );
+    print("====================================");
+    print(responses);
+  } catch (e) {
+    if (kDebugMode) {
+      print(e);
+    }
+    return [HEURE_DEBUT_DE_JOURNE, HEURE_FIN_DE_JOURNE];
+  }
+  if (responses.isEmpty) {
+    return [HEURE_DEBUT_DE_JOURNE, HEURE_FIN_DE_JOURNE];
+  }
+  // last response id
+  var response = responses.last;
+  print("====================================");
+  print(response);
+  return [
+    response["start_work_time"],
+    response["end_work_time"]
+  ];
+}
+
+
+
 var dateTimeFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 var dateFormatter = DateFormat('yyyy-MM-dd');
 var timeFormatter = DateFormat('HH:mm:ss');
@@ -200,10 +231,12 @@ class HrAttendance {
   }
 
   Future<Map<String, dynamic>> _getCheckInCheckOutInfo() async {
+    List<double> hoursResponse = await getWorkedHours();
+    double startHour = hoursResponse[0];
+    double endHour = hoursResponse[1];
     Map<String, dynamic> response;
     DateTime now = DateTime.now();
-    bool isWorkingHour =
-        now.hour >= HEURE_DEBUT_DE_JOURNE && now.hour <= HEURE_FIN_DE_JOURNE;
+    bool isWorkingHour = now.hour >=  startHour && now.hour < endHour;
     try {
       response = await getLatestAttendance();
     } catch (e) {

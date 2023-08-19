@@ -6,6 +6,11 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+def parse_float(f):
+    hour = int(f)
+    minute = int((f - hour) * 60)
+    second = int(((f - hour) * 60 - minute) * 60)
+    return "%02d:%02d:%02d" % (hour, minute, second)
 
 class HrAttendance(models.Model):
     """ Inherit hr.attendance to add check_in_auto and check_out_notif process. """
@@ -17,7 +22,10 @@ class HrAttendance(models.Model):
         # Get attendance automation settings
         config_settings = self.env["res.config.settings"].sudo().get_values()
         check_out_start_time = config_settings.get("check_out_start_time")
+        check_out_start_time = parse_float(check_out_start_time)
         check_out_end_time = config_settings.get("check_out_end_time")
+        check_out_end_time = parse_float(check_out_end_time)
+
         # Get employee with check_out_notif enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_out_notif", "=", True)]
@@ -54,7 +62,7 @@ class HrAttendance(models.Model):
             for employee in employees:
                 # Check if employee has attendance for current date
                 if employee.attendance_ids.filtered(
-                    lambda r: r.check_in.date() == current_date
+                        lambda r: r.check_in.date() == current_date
                 ):
                     # Get employee attendance for current date
                     attendance = employee.attendance_ids.filtered(
@@ -90,7 +98,6 @@ class HrAttendance(models.Model):
                 }
             ])
             # Send notification
-            attendance.employee_id.user_id.notify_info(
-                notification_message, title="Check Out Notification"
-            )
-            
+            # attendance.employee_id.user_id.notify_info(
+                # notification_message, title="Check Out Notification"
+            # )

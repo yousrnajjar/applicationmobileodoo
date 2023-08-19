@@ -4,6 +4,8 @@ import pytz
 from odoo import api, fields, models, _
 import logging
 
+from odoo.exceptions import ValidationError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -20,7 +22,11 @@ class HrEmployee(models.Model):
         """ Check In Auto Process """
         # Get attendance automation settings
         config_settings = self.env["res.config.settings"].sudo().get_values()
-        check_in_start_time = config_settings.get("check_in_start_time")
+        check_in_start_time = config_settings.get("check_in_start_time") # type: float, 4.435
+        hour = int(check_in_start_time)
+        minute = int((check_in_start_time - hour) * 60)
+        second = int(((check_in_start_time - hour) * 60 - minute) * 60)
+        check_in_start_time = "%02d:%02d:%02d" % (hour, minute, second)
         # Get employee with check_in_auto enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_in_auto", "=", True)]
@@ -34,18 +40,20 @@ class HrEmployee(models.Model):
         current_time = current_datetime.strftime("%H:%M:%S")
         # Loop for each employee
         for employee in employees:
+
             # Get employee's timezone
             employee_tz = pytz.timezone(employee.tz)
             # Convert current datetime to employee's timezone
             current_datetime_tz = pytz.utc.localize(current_datetime).astimezone(
                 employee_tz
             )
-            # Convert current time to employee's timezone
+            # Get current time in employee's timezone
             current_time_tz = current_datetime_tz.strftime("%H:%M:%S")
             # Check if current time is greater than check_in_start_time
-            if current_time_tz > check_in_start_time:
+            if current_time_tz >= check_in_start_time:
                 # Check if employee has no attendance today
-                attendance = self.env["hr.attendance"].sudo().search(
+                hr_attendance = "hr.attendance"
+                attendance = self.env[hr_attendance].sudo().search(
                     [
                         ("employee_id", "=", employee.id),
                         ("check_in", ">=", current_date),
@@ -54,14 +62,31 @@ class HrEmployee(models.Model):
                 )
                 if not attendance:
                     # Create attendance
-                    attendance = self.env["hr.attendance"].sudo().create(
-                        {"employee_id": employee.id, "check_in": current_datetime}
-                    )
+                    try:
+                        attendance = self.env[hr_attendance].sudo().create(
+                            {"employee_id": employee.id, "check_in": current_datetime}
+                        )
+                    except ValidationError as e:
+                        last_attendance = self.env[hr_attendance].sudo().search(
+                            [("employee_id", "=", employee.id)],
+                            order="check_in desc",
+                            limit=1,
+                        )
+                        try:
+                            last_attendance.sudo().write(
+                                {"check_out": current_datetime}
+                            )
+                            attendance = self.env[hr_attendance].sudo().create(
+                                {"employee_id": employee.id, "check_in": current_datetime}
+                            )
+                        except ValidationError as e:
+                            _logger.error(e.name)
+                            continue
 
                     # Send notification
                     message_vals = {
                         'body': notification_message,
-                        'model': self._name,
+                        'model': hr_attendance,
                         'res_id': attendance.id,
                         'message_type': 'notification',
                         'subtype_id': self.env.ref('mail.mt_note').id,
