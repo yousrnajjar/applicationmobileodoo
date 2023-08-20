@@ -191,7 +191,7 @@ class _ExpenseFormState extends AppFormState {
               e['display_name'],
               style: const TextStyle(fontSize: 12),
             ),
-            controlAffinity: ListTileControlAffinity.leading,
+            controlAffinity: ListTileControlAffinity.platform,
             contentPadding: const EdgeInsets.symmetric(horizontal: 0),
             activeColor: Theme.of(context).colorScheme.primary,
             selected: value,
@@ -260,9 +260,14 @@ class _ExpenseFormState extends AppFormState {
     // Devise
     var currency = getValueFromM2OAsReadOnly("currency_id");
 
-    var attCountDisplay = attachmentCountField.value > 9
-        ? attachmentCountField.value.toString()
-        : attachmentCountField.value.toString().padLeft(2, '0');
+    String attCountDisplay;
+    if (![null, false, ''].contains(attachmentCountField.value)) {
+      attCountDisplay = attachmentCountField.value > 9
+          ? attachmentCountField.value.toString()
+          : attachmentCountField.value.toString().padLeft(2, '0');
+    } else {
+      attCountDisplay = "";
+    }
     formFields.addAll([
       groupedField['description']!,
       groupedField['product_id']!,

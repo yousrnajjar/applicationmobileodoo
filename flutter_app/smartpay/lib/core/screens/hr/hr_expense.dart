@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartpay/core/widgets/hr_expense/expense_form.dart';
 import 'package:smartpay/core/widgets/hr_expense/expense_list.dart';
-import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
 import 'package:smartpay/ir/models/user.dart';
 
@@ -143,9 +142,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     if (index == 1) {
       content = await ExpenseFormWidget.buildExpenseForm(
         onCancel: () {
-          _changePage(0);
-        },
-      );
+        _changePage(0);
+      }, afterSave: (Expense expense) {
+        _changePage(0);
+      });
     }
     if (content != null) {
       setState(() {

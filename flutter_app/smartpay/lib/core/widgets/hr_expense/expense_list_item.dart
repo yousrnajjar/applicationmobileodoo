@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:smartpay/ir/data/themes.dart';
 
 class ExpenseListItem extends StatelessWidget {
+  final bool textWrap;
+
   const ExpenseListItem({
     super.key,
     required this.title,
@@ -10,20 +12,27 @@ class ExpenseListItem extends StatelessWidget {
     required this.date,
     required this.category,
     required this.onTap,
+    required this.subTitle,
+    required this.textWrap,
   });
 
   final String title;
+  final String subTitle;
   final String amount;
   final String date;
   final String category;
   final Function() onTap;
 
   static fromMap(BuildContext context, Map<String, dynamic> expense,
-      {Function()? onTap}) {
+      {Function()? onTap, bool textWrap = false}) {
     var dateFormatter = DateFormat('yyyy-MM-dd');
     var date = dateFormatter.format(dateFormatter.parse(expense['date']));
     return ExpenseListItem(
-      title: expense['name'],
+      textWrap: textWrap,
+      title: [null, '', false].contains(expense['description'])
+          ? expense['name']
+          : expense['description'],
+      subTitle: expense['name'],
       amount: '${expense['total_amount']} ${expense['currency_id']}',
       date: date,
       category: (expense['product_id'] is List)
@@ -41,13 +50,13 @@ class ExpenseListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // cut the string to 20 characters
     var categoryDisplay =
-        category.length > 20 ? '${category.substring(0, 20)}...' : category;
+    category.length > 20 ? '${category.substring(0, 20)}...' : category;
     var titleDisplay =
-        title.length > 20 ? '${title.substring(0, 20)}...' : title;
+    title.length > 20 ? '${title.substring(0, 20)}...' : title;
     var textSmall = Theme.of(context).textTheme.bodySmall!.copyWith(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        );
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    );
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -66,13 +75,16 @@ class ExpenseListItem extends StatelessWidget {
           ),
         ),
         child: ListTile(
-          leading: const CircleAvatar(
-            backgroundColor: kGreen,
-            foregroundColor: Colors.white,
-            child: Icon(Icons.local_drink),
-          ),
+          leading: textWrap
+              ? null
+              : const CircleAvatar(
+                  backgroundColor: kGreen,
+                  foregroundColor: Colors.white,
+                  child: Icon(Icons.local_drink),
+                ),
           title: Text(
             titleDisplay,
+            overflow: textWrap ? TextOverflow.ellipsis : TextOverflow.clip,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -84,9 +96,13 @@ class ExpenseListItem extends StatelessWidget {
               Row(
                 children: [
                   Text("Nom: ", style: textSmall),
-                  Text(
-                    titleDisplay,
-                    style: textSmall,
+                  Flexible(
+                    child: Text(
+                      subTitle,
+                      overflow:
+                          textWrap ? TextOverflow.ellipsis : TextOverflow.clip,
+                      style: textSmall,
+                    ),
                   ),
                 ],
               ),
@@ -101,7 +117,6 @@ class ExpenseListItem extends StatelessWidget {
               )
             ],
           ),
-
           trailing: Text(amount, style: Theme.of(context).textTheme.bodyLarge),
         ),
       ),

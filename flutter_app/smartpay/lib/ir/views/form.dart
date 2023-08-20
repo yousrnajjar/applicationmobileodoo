@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
-
 // smartpay
 import 'package:smartpay/ir/model.dart';
 
@@ -67,7 +66,7 @@ class AppFormState extends State<AppForm> {
       ],
       fieldNames: widget.fieldNames,
     );
-    if (res.length == 0) {
+    if (res.isEmpty) {
       throw Exception("No record found");
     }
     return res[0];
@@ -95,7 +94,8 @@ class AppFormState extends State<AppForm> {
           OdooFieldType.html
         ];
         if (textField.contains(field.type)) {
-          controllers[field] = TextEditingController(text: "${value ?? ""}");
+          var val = (value == false || value == null) ? "" : value.toString();
+          controllers[field] = TextEditingController(text: val);
         }
       });
     } else {
@@ -110,7 +110,8 @@ class AppFormState extends State<AppForm> {
           OdooFieldType.html
         ];
         if (textField.contains(field.type)) {
-          controllers[field] = TextEditingController(text: "${value ?? ""}");
+          var val = (value == false || value == null) ? "" : value.toString();
+          controllers[field] = TextEditingController(text: val);
         }
       });
     }
@@ -171,8 +172,10 @@ class AppFormState extends State<AppForm> {
   }
 
   save() async {
-    print(
-        "===========================================Cleaned Values===========================================");
+    if (kDebugMode) {
+      print(
+          "===========================================Cleaned Values===========================================");
+    }
     var cleanedValues = cleanValues();
     String resMessage = "";
     cleanedValues.forEach((key, value) {});
@@ -181,20 +184,28 @@ class AppFormState extends State<AppForm> {
     });
     var newValues;
     try {
-      print(
-          "===========================================On Saved===========================================");
+      if (kDebugMode) {
+        print(
+            "===========================================On Saved===========================================");
+      }
       newValues = await widget.onSaved(cleanedValues);
       resMessage = message;
       //print("newValues: $newValues");
     } on OdooValidationError catch (e) {
       resMessage = e.message;
-      print("OdooValidationError: $e");
+      if (kDebugMode) {
+        print("OdooValidationError: $e");
+      }
     } on OdooErrorException catch (e) {
       resMessage = "Veuillez contactez l'admin: ${e.message}";
-      print("OdooErrorException: $e");
+      if (kDebugMode) {
+        print("OdooErrorException: $e");
+      }
     } catch (e) {
       resMessage = "Erreur inconnue: $e, veuillez contactez l'admin";
-      print("Erreur inconnue: $e");
+      if (kDebugMode) {
+        print("Erreur inconnue: $e");
+      }
     } finally {
       setState(() {
         isSending = false;
@@ -206,8 +217,10 @@ class AppFormState extends State<AppForm> {
       });
     }
     if (resMessage != null) {
-      print(
-          "===========================================Res Message===========================================");
+      if (kDebugMode) {
+        print(
+            "===========================================Res Message===========================================");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(resMessage),

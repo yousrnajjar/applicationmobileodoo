@@ -34,12 +34,14 @@ class _SelectExpenseWidgetState extends State<SelectExpenseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildMessageOnTop(context),
-        _buildListExpenses(context),
-        _buildButtons(context),
-      ],
+    return Dialog(
+      child: Column(
+        children: [
+          _buildMessageOnTop(context),
+          _buildListExpenses(context),
+          _buildButtons(context),
+        ],
+      ),
     );
   }
 
@@ -95,12 +97,16 @@ class _SelectExpenseWidgetState extends State<SelectExpenseWidget> {
   /// Affiche une expense
   ///
   Widget _buildExpense(BuildContext context, Expense expense) {
-    Widget expenseListItem =
-        ExpenseListItem.fromMap(context, expense.info, onTap: () {
-      setState(() {
-        _selectedExpense = expense;
-      });
-    });
+    Widget expenseListItem = ExpenseListItem.fromMap(
+      context,
+      expense.info,
+      textWrap: true,
+      onTap: () {
+        setState(() {
+          _selectedExpense = expense;
+        });
+      },
+    );
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -137,9 +143,7 @@ class _SelectExpenseWidgetState extends State<SelectExpenseWidget> {
               if (widget.onCancel != null) {
                 widget.onCancel!(context);
                 return;
-              }
-              else
-              if (context.mounted && Navigator.of(context).canPop()) {
+              } else if (context.mounted && Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             },

@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:smartpay/core/screens/main_drawer.dart';
 import 'package:smartpay/core/widgets/hr_expense/expense_list_item.dart';
 import 'package:smartpay/core/widgets/hr_expense/take_picture_for_expense_worflow.dart';
 import 'package:smartpay/exceptions/core_exceptions.dart';
@@ -10,11 +12,10 @@ import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
 import 'package:smartpay/ir/models/user.dart';
-import 'package:smartpay/core/screens/main_drawer.dart';
 
+import 'expense_detail.dart';
 import 'select_expense_widget.dart';
 import 'take_picture_for_expense_widget.dart';
-import 'expense_detail.dart';
 
 class ExpenseList extends StatefulWidget {
   final User user;
@@ -81,17 +82,22 @@ class _ExpenseListState extends State<ExpenseList> {
       throw Exception('Expense not found');
     }
     var expenseInfo = expenseResponse.first;
-    print(expenseInfo);
-    var expenseDetailWidget;
+    if (kDebugMode) {
+      print(expenseInfo);
+    }
+    ExpenseDetail expenseDetailWidget;
     try {
       expenseDetailWidget = ExpenseDetail(
         expense: expenseInfo,
         onEdit: (BuildContext context, Map<String, dynamic> expenceInfo) {},
         onDelete: (BuildContext context, Map<String, dynamic> expenceInfo) {},
-        onAttachment: (BuildContext context, Map<String, dynamic> expenceInfo) {},
+        onAttachment:
+            (BuildContext context, Map<String, dynamic> expenceInfo) {},
       );
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       throw Exception('Error while loading expense detail');
     }
     setState(() {
@@ -99,7 +105,7 @@ class _ExpenseListState extends State<ExpenseList> {
       _expenseWidget = Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
@@ -149,7 +155,7 @@ class _ExpenseListState extends State<ExpenseList> {
           ),// Expense List
         ),
         // detail expense
-        if (_showDetailExpenseWidget == true && _expenseWidget != null)
+        if (_showDetailExpenseWidget == true)
           Positioned(
             top: 0,
             left: 0,
@@ -244,7 +250,9 @@ class _ExpenseListState extends State<ExpenseList> {
                   triggerNewAttachmentId(attachmentId);
                 },
                 onWorkFlowChanged: (workflow) {
-                  print('ExpenseList: workflow changed $workflow');
+                  if (kDebugMode) {
+                    print('ExpenseList: workflow changed $workflow');
+                  }
                   setState(() {
                     _takePictureWorkflow = workflow;
                   });
@@ -315,7 +323,9 @@ class _ExpenseListState extends State<ExpenseList> {
                   }
                 }) as Widget;
               } catch (e) {
-                print('Error: $e');
+                if (kDebugMode) {
+                  print('Error: $e');
+                }
                 return Container();
               }
             },
@@ -395,11 +405,6 @@ class _ExpenseListState extends State<ExpenseList> {
                   setState(() {
                     _showAddExpenseWidget = false;
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Document enregistré avec succès'),
-                    ),
-                  );
                 }
               }
             },
