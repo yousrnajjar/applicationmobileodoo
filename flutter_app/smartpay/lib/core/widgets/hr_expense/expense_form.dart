@@ -250,6 +250,9 @@ class _ExpenseFormState extends AppFormState {
     var date = values.entries
         .firstWhere((element) => element.key.name == 'date')
         .value;
+    // Attachment Count
+    var attachmentCountField = values.entries
+        .firstWhere((element) => element.key.name == 'attachment_number');
     // Account Display
     var account = getValueFromM2OAsReadOnly("account_id");
     // Employee Display
@@ -257,6 +260,9 @@ class _ExpenseFormState extends AppFormState {
     // Devise
     var currency = getValueFromM2OAsReadOnly("currency_id");
 
+    var attCountDisplay = attachmentCountField.value > 9
+        ? attachmentCountField.value.toString()
+        : attachmentCountField.value.toString().padLeft(2, '0');
     formFields.addAll([
       groupedField['description']!,
       groupedField['product_id']!,
@@ -321,6 +327,16 @@ class _ExpenseFormState extends AppFormState {
                   child: Text('Devise:', style: fontBold),
                 ),
                 Text(currency),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 150,
+                  child: Text("Pièces jointe:", style: fontBold),
+                ),
+                Text(attCountDisplay),
               ],
             ),
           ],

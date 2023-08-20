@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-import 'package:smartpay/core/widgets/hr_payslip/payslip_list_detail.dart';
-import 'package:smartpay/core/widgets/utils/circular_ratio_indicator.dart';
 import 'package:smartpay/core/widgets/hr_contract/contract_detail.dart';
 import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
+import 'package:smartpay/core/widgets/hr_payslip/payslip_list_detail.dart';
+import 'package:smartpay/core/widgets/utils/circular_ratio_indicator.dart';
 import 'package:smartpay/core/widgets/utils/pdf_view_widget.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
@@ -47,19 +46,26 @@ class _HomeState extends State<HomeScreen> {
         });
       }
     });
-    _loadLastContract().then((value) => {
-          if (value.isNotEmpty)
-            {
-              setState(() {
-                _lastContract = value[0];
-              })
-            }
-        });
+    _loadLastContract().then((value) {
+      if (value.isNotEmpty) {
+        if (context.mounted) {
+          setState(() {
+            _lastContract = value[0];
+          });
+        } else {
+          _lastContract = value[0];
+        }
+      }
+    });
     _loadLastPayslipInfo().then((value) {
       if (value.isNotEmpty) {
-        setState(() {
+        if (context.mounted) {
+          setState(() {
+            _lastPay = value[0];
+          });
+        } else {
           _lastPay = value[0];
-        });
+        }
       }
     });
   }
