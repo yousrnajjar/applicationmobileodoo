@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/ir/models/attendance.dart';
 import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/attendance.dart';
 
+import 'hr_attendance.dart';
 
 String workedHourToPrettyString(Duration workedHour) {
   String hour = workedHour.inHours.toString().padLeft(2, '0');
@@ -29,15 +29,8 @@ class AttendanceItem extends StatelessWidget {
     var smallText = titleVerySmall(theme);
     var titleLarge = titleLargeBold(theme);
 
-    double? workedHourRaw = attendance.workedHours;
-    Duration workedHour = (workedHourRaw != null) 
-        ? Duration(
-            hours: workedHourRaw.toInt(), 
-            minutes: ((workedHourRaw - workedHourRaw.toInt()) * 60).toInt(),
-            seconds: ((workedHourRaw - workedHourRaw.toInt()) * 3600).toInt(),
-          ) 
-        : Duration(hours: 0, minutes: 0, seconds: 0);
-        
+    Duration workedHour = HrAttendance.getWorkingHours(attendance.toJson());
+
     return ListTile(
       leading: CircleAvatar(
         child: Text(attendance.employeeId![1].substring(0, 1)),
@@ -57,5 +50,17 @@ class AttendanceItem extends StatelessWidget {
         style: titleLarge,
       ),
     );
+  }
+
+  Duration workingHours() {
+    double? workedHourRaw = attendance.workedHours;
+    Duration workedHour = (workedHourRaw != null)
+        ? Duration(
+            hours: workedHourRaw.toInt(),
+            minutes: ((workedHourRaw - workedHourRaw.toInt()) * 60).toInt(),
+            seconds: ((workedHourRaw - workedHourRaw.toInt()) * 3600).toInt(),
+          )
+        : const Duration(hours: 0, minutes: 0, seconds: 0);
+    return workedHour;
   }
 }

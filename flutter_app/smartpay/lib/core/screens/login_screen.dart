@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
-
-import 'package:smartpay/ir/data/themes.dart';
-import 'package:smartpay/core/screens/main_drawer.dart';
-import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/user.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
 import 'package:smartpay/core/providers/user_info_providers.dart';
+import 'package:smartpay/core/screens/main_drawer.dart';
+import 'package:smartpay/ir/data/themes.dart';
+import 'package:smartpay/ir/model.dart';
+import 'package:smartpay/ir/models/user.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -46,12 +45,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ],
           fieldNames: User({}).allFields,
         );
+        // Set Server Timezone
+        OdooModel.session.serverTimezoneName = info[0]['tz'];
+        OdooModel.session.serverTimeZoneOffset = info[0]['tz_offset'];
         info[0].forEach((key, value) {
           _userInfo!.info.putIfAbsent(key, () => value);
         });
         ref
             .read(sessionProvider.notifier)
             .setSession(OdooModel.session); // TODO: Remove this
+
         await _userInfo!.readEmployeeData();
         await _userInfo!.setIsManager();
         ref.read(userInfoProvider.notifier).setUserInfo(_userInfo!);

@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:smartpay/core/widgets/hr_attendance2/hr_attendance.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/models/allocation.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
 import 'package:smartpay/ir/models/employee.dart';
+
+import 'clock_animation.dart';
+import 'hr_attendance.dart';
 
 // Base size
 var baseSize = const Size(319, 512);
@@ -60,7 +62,8 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
               'message': '',
               'day': dayFormatter.parse(dayFormatter.format(DateTime.now())),
               'startTime': null,
-              'state': CheckInCheckOutFormState.hourNotReached
+              'state': CheckInCheckOutFormState.hourNotReached,
+              'workTime': null,
             },
             future: attendance.getOrCheck(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -82,6 +85,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 var startTime = data['startTime'];
                 var endTime = data['endTime'];
                 var state = data['state'];
+                var workTime = data['workTime'];
                 if (kDebugMode) {
                   print('CheckInCheckOutForm build state: $state');
                 }
@@ -135,7 +139,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                             height: 5 * heightRatio,
                           ),
                           // workTime
-                          _buildWorkTime(context),
+                          _buildWorkTime(context, state, workTime),
                           SizedBox(
                             height: 5 * heightRatio,
                           ),
@@ -239,12 +243,19 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     );
   }
 
-  Widget _buildWorkTime(BuildContext context) {
+  Widget _buildWorkTime(BuildContext context, CheckInCheckOutFormState state,
+      Duration? workTime) {
     var workTimeTextStyle = TextStyle(
       fontSize: 37 * widthRatio,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );
+    if (state == CheckInCheckOutFormState.canCheckOut) {
+      return ClockAnimation(
+        startDuration: workTime ?? const Duration(),
+        textStyle: workTimeTextStyle,
+      );
+    }
     return FutureBuilder(
       initialData: const {"worked_hours": 0.0},
       future: attendance.getLatestAttendance(),

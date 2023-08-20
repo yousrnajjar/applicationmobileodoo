@@ -1,11 +1,7 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
-
-// D2But et fin de journé
-double HEURE_FIN_DE_JOURNE = 17.0;
-double HEURE_DEBUT_DE_JOURNE = 8.0;
 
 var dateTimeFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 var dateFormatter = DateFormat('yyyy-MM-dd');
@@ -27,31 +23,29 @@ class HrAttendance {
 
   /// get Latest Attendance
   Future<Map<String, dynamic>> getLatestAttendance() async {
+    List<Map<String, dynamic>> response;
     try {
       // Récupérer la dernière entrée de pointage de l'employé
-      var response = await OdooModel("hr.attendance").searchRead(domain: [
+      response = await OdooModel("hr.attendance").searchRead(domain: [
         ["employee_id", "=", employeeId]
       ], fieldNames: attendanceFields, limit: 1);
-      return response[0];
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
       rethrow;
     }
+    if (response.isEmpty) {
+      return {};
+    }
+    return response[0];
   }
 
   /// Update attendance with check out
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
+    DateTime now = OdooModel.session.toServerTime(DateTime.now());
     try {
       // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
-      var isUpdated = await OdooModel.session.write(
-        "hr.attendance",
-        [attendanceId],
-        {
-          "check_out": dateTimeFormatter.format(DateTime.now()),
-        },
-      );
       // Récupérer le pointage
       return await OdooModel("hr.attendance").searchRead(
         domain: [
@@ -85,14 +79,14 @@ class HrAttendance {
       if (kDebugMode) {
         print(e);
       }
-      throw e;
+      rethrow;
     }
   }
 
   /// Ccréer un pointage
   Future<List<Map<String, dynamic>>> _createAttendance(
       {bool withCkeck = true}) async {
-    DateTime now = DateTime.now();
+    DateTime now = OdooModel.session.toServerTime(DateTime.now());
     try {
       var model = "hr.attendance";
       Map<String, dynamic> data = {
@@ -186,7 +180,7 @@ class HrAttendance {
       if (kDebugMode) {
         print(e);
       }
-      throw e;
+      rethrow;
     }
 
     return {
@@ -199,11 +193,37 @@ class HrAttendance {
     };
   }
 
+  static Future<List<Duration>> _getWorkingTimeInterval() async {
+    List<Map<String, dynamic>> response;
+    try {
+      var fieldNames = ['work_start_time', 'work_end_time'];
+      response = await OdooModel('res.config.settings').searchRead(
+          domain: [], order: 'id desc', fieldNames: fieldNames, limit: 1);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return [const Duration(hours: 8), const Duration(hours: 17)];
+    }
+    var timeStart = response[0]['work_start_time'];
+    var timeEnd = response[0]['work_end_time'];
+    return [
+      Duration(
+        hours: int.parse(timeStart.split(":")[0]),
+        minutes: int.parse(timeStart.split(":")[1]),
+        seconds: int.parse(timeStart.split(":")[2]),
+      ),
+      Duration(
+        hours: int.parse(timeEnd.split(":")[0]),
+        minutes: int.parse(timeEnd.split(":")[1]),
+        seconds: int.parse(timeEnd.split(":")[2]),
+      ),
+    ];
+  }
+
   Future<Map<String, dynamic>> _getCheckInCheckOutInfo() async {
+    bool isWorkingHour = await isWorkingHours();
     Map<String, dynamic> response;
-    DateTime now = DateTime.now();
-    bool isWorkingHour =
-        now.hour >= HEURE_DEBUT_DE_JOURNE && now.hour <= HEURE_FIN_DE_JOURNE;
     try {
       response = await getLatestAttendance();
     } catch (e) {
@@ -215,6 +235,19 @@ class HrAttendance {
         'workTime': null,
         'day': null,
         'startTime': null,
+        'endTime': null,
+        'state': isWorkingHour
+            ? CheckInCheckOutFormState.canCheckIn
+            : CheckInCheckOutFormState.hourNotReached
+      };
+    }
+    if (response.isEmpty) {
+      return {
+        //'success': true,
+        'workTime': null,
+        'day': DateTime.now(),
+        'startTime': null,
+        'endTime': null,
         'state': isWorkingHour
             ? CheckInCheckOutFormState.canCheckIn
             : CheckInCheckOutFormState.hourNotReached
@@ -229,17 +262,15 @@ class HrAttendance {
     DateTime? startTime = attendance['check_in'] != false
         ? dateTimeFormatter.parse(attendance['check_in'])
         : null;
+    DateTime? endTime = attendance['check_out'] != false
+        ? dateTimeFormatter.parse(attendance['check_out'])
+        : null;
 
     // DateTime? endTime = attendance['check_out'] != false
     //     ? dateTimeFormatter.parse(attendance['check_out'])
     //     : null;
+    Duration workTime = getWorkingHours(attendance);
 
-    double hoursRaw =
-        attendance['worked_hours'] != false ? attendance['worked_hours'] : 0.0;
-    Duration workTime = Duration(
-        hours: hoursRaw.floor(),
-        minutes: ((hoursRaw - hoursRaw.floor()) * 60).floor(),
-        seconds: hoursRaw.floor() * 3600);
     // if current time in 08:00 - 18:00
     if (!isWorkingHour) {
       state = CheckInCheckOutFormState.hourNotReached;
@@ -247,7 +278,7 @@ class HrAttendance {
       state = CheckInCheckOutFormState.canCheckOut;
     } else if (attendance['check_out'] != false &&
         attendance['check_in'] != false) {
-      state = CheckInCheckOutFormState.canCheckIn;
+      state = CheckInCheckOutFormState.hourNotReached;
     }
 
     return {
@@ -255,8 +286,43 @@ class HrAttendance {
       'workTime': workTime,
       'day': day,
       'startTime': startTime,
+      'endTime': endTime,
       'state': state
     };
+  }
+
+  static Future<bool> isWorkingHours() async {
+    var workingInterval = await _getWorkingTimeInterval();
+    var hourStartDay = workingInterval[0];
+    var hourEndDay = workingInterval[1];
+    DateTime now = OdooModel.session.toServerTime(DateTime.now());
+    bool isWorkingHour =
+        (now.hour >= hourStartDay.inHours && now.hour <= hourEndDay.inHours);
+    return isWorkingHour;
+  }
+
+  static Duration getWorkingHours(Map<String, dynamic> attendance) {
+    DateTime? startTime = attendance['check_in'] != false
+        ? dateTimeFormatter.parse(attendance['check_in'])
+        : null;
+    Duration workTime;
+    if (attendance['check_out'] != false) {
+      double hoursRaw = attendance['worked_hours'] != false
+          ? attendance['worked_hours']
+          : 0.0;
+      workTime = Duration(
+          hours: hoursRaw.floor(),
+          minutes: ((hoursRaw - hoursRaw.floor()) * 60).floor(),
+          seconds: hoursRaw.floor() * 3600);
+    } else {
+      DateTime now = OdooModel.session.toServerTime(DateTime.now());
+      workTime = Duration(
+        hours: now.hour - startTime!.hour,
+        minutes: now.minute - startTime.minute,
+        seconds: now.second - startTime.second,
+      );
+    }
+    return workTime;
   }
 
   Future<Map<String, dynamic>> getOrCheck({bool check = false}) async {

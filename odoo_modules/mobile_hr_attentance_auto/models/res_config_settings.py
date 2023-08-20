@@ -10,11 +10,26 @@ class ResConfigSettings(models.TransientModel):
 
     _inherit = "res.config.settings"
 
+    # Interval
+    work_start_time = fields.Char(
+        string="Work Start Time",
+        help="User can check in after this time.",
+        default="08:00:00",
+    )
+    work_end_time = fields.Char(
+        string="Work End Time",
+        help="User can check out before this time.",
+        default="18:00:00",
+    )
+
+    # Check In Notification
     check_in_start_time = fields.Char(
         string="Check In Start Time",
         help="Time to run check_in_auto process.",
         default="08:00:00",
     )
+
+    # Check Out Notification
     check_out_start_time = fields.Char(
         string="Check Out Start Time",
         help="Time to run check_out_notif process.",
@@ -25,6 +40,7 @@ class ResConfigSettings(models.TransientModel):
         help="Time to run check_out_notif process.",
         default="18:00:00",
     )
+
     app_check_out_forget_notification_message = fields.Char(
         string="Check Out Forget Notification Message",
         help="Notification message for check out forget.",

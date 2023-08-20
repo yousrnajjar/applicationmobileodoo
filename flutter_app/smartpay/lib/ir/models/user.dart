@@ -24,6 +24,8 @@ class User extends OdooModelHelper {
 
   @override
   List<String> get allFields => [
+        // Time zone
+        'tz', 'tz_offset',
         'partner_id',
         // Related Employee
         'employee_ids',
@@ -131,7 +133,7 @@ class User extends OdooModelHelper {
       return info['employee_ids'][0];
     }
     return null;
-  
+
     //info['employee_ids'][0];
     /*(info['employee_id'] == false)
         ? (info['employee_ids'] != false && info['employee_ids'].length > 0)

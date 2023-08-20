@@ -35,8 +35,12 @@ class Session implements AuthInterface, CallInterface {
   String password;
 
   int? uid;
+
   /// The session ID returned by the Odoo server.
   String? sessionId;
+
+  String? serverTimezoneName;
+  String? serverTimeZoneOffset; // '+0200'
 
   /// Get the language from current platform
   String get lang {
@@ -170,7 +174,7 @@ class Session implements AuthInterface, CallInterface {
           throw OdooErrorException(errorType, message, 200);
         }
       }
-      return returnFullResponce ? result: result["result"];
+      return returnFullResponce ? result : result["result"];
     } else {
       if (kDebugMode) {
         print("Response");
@@ -180,15 +184,21 @@ class Session implements AuthInterface, CallInterface {
     }
   }
 
-  Future<List<Map<String, dynamic>>> searchRead(String model, List<dynamic> domain,
-      List<dynamic> fields, int? limit, int? offset) async {
-    var res =  await callKw({
+  Future<List<Map<String, dynamic>>> searchRead(
+      String model,
+      List<dynamic> domain,
+      List<dynamic> fields,
+      int? limit,
+      int? offset,
+      String? order) async {
+    var res = await callKw({
       "model": model,
       "method": "search_read",
       "args": [domain, fields],
       "kwargs": {
         if (limit != null) "limit": limit,
         if (offset != null) "offset": offset,
+        if (order != null) "order": order,
         "context": defaultContext
       }
     });
@@ -224,83 +234,7 @@ class Session implements AuthInterface, CallInterface {
       Map<String, dynamic> valuesMap,
       List<dynamic> fieldNames,
       Map<String, dynamic> onchangeSpec) async {
-    /*valuesMap = {
-      // Values
-      //"id": "hr.leave(<NewId 0x7fb9d9302b00>,)", // NewId
-      "state": "confirm",
-      "holiday_type": "employee",
-      "date_from": "2023-05-21 08:09:11",
-      "date_to": "2023-05-21 08:09:11",
-      "request_date_from_period": "pm",
-      "user_id": 6,
-      "employee_id": 7,
-      "request_date_from": "2023-05-21",
-      "request_date_to": "2023-05-21",
-      "holiday_status_id": 1
-    };
-    fieldNames = ["request_date_from_period"];
-    onchangeSpec = {
-      // field_onchange
-      "can_reset": "", "can_approve": "", "state": "1", "tz": "1",
-      "tz_mismatch": "", "holiday_type": "1",
-      "leave_type_request_unit": "", "display_name": "",
-      "holiday_status_id": "1", "date_from": "1", "date_to": "1",
-      "request_date_from": "1", "request_date_to": "1",
-      "request_date_from_period": "1", "request_unit_half": "1",
-      "request_unit_hours": "1", "request_unit_custom": "1",
-      "request_hour_from": "1", "request_hour_to": "1",
-      "number_of_days_display": "", "number_of_days": "1",
-      "number_of_hours_display": "", "user_id": "",
-      "employee_id": "1", "department_id": "1", "name": "1",
-      "message_follower_ids": "", "activity_ids": "",
-      "message_ids": "", "message_attachment_count": ""
-    };
-
     var result = await callKw({
-      "model": "hr.leave",
-      "method": "onchange",
-      "args": [
-        [
-          // self
-        ],
-        {
-          // Values
-          //"id": "hr.leave(<NewId 0x7fb9d9302b00>,)", // NewId
-          "state": "confirm",
-          "holiday_type": "employee",
-          "date_from": "2023-05-21 08:09:11",
-          "date_to": "2023-05-21 08:09:11",
-          "request_date_from_period": "pm",
-          "user_id": 6,
-          "employee_id": 7,
-          "request_date_from": "2023-05-21",
-          "request_date_to": "2023-06-21",
-          "holiday_status_id": 1
-        },
-        ["request_date_to"], // field_name
-        {
-          // field_onchange
-          "can_reset": "", "can_approve": "", "state": "1", "tz": "1",
-          "tz_mismatch": "", "holiday_type": "1",
-          "leave_type_request_unit": "", "display_name": "",
-          "holiday_status_id": "1", "date_from": "1", "date_to": "1",
-          "request_date_from": "1", "request_date_to": "1",
-          "request_date_from_period": "1", "request_unit_half": "1",
-          "request_unit_hours": "1", "request_unit_custom": "1",
-          "request_hour_from": "1", "request_hour_to": "1",
-          "number_of_days_display": "", "number_of_days": "1",
-          "number_of_hours_display": "", "user_id": "",
-          "employee_id": "1", "department_id": "1", "name": "1",
-          "message_follower_ids": "", "activity_ids": "",
-          "message_ids": "", "message_attachment_count": ""
-        }
-      ],
-      "kwargs": {
-        "context": {"lang": "fr_FR" /*"tz":*/}
-      }
-    });
-    return result;*/
-    var result =  await callKw({
       "model": model,
       "method": "onchange",
       "args": [idList, valuesMap, fieldNames, onchangeSpec],
@@ -329,5 +263,49 @@ class Session implements AuthInterface, CallInterface {
       "args": [idList, values],
       "kwargs": {"context": defaultContext}
     });
+  }
+
+  /// Convert a DateTime to the server timezone
+  DateTime toServerTime(DateTime dateTime) {
+    if (kDebugMode) {
+      print(
+          "Server Time Zone: $serverTimeZoneOffset, Current Time Zone: ${dateTime.timeZoneOffset}");
+      print(
+          "Server Time Zone Name: $serverTimezoneName, Current Time Zone Name: ${dateTime.timeZoneName}");
+    }
+    String offset = serverTimeZoneOffset ?? '+0000';
+    int hours = int.parse(offset.substring(1, 3));
+    int minutes = int.parse(offset.substring(3, 5));
+    if (offset.startsWith('-')) {
+      hours = -hours;
+      minutes = -minutes;
+    }
+    // Check current timezone
+    var now = DateTime.now();
+    var localOffset = now.timeZoneOffset;
+    var diff = localOffset - Duration(hours: hours, minutes: minutes);
+    return dateTime.subtract(diff);
+  }
+
+  // Convert a DateTime from the server timezone to the local timezone
+  DateTime fromServerTime(DateTime dateTime) {
+    if (kDebugMode) {
+      print(
+          "Server Time Zone: $serverTimeZoneOffset, Current Time Zone: ${dateTime.timeZoneOffset}");
+      print(
+          "Server Time Zone Name: $serverTimezoneName, Current Time Zone Name: ${dateTime.timeZoneName}");
+    }
+    String offset = serverTimeZoneOffset ?? '+0000';
+    int hours = int.parse(offset.substring(1, 3));
+    int minutes = int.parse(offset.substring(3, 5));
+    if (offset.startsWith('-')) {
+      hours = -hours;
+      minutes = -minutes;
+    }
+    // Check current timezone
+    var now = DateTime.now();
+    var localOffset = now.timeZoneOffset;
+    var diff = localOffset - Duration(hours: hours, minutes: minutes);
+    return dateTime.add(diff);
   }
 }

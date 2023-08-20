@@ -171,7 +171,7 @@ class OdooModel {
     int limit = 1000;
     int offset = 0;
     var result = await session.searchRead(
-        "ir.model.fields", domain, fields, limit, offset);
+        "ir.model.fields", domain, fields, limit, offset, null);
     return result;
   }
 
@@ -183,23 +183,23 @@ class OdooModel {
       var field = OdooField.fromMap(record);
       if (field.type == OdooFieldType.selection) {
         field.selectionOptions = await session.searchRead(
-          "ir.model.fields.selection",
-          [
-            ['field_id', "=", field.id]
-          ],
-          ['id', 'display_name', 'name', 'value'],
-          1000,
-          0,
-        );
+            "ir.model.fields.selection",
+            [
+              ['field_id', "=", field.id]
+            ],
+            ['id', 'display_name', 'name', 'value'],
+            1000,
+            0,
+            null);
       } else if (field.type == OdooFieldType.many2one) {
         try {
           field.selectionOptions = await session.searchRead(
-            field.relation,
-            [if (field.domain != false) field.domain],
-            ['id', 'name'],
-            1000,
-            0,
-          );
+              field.relation,
+              [if (field.domain != false) field.domain],
+              ['id', 'name'],
+              1000,
+              0,
+              null);
         } on OdooErrorException catch (e) {
           if (e.errorType == "access_error") {
             field.selectionOptions = []; //FixMe: Why?
@@ -219,15 +219,17 @@ class OdooModel {
       {required List<dynamic> domain,
       int limit = 1000,
       int offset = 1,
+      String? order,
       List<String>? fieldNames}) async {
     if (fieldNames == null) {
       var allFieldRaw = await getAllFieldAsString(fieldNames: fieldNames);
       fieldNames = allFieldRaw.map((e) => e['name'].toString()).toList();
     }
-    var result =
-        await session.searchRead(modelName, domain, fieldNames, null, null);
+    var result = await session.searchRead(
+        modelName, domain, fieldNames, limit, null, order);
     return result;
   }
+
   /// Search and read records (all fields) from the model
   /// and return a list of Map<Odoofield, dynamic> using  [searchRead]
   Future<List<Map<OdooField, dynamic>>> searchReadAsOdooField(
@@ -251,7 +253,6 @@ class OdooModel {
     }
     return resultAsOdooField;
   }
-
 
   /// It should return a map with the default values for the model
   /// Key is the field [OdooField] and value is the default value
@@ -296,8 +297,8 @@ class OdooModel {
         valuesMap.keys.toList(),
         1,
         0,
-    );
-     
+        null);
+
     // Update values with the new data
     for (var field in values.keys) {
       values[field] = datas[0][field.name];

@@ -7,11 +7,11 @@ import 'package:smartpay/core/providers/user_info_providers.dart';
 import 'package:smartpay/core/widgets/menu.dart';
 import 'package:smartpay/ir/models/user.dart';
 
-import 'hr/hr_leave.dart';
+import 'home.dart';
+import 'hr/hr_attendance.dart';
 import 'hr/hr_contract_payslips.dart';
 import 'hr/hr_expense.dart';
 import 'hr/hr_holidays.dart';
-import 'home.dart';
 import 'login_screen.dart';
 import 'notification.dart'; // Notification Screen
 
