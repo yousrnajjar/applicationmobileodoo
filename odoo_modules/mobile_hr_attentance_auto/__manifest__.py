@@ -18,6 +18,7 @@ This module allows you to automate attendance check in and check out process.
         'data/config_data.xml',
         'data/cron.xml',
         'views/hr_employee_views.xml',
+        'views/res_config_settings.xml',
     ],
     'installable': True,
     'auto_install': False,

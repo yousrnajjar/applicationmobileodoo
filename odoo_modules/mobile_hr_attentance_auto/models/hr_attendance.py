@@ -16,10 +16,10 @@ class HrAttendance(models.Model):
         """ Check Out Notification Process """
         # Get attendance automation settings
         config_settings = self.env["res.config.settings"].sudo().get_values()
-        #check_out_start_time = config_settings.get("check_out_start_time")
-        check_out_start_time = '17:00:00'
-        #check_out_end_time = config_settings.get("check_out_end_time")
-        check_out_end_time = '23:59:59'
+        check_out_start_time = config_settings.get("check_out_start_time")
+        # check_out_start_time = '6:00:00'
+        check_out_end_time = config_settings.get("check_out_end_time")
+        # check_out_end_time = '23:59:59'
         # Get employee with check_out_notif enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_out_notif", "=", True)]
@@ -31,7 +31,7 @@ class HrAttendance(models.Model):
         # Get current time
         current_time = current_datetime.time()
         # Get current timezone
-        current_timezone = self.env.user.tz or 'UTC' #pytz.utc
+        current_timezone = self.env.user.tz or 'UTC'  # pytz.utc
         # Convert current datetime to current timezone
         current_datetime = pytz.utc.localize(current_datetime).astimezone(
             pytz.timezone(current_timezone)
@@ -55,23 +55,18 @@ class HrAttendance(models.Model):
             # Loop employees
             for employee in employees:
                 # Check if employee has attendance for current date
-                if employee.attendance_ids.filtered(
+                attendance = employee.attendance_ids.filtered(
                     lambda r: r.check_in.date() == current_date
-                ):
-                    # Get employee attendance for current date
-                    attendance = employee.attendance_ids.filtered(
-                        lambda r: r.check_in.date() == current_date
-                    )
-                    # Check if employee attendance has no check_out
-                    if not attendance.check_out:
-                        # send check out notification
-                        attendance._send_check_out_notif()
+                )
+                if attendance and not attendance.check_out:
+                    # send check out notification
+                    attendance._send_check_out_notif()
 
     def _send_check_out_notif(self):
         """ Send Check Out Notification """
         # Get attendance automation settings
-        #config_settings = self.env["res.config.settings"].sudo().get_values()
-        notification_message = "Please check out your attendance."# config_settings.get("app_check_out_notification_message")
+        # config_settings = self.env["res.config.settings"].sudo().get_values()
+        notification_message = "Please check out your attendance."  # config_settings.get("app_check_out_notification_message")
         # Loop attendance
         for attendance in self:
             message_vals = {
@@ -90,4 +85,4 @@ class HrAttendance(models.Model):
                     'notification_status': 'ready',
                     'mail_message_id': self.env['mail.message'].create(message_vals).id,
                 }
-            ]) 
+            ])

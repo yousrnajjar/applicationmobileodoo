@@ -45,11 +45,11 @@ class HrEmployee(models.Model):
             current_time_tz = current_datetime_tz.strftime("%H:%M:%S")
             # Check if current time is greater than check_in_start_time
             if current_time_tz > check_in_start_time:
-                # Check if employee has no attendance today
+                # Check if employee has no attendance to check out
                 attendance = self.env["hr.attendance"].sudo().search(
                     [
                         ("employee_id", "=", employee.id),
-                        ("check_in", ">=", current_date),
+                        # ("check_in", ">=", current_date),
                         ("check_out", "=", False),
                     ]
                 )
