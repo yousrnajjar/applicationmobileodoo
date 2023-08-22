@@ -43,8 +43,12 @@ class HrAttendance {
 
   /// Update attendance with check out
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
-    DateTime now = OdooModel.session.toServerTime(DateTime.now());
     try {
+      var res = await OdooModel.session.write("hr.attendance", [attendanceId],
+          {'check_out': dateTimeFormatter.format(DateTime.now())});
+      if (!res) {
+        return [];
+      }
       // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
       // Récupérer le pointage
       return await OdooModel("hr.attendance").searchRead(
@@ -118,11 +122,11 @@ class HrAttendance {
   /// Si l'employé n'a pas de pointage, il faut créer un pointage
   /// Si l'employé a un pointage, il faut le récupérer
   /// L'heure de pointage est l'heure actuelle
-  Future<Map<String, dynamic>> _getOrCreateOrUpdateAttendance() async {
+  Future<List<Map<String, dynamic>>> _getOrCreateOrUpdateAttendance() async {
     // Récupérer la dernière entrée de pointage de l'employé qui n'a pas de pointage de sortie
     List<Map<String, dynamic>> response =
         await _getLatestCheckInWithNoCheckOut();
-
+    List<Map<String, dynamic>> result = [];
     if (response.isEmpty) {
       if (kDebugMode) {
         print("No attendance");
@@ -135,22 +139,29 @@ class HrAttendance {
       }
       // Si l'employé a un pointage, il faut faire une mise à jour
       var attendanceId = response[0]['id'];
-      response = await _updateAttendance(attendanceId);
+      result = await _updateAttendance(attendanceId);
     }
-    return response[0];
+    return result;
   }
 
   ///Checkin, Checkout
   Future<Map<String, dynamic>> _check() async {
     Map<String, dynamic> attendance;
+    List<Map<String, dynamic>> attendances;
     try {
-      attendance = await _getOrCreateOrUpdateAttendance();
+      attendances = await _getOrCreateOrUpdateAttendance();
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
       rethrow;
     }
+    if (attendances.isEmpty) {
+      return {};
+    } else {
+      attendance = attendances[0];
+    }
+
     DateTime? day;
     DateTime? checkIn;
     DateTime? checkOut;
@@ -310,10 +321,13 @@ class HrAttendance {
       double hoursRaw = attendance['worked_hours'] != false
           ? attendance['worked_hours']
           : 0.0;
+      var hours = hoursRaw.floor();
+      var minutesRaw = (hoursRaw - hours) * 60;
+      var minutes = minutesRaw.floor();
       workTime = Duration(
-          hours: hoursRaw.floor(),
-          minutes: ((hoursRaw - hoursRaw.floor()) * 60).floor(),
-          seconds: hoursRaw.floor() * 3600);
+          hours: hours,
+          minutes: minutes,
+          seconds: ((minutesRaw - minutes) * 60).floor());
     } else {
       DateTime now = OdooModel.session.toServerTime(DateTime.now());
       workTime = Duration(
