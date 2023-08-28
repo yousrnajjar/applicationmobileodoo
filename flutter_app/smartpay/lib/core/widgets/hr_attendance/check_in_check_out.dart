@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/models/employee.dart';
 
-import 'check_in_check_out_form.dart';
+import 'ci_co_form_with_picture_and_pos.dart';
 import 'employee_check_in_check_out.dart';
 
 
@@ -29,7 +29,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
           employee: widget.employee,
         ),
         Expanded(
-          child: CheckInCheckOutForm(employee: widget.employee)
+          child: CheckInCheckOutFormWithPicture(employee: widget.employee)
         ),
       ],
     );

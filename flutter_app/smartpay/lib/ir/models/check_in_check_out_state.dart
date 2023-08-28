@@ -1,4 +1,4 @@
-enum CheckInCheckOutFormState {
+enum CheckInCheckOutState {
   /// le salarié ne peut pas faire de check in ou check out car ce n'est pas l'heure
   /// A afficher:
   /// dans le header: DURÉE DE LA JOURNÉE DU TRAVAIL

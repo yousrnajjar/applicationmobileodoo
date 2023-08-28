@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/core/widgets/utils/pdf_view_widget.dart';
+import 'package:smartpay/core/widgets/utils/pdf/pdf_view_widget.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';

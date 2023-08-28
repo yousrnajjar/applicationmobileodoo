@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_attendance_geo_location_view" model="ir.ui.view">
+        <field name="name">hr.attendance.geo.location</field>
+        <field name="model">hr.attendance</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="employee_id"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+            </tree>
+        </field>
+    </record>
+    <!-- Form view for *Attendance With geo location* -->
+    <record id="hr_attendance_geo_location_form_view" model="ir.ui.view">
+        <field name="name">hr.attendance.geo.location.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="priority" eval="10"/>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Attendance">
+                        <field name="employee_id"/>
+                        <field name="check_in"/>
+                        <field name="check_out"/>
+                    </group>
+                    <notebook>
+                        <page string="Other Information">
+                            <group string="Geo Location">
+                                <field name="geo_latitude"/>
+                                <field name="geo_longitude"/>
+                            </group>
+                            <group string="Image Taken when Check In">
+                                <field name="image" widget="image" class="oe_left oe_avatar"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Action for *Attendance With geo location* -->
+    <record id="hr_attendance_geo_location_action" model="ir.actions.act_window">
+        <field name="name">Attendance With geo location</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">tree,form</field>
+    
+    </record>
+    <!--
+    * Menu for *Attendance With geo location*
+    -->
+    <menuitem 
+        id="hr_attendance_geo_location_menu" 
+        name="From Mobile"
+        parent="hr_attendance.menu_hr_attendance_manage_attendances" 
+        sequence="10"/>
+    <menuitem
+        id="hr_attendance_geo_location_menu_action"
+        name="Attendance With geo location"
+        parent="hr_attendance_geo_location_menu"
+        action="hr_attendance_geo_location_action"
+        sequence="10"/>
+</odoo>
+    

@@ -3,7 +3,7 @@ import 'package:smartpay/core/widgets/hr_contract/contract_detail.dart';
 import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
 import 'package:smartpay/core/widgets/hr_payslip/payslip_list_detail.dart';
 import 'package:smartpay/core/widgets/utils/circular_ratio_indicator.dart';
-import 'package:smartpay/core/widgets/utils/pdf_view_widget.dart';
+import 'package:smartpay/core/widgets/utils/pdf/pdf_view_widget.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';

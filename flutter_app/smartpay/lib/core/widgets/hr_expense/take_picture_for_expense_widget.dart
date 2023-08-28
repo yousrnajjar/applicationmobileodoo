@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smartpay/core/widgets/hr_expense/select_expense_widget.dart';
 import 'package:smartpay/core/widgets/hr_expense/take_picture_for_expense_worflow.dart';
-import 'package:smartpay/core/widgets/utils/take_picture.dart';
+import 'package:smartpay/core/widgets/utils/camera/take_picture.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
@@ -551,7 +551,7 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
   /// Affiche la caméra
   ///
   Widget _buildCameraShowed(BuildContext context) {
-    return TakePictureScreen(
+    return TakePictureWidget(
       onPictureTaken: (XFile file) {
         setState(() {
           _imageFile = file;

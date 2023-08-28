@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:cross_file/src/types/interface.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
@@ -11,6 +16,8 @@ class HrAttendance {
   final int employeeId;
 
   const HrAttendance(this.employeeId);
+
+  static OdooModel odooModel = OdooModel("hr.attendance");
 
   /// attendanceFields
   static List<String> attendanceFields = [
@@ -26,7 +33,7 @@ class HrAttendance {
     List<Map<String, dynamic>> response;
     try {
       // Récupérer la dernière entrée de pointage de l'employé
-      response = await OdooModel("hr.attendance").searchRead(domain: [
+      response = await odooModel.searchRead(domain: [
         ["employee_id", "=", employeeId]
       ], fieldNames: attendanceFields, limit: 1);
     } catch (e) {
@@ -103,13 +110,14 @@ class HrAttendance {
       // Créer un pointage
       var id = await OdooModel.session.create(model, data);
       // Récupérer le pointage
-      return await OdooModel("hr.attendance").searchRead(
+      var list = await OdooModel("hr.attendance").searchRead(
         domain: [
           ["id", "=", id]
         ],
         fieldNames: attendanceFields,
         limit: 1,
       );
+      return list;
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -195,6 +203,7 @@ class HrAttendance {
     }
 
     return {
+      "id": attendance["id"],
       //'success': true,
       'day': day,
       'startTime': checkIn,
@@ -248,8 +257,8 @@ class HrAttendance {
         'startTime': null,
         'endTime': null,
         'state': isWorkingHour
-            ? CheckInCheckOutFormState.canCheckIn
-            : CheckInCheckOutFormState.hourNotReached
+            ? CheckInCheckOutState.canCheckIn
+            : CheckInCheckOutState.hourNotReached
       };
     }
     if (response.isEmpty) {
@@ -260,12 +269,12 @@ class HrAttendance {
         'startTime': null,
         'endTime': null,
         'state': isWorkingHour
-            ? CheckInCheckOutFormState.canCheckIn
-            : CheckInCheckOutFormState.hourNotReached
+            ? CheckInCheckOutState.canCheckIn
+            : CheckInCheckOutState.hourNotReached
       };
     }
     var attendance = response;
-    CheckInCheckOutFormState? state;
+    CheckInCheckOutState? state;
     DateTime? day = attendance['check_in'] != false
         ? dateFormatter.parse(attendance['check_in'])
         : null;
@@ -284,12 +293,12 @@ class HrAttendance {
 
     // if current time in 08:00 - 18:00
     if (!isWorkingHour) {
-      state = CheckInCheckOutFormState.hourNotReached;
+      state = CheckInCheckOutState.hourNotReached;
     } else if (attendance['check_out'] == false) {
-      state = CheckInCheckOutFormState.canCheckOut;
+      state = CheckInCheckOutState.canCheckOut;
     } else if (attendance['check_out'] != false &&
         attendance['check_in'] != false) {
-      state = CheckInCheckOutFormState.hourNotReached;
+      state = CheckInCheckOutState.hourNotReached;
     }
 
     return {
@@ -345,5 +354,21 @@ class HrAttendance {
     } else {
       return _getCheckInCheckOutInfo();
     }
+  }
+
+  Future<void> addImageAndPosition(Uint8List imageBytes, Position position) async {
+    var atts = await _getLatestCheckInWithNoCheckOut();
+    var res = await OdooModel.session.write(
+      "hr.attendance",
+      [atts[0]['id']],
+      {
+        'image': base64Encode(imageBytes),
+        'geo_latitude': position.latitude,
+        'geo_longitude': position.longitude,
+        'geo_altitude': position.altitude,
+        'geo_accuracy': position.accuracy,
+        'geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
+      },
+    );
   }
 }

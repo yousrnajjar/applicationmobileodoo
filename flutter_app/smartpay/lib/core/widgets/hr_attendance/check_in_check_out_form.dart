@@ -20,20 +20,20 @@ class CheckInCheckOutForm extends StatefulWidget {
   });
 
   @override
-  State<CheckInCheckOutForm> createState() => _CheckInCheckOutFormState();
+  State<CheckInCheckOutForm> createState() => CheckInCheckOutFormState();
 }
 
-class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
+class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   // widthRatio
   double widthRatio = 1;
   double heightRatio = 1;
   DateTime now = DateTime.now();
   late HrAttendance attendance;
 
-  final Map<CheckInCheckOutFormState, String> _header = {
-    CheckInCheckOutFormState.hourNotReached: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
-    CheckInCheckOutFormState.canCheckIn: 'MERCI DE POINTER',
-    CheckInCheckOutFormState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
+  final Map<CheckInCheckOutState, String> _header = {
+    CheckInCheckOutState.hourNotReached: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
+    CheckInCheckOutState.canCheckIn: 'MERCI DE POINTER',
+    CheckInCheckOutState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
   };
 
   @override
@@ -62,7 +62,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
               'message': '',
               'day': dayFormatter.parse(dayFormatter.format(DateTime.now())),
               'startTime': null,
-              'state': CheckInCheckOutFormState.hourNotReached,
+              'state': CheckInCheckOutState.hourNotReached,
               'workTime': null,
             },
             future: attendance.getOrCheck(),
@@ -91,18 +91,18 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 }
 
                 var haveSubHeader1 =
-                    ([CheckInCheckOutFormState.canCheckIn].contains(state));
+                    ([CheckInCheckOutState.canCheckIn].contains(state));
                 var haveSubHeader2 = true;
                 var haveStartTime = ([
-                  CheckInCheckOutFormState.canCheckOut,
-                  CheckInCheckOutFormState.hourNotReached
+                  CheckInCheckOutState.canCheckOut,
+                  CheckInCheckOutState.hourNotReached
                 ].contains(state));
                 var haveEndTime =
-                    ([CheckInCheckOutFormState.hourNotReached].contains(state));
+                    ([CheckInCheckOutState.hourNotReached].contains(state));
                 var haveCheckInButton =
-                    ([CheckInCheckOutFormState.canCheckIn].contains(state));
+                    ([CheckInCheckOutState.canCheckIn].contains(state));
                 var haveCheckOutButton =
-                    ([CheckInCheckOutFormState.canCheckOut].contains(state));
+                    ([CheckInCheckOutState.canCheckOut].contains(state));
 
                 return Container(
                     padding: EdgeInsets.only(
@@ -158,7 +158,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
             }));
   }
 
-  Widget _buildHeader(BuildContext context, {CheckInCheckOutFormState? state}) {
+  Widget _buildHeader(BuildContext context, {CheckInCheckOutState? state}) {
     var headerTextStyle = TextStyle(
       fontSize: 18 * widthRatio,
       fontWeight: FontWeight.bold,
@@ -243,14 +243,14 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     );
   }
 
-  Widget _buildWorkTime(BuildContext context, CheckInCheckOutFormState state,
-      Duration? workTime) {
+  Widget _buildWorkTime(
+      BuildContext context, CheckInCheckOutState state, Duration? workTime) {
     var workTimeTextStyle = TextStyle(
       fontSize: 37 * widthRatio,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );
-    if (state == CheckInCheckOutFormState.canCheckOut) {
+    if (state == CheckInCheckOutState.canCheckOut) {
       return ClockAnimation(
         startDuration: workTime ?? const Duration(),
         textStyle: workTimeTextStyle,
@@ -299,28 +299,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       child: Column(
         children: [
           ElevatedButton(
-            onPressed: () async {
-              //_getOrCheck(check: true).then((value) => {setState(() {})});
-              try {
-                await attendance.getOrCheck(check: true);
-                setState(() {});
-              } catch (e) {
-                // Message d'erreur dans l'interface utilisateur
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Erreur lors du démarrage de la journée: $e",
-                      style: TextStyle(
-                        fontSize: 12 * widthRatio,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.black,
-                      ),
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
+            onPressed: onCheckIn,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -352,6 +331,36 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     );
   }
 
+  Future<void> onCheckIn() async {
+    try {
+      await checkIn();
+      setState(() {});
+    } catch (e) {
+      // Message d'erreur dans l'interface utilisateur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Erreur lors du démarrage de la journée: $e",
+            style: TextStyle(
+              fontSize: 12 * widthRatio,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> checkIn() async {
+    return await attendance.getOrCheck(check: true);
+  }
+  Future<Map<String, dynamic>> checkOut() async {
+    return await attendance.getOrCheck(check: true);
+  }
+
   /// CheckOutButton
   /// Le contenu du bouton est :
   ///   - "CLÔTURER LA JOURNÉE"
@@ -371,7 +380,7 @@ class _CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
         onPressed: () async {
           //_getOrCheck(check: true).then((value) => {setState(() {})});
           try {
-            await attendance.getOrCheck(check: true);
+            await checkOut();
             setState(() {});
           } catch (e) {
             // Message d'erreur dans l'interface utilisateur
