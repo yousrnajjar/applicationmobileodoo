@@ -15,10 +15,9 @@ class HrAttendance(models.Model):
     def check_out_notif(self):
         """ Check Out Notification Process """
         # Get attendance automation settings
-        config_settings = self.env["res.config.settings"].sudo().get_values()
-        check_out_start_time = config_settings.get("check_out_start_time")
+        check_out_start_time = self.env["ir.config_parameter"].sudo().get_param("mobile_hr_attentance_auto.check_out_start_time")
         # check_out_start_time = '6:00:00'
-        check_out_end_time = config_settings.get("check_out_end_time")
+        check_out_end_time = self.env["ir.config_parameter"].sudo().get_param("mobile_hr_attentance_auto.check_out_end_time")
         # check_out_end_time = '23:59:59'
         # Get employee with check_out_notif enabled
         employees = self.env["hr.employee"].sudo().search(
@@ -65,8 +64,7 @@ class HrAttendance(models.Model):
     def _send_check_out_notif(self):
         """ Send Check Out Notification """
         # Get attendance automation settings
-        # config_settings = self.env["res.config.settings"].sudo().get_values()
-        notification_message = "Please check out your attendance."  # config_settings.get("app_check_out_notification_message")
+        notification_message = self.env["ir.config_parameter"].sudo().get_param("mobile_hr_attentance_auto.app_check_out_notification_message")
         # Loop attendance
         for attendance in self:
             message_vals = {

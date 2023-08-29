@@ -26,11 +26,11 @@
                     </group>
                     <notebook>
                         <page string="Other Information">
-                            <group string="Geo Location">
+                            <group string="Localisation lors du pointage d'entré">
                                 <field name="geo_latitude"/>
                                 <field name="geo_longitude"/>
                             </group>
-                            <group string="Image Taken when Check In">
+                            <group string="Image prise lors du pointage d'entrée">
                                 <field name="image" widget="image" class="oe_left oe_avatar"/>
                             </group>
                         </page>

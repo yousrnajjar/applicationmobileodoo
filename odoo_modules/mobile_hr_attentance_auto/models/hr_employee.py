@@ -21,12 +21,17 @@ class HrEmployee(models.Model):
         # Get attendance automation settings
         # config_settings = self.env["res.config.settings"].sudo().get_values()
         # check_in_start_time = config_settings.get("check_in_start_time")
-        check_in_start_time = '08:00:00'
+        check_in_start_time = self.env["ir.config_parameter"].sudo().get_param(
+            "mobile_hr_attentance_auto.check_in_start_time"
+        )
         # Get employee with check_in_auto enabled
         employees = self.env["hr.employee"].sudo().search(
             [("check_in_auto", "=", True)]
         )
-        notification_message ="Welcome to work."# config_settings.get("app_check_out_notification_message")
+        #notification_message ="Welcome to work."# config_settings.get("app_check_out_notification_message")
+        notification_message = self.env["ir.config_parameter"].sudo().get_param(
+            "mobile_hr_attentance_auto.app_check_in_auto_notification_message"
+        )
         # Get current datetime
         current_datetime = fields.Datetime.now()
         # Get current date

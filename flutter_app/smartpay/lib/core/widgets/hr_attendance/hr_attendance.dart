@@ -52,7 +52,7 @@ class HrAttendance {
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
     try {
       var res = await OdooModel.session.write("hr.attendance", [attendanceId],
-          {'check_out': dateTimeFormatter.format(DateTime.now())});
+          {'check_out': dateTimeFormatter.format(OdooModel.session.toServerTime(DateTime.now())});
       if (!res) {
         return [];
       }
@@ -216,9 +216,12 @@ class HrAttendance {
   static Future<List<Duration>> _getWorkingTimeInterval() async {
     List<Map<String, dynamic>> response;
     try {
-      var fieldNames = ['work_start_time', 'work_end_time'];
-      response = await OdooModel('res.config.settings').searchRead(
-          domain: [], order: 'id desc', fieldNames: fieldNames, limit: 1);
+      var fieldNames = ['key', 'value'];
+      var domain = [
+        ['key', 'in', ['mobile_hr_attentance_auto.work_end_time', 'mobile_hr_attentance_auto.work_start_time']]
+      ];
+      response = await OdooModel('res.config_parameter').searchRead(
+          domain: domain, order: 'id desc', fieldNames: fieldNames, limit: 1);
     } catch (e) {
       if (kDebugMode) {
         print(e);
