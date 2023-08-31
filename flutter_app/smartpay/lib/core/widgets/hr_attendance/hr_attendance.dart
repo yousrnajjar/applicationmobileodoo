@@ -244,7 +244,9 @@ class HrAttendance {
       response = await OdooModel('ir.config_parameter').searchRead(
           domain: domain, order: 'id desc', fieldNames: fieldNames
       );
-      print(response);
+      if (kDebugMode){
+        print(response);
+      }
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -307,7 +309,6 @@ class HrAttendance {
     DateTime? day = attendance['check_in'] != false
         ? dateFormatter.parse(attendance['check_in'])
         : null;
-
     DateTime? startTime = attendance['check_in'] != false
         ? dateTimeFormatter.parse(attendance['check_in'])
         : null;
