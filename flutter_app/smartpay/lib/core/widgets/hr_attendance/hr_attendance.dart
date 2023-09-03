@@ -51,8 +51,12 @@ class HrAttendance {
   /// Update attendance with check out
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
     try {
-      var res = await OdooModel.session.write("hr.attendance", [attendanceId],
-          {'check_out': dateTimeFormatter.format(OdooModel.session.toServerTime(DateTime.now()))});
+      var res = await OdooModel.session.write("hr.attendance", [
+        attendanceId
+      ], {
+        'check_out': dateTimeFormatter
+            .format(OdooModel.session.toServerTime(DateTime.now()))
+      });
       if (!res) {
         return [];
       }
@@ -113,7 +117,6 @@ class HrAttendance {
       rethrow;
     }
   }
-
 
   /// Ccréer un pointage
   Future<List<Map<String, dynamic>>> _createAttendance(
@@ -239,11 +242,17 @@ class HrAttendance {
     try {
       var fieldNames = ['key', 'value'];
       var domain = [
-        ['key', 'in', ['mobile_hr_attentance_auto.work_end_time', 'mobile_hr_attentance_auto.work_start_time']]
+        [
+          'key',
+          'in',
+          [
+            'mobile_hr_attentance_auto.work_end_time',
+            'mobile_hr_attentance_auto.work_start_time'
+          ]
+        ]
       ];
-      response = await OdooModel('ir.config_parameter').searchRead(
-          domain: domain, order: 'id desc', fieldNames: fieldNames
-      );
+      response = await OdooModel('ir.config_parameter')
+          .searchRead(domain: domain, order: 'id desc', fieldNames: fieldNames);
       print(response);
     } catch (e) {
       if (kDebugMode) {
@@ -252,10 +261,12 @@ class HrAttendance {
       return [const Duration(hours: 8), const Duration(hours: 17)];
     }
     if (response.isEmpty) {
-      return [const Duration(hours: 8), const Duration(hours: 17)];
+      return [const Duration(hours: 8), const Duration(hours: 23)];
     }
-    var timeStart = response.firstWhere((element) => element['key'] == 'mobile_hr_attentance_auto.work_start_time')['value'];
-    var timeEnd = response.firstWhere((element) => element['key'] == 'mobile_hr_attentance_auto.work_end_time')['value'];
+    var timeStart = response.firstWhere((element) =>
+        element['key'] == 'mobile_hr_attentance_auto.work_start_time')['value'];
+    var timeEnd = response.firstWhere((element) =>
+        element['key'] == 'mobile_hr_attentance_auto.work_end_time')['value'];
     return [
       Duration(
         hours: int.parse(timeStart.split(":")[0]),
@@ -386,7 +397,7 @@ class HrAttendance {
   }
 
   Future<void> addImageAndPosition(Uint8List imageBytes, Position position,
-    {bool isCheckOut = false}) async {
+      {bool isCheckOut = false}) async {
     List<Map<String, dynamic>> atts = [];
     Map<String, dynamic> data = {};
     if (!isCheckOut) {
@@ -397,17 +408,19 @@ class HrAttendance {
         'check_in_geo_longitude': position.longitude,
         'check_in_geo_altitude': position.altitude,
         'check_in_geo_accuracy': position.accuracy,
-        'check_in_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
+        'check_in_geo_time':
+            dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
       };
     } else {
       atts = await _getLatestCheckIn();
-      data = {        
+      data = {
         'check_out_image': base64Encode(imageBytes),
         'check_out_geo_latitude': position.latitude,
         'check_out_geo_longitude': position.longitude,
         'check_out_geo_altitude': position.altitude,
         'check_out_geo_accuracy': position.accuracy,
-        'check_out_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
+        'check_out_geo_time':
+            dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
       };
     }
     //atts = await _getLatestCheckInWithNoCheckOut();
