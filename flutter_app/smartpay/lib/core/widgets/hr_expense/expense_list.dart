@@ -437,22 +437,23 @@ class _ExpenseListState extends State<ExpenseList> {
     if (result != null) {
       XFile file = XFile(result.files.single.path!);
       // Enregistrer le document dans Odoo
-      //return await _postDocument(file);
-      try {
-        return await _createExpenseFromAttachment(file);
-      } catch (e) {
-        print(e);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Aucune expense n\'a été sélectionnée'),
-            ),
-          );
-        }
-      }
+      return await _postDocument(file);
+      // try {
+      //   return await _createExpenseFromAttachment(file);
+      // } catch (e) {
+      //   print(e);
+      //   if (context.mounted) {
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(
+      //         content: Text('Aucune expense n\'a été sélectionnée'),
+      //       ),
+      //     );
+      //   }
+      // }
     } else {
       return null;
     }
+    return null;
   }
 
   /// Post Picture
