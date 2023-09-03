@@ -21,7 +21,7 @@
                 <sheet>
                     <group string="Attendance">
                         <field name="employee_id"/>
-                        <field name="check_in"/>
+                        <field name="check_in" string="Arrivé"/>
                         <field name="check_out"/>
                     </group>
                     <notebook>
