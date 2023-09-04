@@ -478,7 +478,15 @@ class _ExpenseListState extends State<ExpenseList> {
           Navigator.pop(context, expense);
         },
       );
-      expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => createdForm));
+      expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => 
+          Scaffold(
+            appBar: AppBar(
+              title: Text('Créer une expense'),
+            ),
+            body: createdForm,
+          ),
+        ),
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
