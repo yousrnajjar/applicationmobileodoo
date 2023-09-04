@@ -298,12 +298,16 @@ class OdooModel {
         1,
         0,
         null);
+    bool idExists = false;
     // Update values with the new data
     for (var field in values.keys) {
       values[field] = datas[0][field.name];
+      if (field.name == "id") {
+        idExists = true;
+      }
     }
     //values[OdooField.fromMap({"name": "id", "ttype": "integer", "readonly": true})] = id;
-    if (values.firstWhere((element) => element.key.name == "id", orElse: () => null) == null) {
+    if (!idExists) {
       values[OdooField.fromMap({
         "name": "id",
         "ttype": "integer",
