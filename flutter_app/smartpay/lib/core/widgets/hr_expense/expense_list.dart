@@ -468,35 +468,26 @@ class _ExpenseListState extends State<ExpenseList> {
     var bytes = await file.readAsBytes();
     var base64Document = base64Encode(bytes);
     late Expense expense;
-    try {
-      // expense = await _selectedExpense();
-      Widget createdForm = await ExpenseFormWidget.buildExpenseForm(
-        onCancel: () {
-          Navigator.pop(context, null);
-        },
-        afterSave: (Expense expense) {
-          Navigator.pop(context, expense);
-        },
-      );
-      expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => 
-          Scaffold(
-            appBar: AppBar(
-              title: Text('Créer une expense'),
-            ),
-            body: createdForm,
+    
+    // expense = await _selectedExpense();
+    Widget createdForm = await ExpenseFormWidget.buildExpenseForm(
+      onCancel: () {
+        Navigator.pop(context, null);
+      },
+      afterSave: (Expense expense) {
+        Navigator.pop(context, expense);
+      },
+    );
+    expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => 
+        Scaffold(
+          appBar: AppBar(
+            title: Text('Créer une expense'),
           ),
+          body: createdForm,
         ),
-      );
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Aucune expense n\'a été sélectionnée'),
-          ),
-        );
-      }
-      return 0;
-    }
+      ),
+    );
+    print("expense: {$expense}, expense.info: ${expense.info}");
     Map<String, dynamic> attachment = {
       'name': file.name,
       'datas': base64Document,
