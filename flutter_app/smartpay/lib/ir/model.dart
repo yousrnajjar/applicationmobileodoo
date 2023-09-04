@@ -313,7 +313,7 @@ class OdooModel {
         "ttype": "integer",
         "readonly": true
       })] = id;
-    })
+    }
     return values;
   }
 
