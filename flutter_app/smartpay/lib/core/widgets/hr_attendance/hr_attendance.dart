@@ -326,7 +326,7 @@ class HrAttendance {
       state = CheckInCheckOutState.hourNotReached;
     } else if (attendance['check_out'] == false) {
       state = CheckInCheckOutState.canCheckOut;
-    } else if (day == dayFormatter.parse(dayFormatter
+    } else if (day == dateFormatter.parse(dateFormatter
                 .format(OdooModel.session.toServerTime(DateTime.now()))) &&
         attendance['check_out'] != false &&
         attendance['check_in'] != false) {
