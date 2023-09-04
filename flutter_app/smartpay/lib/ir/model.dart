@@ -298,11 +298,18 @@ class OdooModel {
         1,
         0,
         null);
-
     // Update values with the new data
     for (var field in values.keys) {
       values[field] = datas[0][field.name];
     }
+    //values[OdooField.fromMap({"name": "id", "ttype": "integer", "readonly": true})] = id;
+    if (values.firstWhere((element) => element.key.name == "id", orElse: () => null) == null) {
+      values[OdooField.fromMap({
+        "name": "id",
+        "ttype": "integer",
+        "readonly": true
+      })] = id;
+    })
     return values;
   }
 
