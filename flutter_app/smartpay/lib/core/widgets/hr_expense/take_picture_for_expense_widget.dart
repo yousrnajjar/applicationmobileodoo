@@ -266,7 +266,6 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                       },
                       afterSave: (Expense expense) {
                         Navigator.pop(context, expense);
-                        
                       },
                     ).then((Widget createdForm) {
                       Navigator.push(

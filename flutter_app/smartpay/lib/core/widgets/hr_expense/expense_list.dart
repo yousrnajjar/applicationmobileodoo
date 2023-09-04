@@ -14,6 +14,7 @@ import 'package:smartpay/ir/models/expense.dart';
 import 'package:smartpay/ir/models/user.dart';
 
 import 'expense_detail.dart';
+import 'expense_form.dart';
 import 'select_expense_widget.dart';
 import 'take_picture_for_expense_widget.dart';
 
@@ -119,7 +120,7 @@ class _ExpenseListState extends State<ExpenseList> {
         child: expenseDetailWidget,
       );
     });
-   }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,17 +143,16 @@ class _ExpenseListState extends State<ExpenseList> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => MainDrawer(
-                    user: widget.user,
-                    activePageName: 'expense',
-                    dataKwargs: {
-                      'model': 'hr.expense',
-                      'res_id': expenseId,
-                    }
-                  ),
+                      user: widget.user,
+                      activePageName: 'expense',
+                      dataKwargs: {
+                        'model': 'hr.expense',
+                        'res_id': expenseId,
+                      }),
                 ),
               );
             },
-          ),// Expense List
+          ), // Expense List
         ),
         // detail expense
         if (_showDetailExpenseWidget == true)
@@ -231,7 +231,8 @@ class _ExpenseListState extends State<ExpenseList> {
               TakePictureForExpenseWorkflow.notStarted,
               TakePictureForExpenseWorkflow.pictureCanceled,
               TakePictureForExpenseWorkflow.expenseCanceled,
-              TakePictureForExpenseWorkflow.pictureSent, // TODO: Remove camera when
+              TakePictureForExpenseWorkflow.pictureSent,
+              // TODO: Remove camera when
               //TakePictureForExpenseWorkflow.pictureValidated, // Because we need to create the expense when the picture is validated
             ].contains(_takePictureWorkflow))
           Positioned(
@@ -258,8 +259,8 @@ class _ExpenseListState extends State<ExpenseList> {
                   });
                 },
                 onPictureValidated: null,
-                  // Commented because we need to create the expense when the picture is validated
-                  /*(XFile f) {
+                // Commented because we need to create the expense when the picture is validated
+                /*(XFile f) {
                   _createExpenseFromAttachment(f).then((value) {
                     setState(() {
                       _takePictureWorkflow =
@@ -468,7 +469,16 @@ class _ExpenseListState extends State<ExpenseList> {
     var base64Document = base64Encode(bytes);
     late Expense expense;
     try {
-      expense = await _selectedExpense();
+      // expense = await _selectedExpense();
+      Widget createdForm = await ExpenseFormWidget.buildExpenseForm(
+        onCancel: () {
+          Navigator.pop(context, null);
+        },
+        afterSave: (Expense expense) {
+          Navigator.pop(context, expense);
+        },
+      );
+      expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => createdForm));
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -491,8 +501,8 @@ class _ExpenseListState extends State<ExpenseList> {
     return res;
   }
 
-  // Create Expense from attachment
-  // Permet de créer une expense depuis un document
+// Create Expense from attachment
+// Permet de créer une expense depuis un document
   Future<int> _createExpenseFromAttachment(XFile file) async {
     var bytes = await file.readAsBytes();
     var base64Document = base64Encode(bytes);
