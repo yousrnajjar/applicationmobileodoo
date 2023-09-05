@@ -1,8 +1,14 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/models/attendance.dart';
+import 'package:smartpay/ir/model.dart';
 
 import 'hr_attendance.dart';
+
+var dateTimeFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+var dateFormatter = DateFormat('yyyy-MM-dd');
+var timeFormatter = DateFormat('HH:mm:ss');
 
 String workedHourToPrettyString(Duration workedHour) {
   String hour = workedHour.inHours.toString().padLeft(2, '0');
@@ -30,7 +36,20 @@ class AttendanceItem extends StatelessWidget {
     var titleLarge = titleLargeBold(theme);
 
     Duration workedHour = HrAttendance.getWorkingHours(attendance.toJson());
-
+    String checkIn = "";
+    if (attendance.checkIn != false) {
+      String checkInString = attendance.checkIn!;
+      DateTime checkInDateTime = dateTimeFormatter.parse(checkInString);
+      checkInDateTime = OdooModel.session.toLocalTime(checkInDateTime);
+      checkIn = timeFormatter.format(checkInDateTime);
+    }
+    String checkOut = "";
+    if (attendance.checkOut != false) {
+      String checkOutString = attendance.checkOut!;
+      DateTime checkOutDateTime = dateTimeFormatter.parse(checkOutString);
+      checkOutDateTime = OdooModel.session.toLocalTime(checkOutDateTime);
+      checkOut = timeFormatter.format(checkOutDateTime);
+    }
     return ListTile(
       leading: CircleAvatar(
         child: Text(attendance.employeeId![1].substring(0, 1)),
@@ -40,9 +59,9 @@ class AttendanceItem extends StatelessWidget {
         direction: Axis.vertical,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("De ${attendance.checkIn}", style: smallText),
+          Text("De ${checkIn}", style: smallText),
           if (attendance.checkOut != false)
-            Text("À ${attendance.checkOut}", style: smallText)
+            Text("À ${checkOut}", style: smallText)
         ],
       ),
       trailing: Text(
