@@ -321,15 +321,17 @@ class HrAttendance {
     //     : null;
     Duration workTime = getWorkingHours(attendance);
 
+    var now = DateTime.now();
     // if current time in 08:00 - 18:00
     if (!isWorkingHour) {
       state = CheckInCheckOutState.hourNotReached;
     } else if (attendance['check_out'] == false) {
       state = CheckInCheckOutState.canCheckOut;
-    } else if (day == dateFormatter.parse(dateFormatter
-                .format(DateTime.now())) &&
-        attendance['check_out'] != false &&
-        attendance['check_in'] != false) {
+    } else if (attendance['check_out'] != false &&
+        attendance['check_in'] != false &&
+        day!.year == now.year &&
+        day.month == now.month &&
+        day.day == now.day) {
       state = CheckInCheckOutState.hourNotReached;
     } else {
       state = CheckInCheckOutState.canCheckIn;
