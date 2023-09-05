@@ -198,11 +198,11 @@ class HrAttendance {
     try {
       //var checkIn = DateTime.parse(attendance['check_in']);
       checkIn = attendance['check_in'] != false
-          ? dateTimeFormatter.parse(attendance['check_in'])
+          ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
           : null;
       //var checkOut = attendance['check_out'] != false ? DateTime.parse(attendance['check_out']) : null;
       checkOut = attendance['check_out'] != false
-          ? dateTimeFormatter.parse(attendance['check_out'])
+          ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_out']))
           : null;
       day = checkIn != null
           ? dateFormatter.parse(dateFormatter.format(checkIn))
@@ -307,13 +307,13 @@ class HrAttendance {
     var attendance = response;
     CheckInCheckOutState? state;
     DateTime? day = attendance['check_in'] != false
-        ? dateFormatter.parse(attendance['check_in'])
+        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? startTime = attendance['check_in'] != false
-        ? dateTimeFormatter.parse(attendance['check_in'])
+        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? endTime = attendance['check_out'] != false
-        ? dateTimeFormatter.parse(attendance['check_out'])
+        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_out']))
         : null;
 
     // DateTime? endTime = attendance['check_out'] != false
@@ -357,7 +357,7 @@ class HrAttendance {
 
   static Duration getWorkingHours(Map<String, dynamic> attendance) {
     DateTime? startTime = attendance['check_in'] != false
-        ? dateTimeFormatter.parse(attendance['check_in'])
+        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     Duration workTime;
     if (attendance['check_out'] != false) {
