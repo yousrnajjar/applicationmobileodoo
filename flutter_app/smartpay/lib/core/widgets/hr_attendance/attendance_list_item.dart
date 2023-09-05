@@ -41,14 +41,14 @@ class AttendanceItem extends StatelessWidget {
       String checkInString = attendance.checkIn!;
       DateTime checkInDateTime = dateTimeFormatter.parse(checkInString);
       checkInDateTime = OdooModel.session.toLocalTime(checkInDateTime);
-      checkIn = timeFormatter.format(checkInDateTime);
+      checkIn = dateTimeFormatter.format(checkInDateTime);
     }
     String checkOut = "";
     if (attendance.checkOut != false) {
       String checkOutString = attendance.checkOut!;
       DateTime checkOutDateTime = dateTimeFormatter.parse(checkOutString);
       checkOutDateTime = OdooModel.session.toLocalTime(checkOutDateTime);
-      checkOut = timeFormatter.format(checkOutDateTime);
+      checkOut = dateTimeFormatter.format(checkOutDateTime);
     }
     return ListTile(
       leading: CircleAvatar(
