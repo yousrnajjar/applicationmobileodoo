@@ -52,7 +52,7 @@ class HrAttendance {
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
     try {
       var res = await OdooModel.session.write("hr.attendance", [attendanceId],
-          {'check_out': dateTimeFormatter.format(DateTime.now())});
+          {'check_out': dateTimeFormatter.format(DateTime.now().toUtc())});
       if (!res) {
         return [];
       }
@@ -125,7 +125,7 @@ class HrAttendance {
         "employee_id": employeeId,
       };
       if (withCkeck) {
-        data["check_in"] = dateTimeFormatter.format(now);
+        data["check_in"] = dateTimeFormatter.format(now.toUtc());
       }
 
       // Créer un pointage
@@ -402,7 +402,7 @@ class HrAttendance {
         'check_in_geo_longitude': position.longitude,
         'check_in_geo_altitude': position.altitude,
         'check_in_geo_accuracy': position.accuracy,
-        'check_in_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
+        'check_in_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now().toUtc()),
       };
     } else {
       atts = await _getLatestCheckIn();
@@ -412,7 +412,7 @@ class HrAttendance {
         'check_out_geo_longitude': position.longitude,
         'check_out_geo_altitude': position.altitude,
         'check_out_geo_accuracy': position.accuracy,
-        'check_out_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now()),
+        'check_out_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now().toUtc()),
       };
     }
     //atts = await _getLatestCheckInWithNoCheckOut();
