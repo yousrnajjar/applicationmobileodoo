@@ -308,4 +308,10 @@ class Session implements AuthInterface, CallInterface {
     var diff = localOffset - Duration(hours: hours, minutes: minutes);
     return dateTime.add(diff);
   }
-}
+  
+  DateTime toLocalTime(DateTime dateTimeUtc) {
+    var now = DateTime.now();
+    var localOffset = now.timeZoneOffset;
+    var diff = localOffset - Duration(hours: 0, minutes: 0);
+    return dateTimeUtc.add(diff);
+  }

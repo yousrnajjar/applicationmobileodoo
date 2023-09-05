@@ -52,7 +52,7 @@ class HrAttendance {
   Future<List<Map<String, dynamic>>> _updateAttendance(int attendanceId) async {
     try {
       var res = await OdooModel.session.write("hr.attendance", [attendanceId],
-          {'check_out': dateTimeFormatter.format(OdooModel.session.toServerTime(DateTime.now()))});
+          {'check_out': dateTimeFormatter.format(DateTime.now())});
       if (!res) {
         return [];
       }
@@ -118,7 +118,7 @@ class HrAttendance {
   /// Ccréer un pointage
   Future<List<Map<String, dynamic>>> _createAttendance(
       {bool withCkeck = true}) async {
-    DateTime now = OdooModel.session.toServerTime(DateTime.now());
+    DateTime now = DateTime.now();
     try {
       var model = "hr.attendance";
       Map<String, dynamic> data = {
@@ -198,11 +198,11 @@ class HrAttendance {
     try {
       //var checkIn = DateTime.parse(attendance['check_in']);
       checkIn = attendance['check_in'] != false
-          ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
+          ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
           : null;
       //var checkOut = attendance['check_out'] != false ? DateTime.parse(attendance['check_out']) : null;
       checkOut = attendance['check_out'] != false
-          ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_out']))
+          ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
           : null;
       day = checkIn != null
           ? dateFormatter.parse(dateFormatter.format(checkIn))
@@ -307,13 +307,13 @@ class HrAttendance {
     var attendance = response;
     CheckInCheckOutState? state;
     DateTime? day = attendance['check_in'] != false
-        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? startTime = attendance['check_in'] != false
-        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? endTime = attendance['check_out'] != false
-        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_out']))
+        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
         : null;
 
     // DateTime? endTime = attendance['check_out'] != false
@@ -327,7 +327,7 @@ class HrAttendance {
     } else if (attendance['check_out'] == false) {
       state = CheckInCheckOutState.canCheckOut;
     } else if (day == dateFormatter.parse(dateFormatter
-                .format(OdooModel.session.toServerTime(DateTime.now()))) &&
+                .format(DateTime.now())) &&
         attendance['check_out'] != false &&
         attendance['check_in'] != false) {
       state = CheckInCheckOutState.hourNotReached;
@@ -349,7 +349,7 @@ class HrAttendance {
     var workingInterval = await _getWorkingTimeInterval();
     var hourStartDay = workingInterval[0];
     var hourEndDay = workingInterval[1];
-    DateTime now = OdooModel.session.toServerTime(DateTime.now());
+    DateTime now = DateTime.now();
     bool isWorkingHour =
         (now.hour >= hourStartDay.inHours && now.hour <= hourEndDay.inHours);
     return isWorkingHour;
@@ -357,7 +357,7 @@ class HrAttendance {
 
   static Duration getWorkingHours(Map<String, dynamic> attendance) {
     DateTime? startTime = attendance['check_in'] != false
-        ? OdooModel.session.toServerTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     Duration workTime;
     if (attendance['check_out'] != false) {
@@ -372,7 +372,7 @@ class HrAttendance {
           minutes: minutes,
           seconds: ((minutesRaw - minutes) * 60).floor());
     } else {
-      DateTime now = OdooModel.session.toServerTime(DateTime.now());
+      DateTime now = DateTime.now();
       workTime = Duration(
         hours: now.hour - startTime!.hour,
         minutes: now.minute - startTime.minute,
