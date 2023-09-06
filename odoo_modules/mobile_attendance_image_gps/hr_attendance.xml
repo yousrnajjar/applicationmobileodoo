@@ -48,25 +48,5 @@
             </form>
         </field>
     </record>
-    <!-- Action for *Attendance With geo location* -->
-    <record id="hr_attendance_geo_location_action" model="ir.actions.act_window">
-        <field name="name">Attendance With geo location</field>
-        <field name="res_model">hr.attendance</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-    <!--
-    * Menu for *Attendance With geo location*
-    -->
-    <menuitem 
-        id="hr_attendance_geo_location_menu" 
-        name="From Mobile"
-        parent="hr_attendance.menu_hr_attendance_root" 
-        sequence="10"/>
-    <menuitem
-        id="hr_attendance_geo_location_menu_action"
-        name="Attendance With geo location"
-        parent="hr_attendance_geo_location_menu"
-        action="hr_attendance_geo_location_action"
-        sequence="10"/>
 </odoo>
     
