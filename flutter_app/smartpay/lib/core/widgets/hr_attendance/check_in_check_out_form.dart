@@ -89,6 +89,11 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 if (kDebugMode) {
                   print('CheckInCheckOutForm build state: $state');
                 }
+                
+                // Jour aujourdhui si canCheckIn
+                if (state == CheckInCheckOutState.canCheckIn) {
+                  day = dayFormatter.parse(dayFormatter.format(DateTime.now()));
+                }
 
                 var haveSubHeader1 =
                     ([CheckInCheckOutState.canCheckIn].contains(state));
@@ -103,6 +108,10 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                     ([CheckInCheckOutState.canCheckIn].contains(state));
                 var haveCheckOutButton =
                     ([CheckInCheckOutState.canCheckOut].contains(state));
+                var haveWorkTime = ([
+                  CheckInCheckOutState.canCheckOut,
+                  CheckInCheckOutState.hourNotReached
+                ].contains(state));
 
                 return Container(
                     padding: EdgeInsets.only(
