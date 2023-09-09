@@ -29,6 +29,8 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   double heightRatio = 1;
   DateTime now = DateTime.now();
   late HrAttendance attendance;
+  bool _isCheckOutButtonLoading = false;
+  bool _isCheckInButtonLoading = false;
 
   final Map<CheckInCheckOutState, String> _header = {
     CheckInCheckOutState.hourNotReached: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
@@ -148,7 +150,8 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                             height: 5 * heightRatio,
                           ),
                           // workTime
-                          _buildWorkTime(context, state, workTime),
+                          if (haveWorkTime)
+                            _buildWorkTime(context, state, workTime),
                           SizedBox(
                             height: 5 * heightRatio,
                           ),
@@ -301,14 +304,55 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       fontWeight: FontWeight.bold,
       color: Colors.white,
     );
+    if (_isCheckInButtonLoading) {
+      return Container(
+        width: 200 * widthRatio,
+        height: 50 * heightRatio,
+        alignment: Alignment.center,
+        child: ElevatedButton(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Veuillez patienter..."),
+              ),
+            );
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.arrow_right_alt,
+                color: Colors.white,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       width: 200 * widthRatio,
       height: 50 * heightRatio,
       alignment: Alignment.center,
       child: Column(
         children: [
-          ElevatedButton(
-            onPressed: onCheckIn,
+            ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                _isCheckInButtonLoading = true;
+              });
+              await onCheckIn();
+              setState(() {
+                _isCheckInButtonLoading = false;
+              });
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -375,22 +419,65 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   ///   - "CLÔTURER LA JOURNÉE"
 
   Widget _buildCheckOutButton(BuildContext context) {
+    
     const checkOutButtonText = "CLÔTURER LA JOURNÉE";
     var checkOutButtonTextStyle = TextStyle(
       fontSize: 12 * widthRatio,
       fontWeight: FontWeight.bold,
       color: Colors.white,
     );
+    if (_isCheckOutButtonLoading) {
+      return Container(
+        width: 200 * widthRatio,
+        height: 50 * heightRatio,
+        alignment: Alignment.center,
+        child: ElevatedButton(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Veuillez patienter jusqu'à la fin du chargement",
+                  style: TextStyle(
+                    fontSize: 12 * widthRatio,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                  ),
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.arrow_right_alt,
+                color: Colors.white,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       width: 200 * widthRatio,
       height: 50 * heightRatio,
       alignment: Alignment.center,
       child: ElevatedButton(
         onPressed: () async {
-          //_getOrCheck(check: true).then((value) => {setState(() {})});
+          setState(() {
+            _isCheckOutButtonLoading = true;          
+          });
           try {
             await checkOut();
-            setState(() {});
           } catch (e) {
             // Message d'erreur dans l'interface utilisateur
             ScaffoldMessenger.of(context).showSnackBar(
@@ -406,6 +493,11 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 backgroundColor: Colors.red,
               ),
             );
+          } finally {
+            // Activer le bouton
+            setState(() {
+              _isCheckOutButtonLoading = false;
+            });
           }
         },
         child: Text(

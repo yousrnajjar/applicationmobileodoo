@@ -322,6 +322,7 @@ class HrAttendance {
     Duration workTime = getWorkingHours(attendance);
 
     var now = DateTime.now();
+    print('now: $now, day: $day');
     // if current time in 08:00 - 18:00
     if (!isWorkingHour) {
       state = CheckInCheckOutState.hourNotReached;
