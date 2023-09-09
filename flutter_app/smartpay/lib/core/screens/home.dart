@@ -92,7 +92,13 @@ class _HomeState extends State<HomeScreen> {
       domain: [
         ['id', '=', widget.user.employeeId]
       ],
-      fieldNames: ['name', 'job_id', 'image_128', 'remaining_leaves'],
+      fieldNames: [
+        'name', 
+        'job_id',
+        'image_128',
+        'allocation_display',
+        'allocation_used_count'
+      ],
       limit: 1,
     );
   }
@@ -124,10 +130,15 @@ class _HomeState extends State<HomeScreen> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var user = widget.user;
-    var remaningLeaves = 0.0;
+    double allocationDisplay = 0;
+    double allocationUsedCount = 0;
     for (var item in _employee.entries) {
-      if (item.key.name == 'remaining_leaves') {
-        remaningLeaves = item.value;
+
+      if (item.key.name == 'allocation_display') {
+        allocationDisplay = double.parse(item.value);
+      }
+      if (item.key.name == 'allocation_used_count') {
+        allocationUsedCount = double.parse(item.value);
       }
     }
     return Scaffold(
@@ -181,7 +192,7 @@ class _HomeState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      '$remaningLeaves',
+                      '$allocationUsedCount / $allocationDisplay',
                       style: TextStyle(
                         fontSize: (15 / baseWidthDesign) * width,
                         fontWeight: FontWeight.bold,
@@ -191,7 +202,7 @@ class _HomeState extends State<HomeScreen> {
                 ),
                 SizedBox(height: (10 / baseHeightDesign) * height),
                 LinearProgressIndicator(
-                  value: remaningLeaves / 30,
+                  value: allocationUsedCount / allocationDisplay,
                   backgroundColor: Colors.grey[300],
                   valueColor: AlwaysStoppedAnimation<Color>(
                     Colors.green,
