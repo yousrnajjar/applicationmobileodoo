@@ -96,7 +96,7 @@ class _HomeState extends State<HomeScreen> {
         'name', 
         'job_id',
         'image_128',
-        'allocation_display',
+        'allocation_count',
         'allocation_used_count'
       ],
       limit: 1,
@@ -130,12 +130,12 @@ class _HomeState extends State<HomeScreen> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var user = widget.user;
-    double allocationDisplay = 0;
+    double allocationCount = 0;
     double allocationUsedCount = 0;
     for (var item in _employee.entries) {
 
-      if (item.key.name == 'allocation_display') {
-        allocationDisplay = double.parse(item.value);
+      if (item.key.name == 'allocation_count') {
+        allocationCount = double.parse(item.value);
       }
       if (item.key.name == 'allocation_used_count') {
         allocationUsedCount = double.parse(item.value);
@@ -192,7 +192,7 @@ class _HomeState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      '$allocationUsedCount / $allocationDisplay',
+                      '$allocationUsedCount / $allocationCount',
                       style: TextStyle(
                         fontSize: (15 / baseWidthDesign) * width,
                         fontWeight: FontWeight.bold,
@@ -202,7 +202,9 @@ class _HomeState extends State<HomeScreen> {
                 ),
                 SizedBox(height: (10 / baseHeightDesign) * height),
                 LinearProgressIndicator(
-                  value: allocationUsedCount / allocationDisplay,
+                  value: (allocationCount == 0)
+                      ? 0
+                      : allocationUsedCount / allocationCount,
                   backgroundColor: Colors.grey[300],
                   valueColor: AlwaysStoppedAnimation<Color>(
                     Colors.green,
