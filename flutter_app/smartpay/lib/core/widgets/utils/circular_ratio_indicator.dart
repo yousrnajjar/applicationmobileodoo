@@ -5,6 +5,7 @@ class CircularRatioIndicator extends StatelessWidget {
   final String suffix;
   final String title;
   final double ratio;
+  final double maxRatio;
   final Color colorText;
   final Color colorBackground;
   final Color progressColor;
@@ -14,6 +15,7 @@ class CircularRatioIndicator extends StatelessWidget {
     required this.suffix,
     required this.title,
     required this.ratio,
+    required this.maxRatio,
     required this.colorText,
     required this.progressColor,
     required this.colorBackground,
@@ -56,6 +58,7 @@ class CircularRatioIndicator extends StatelessWidget {
   Widget _buildRatioIndicator(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var indicatorWidth = (55 / baseWidthDesign) * width + 10;
+    int value = (ratio * maxRatio).toInt();
     return Stack(
       children: [
         Container(
@@ -89,7 +92,7 @@ class CircularRatioIndicator extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                (ratio * 100).toStringAsFixed(0),
+                value.toString().padLeft(2, '0'),
                 style: TextStyle(
                   color: colorText,
                   fontSize: 22,

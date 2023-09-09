@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:smartpay/core/widgets/hr_contract/contract_detail.dart';
 import 'package:smartpay/core/widgets/hr_employee/hr_employee_card_detail.dart';
 import 'package:smartpay/core/widgets/hr_payslip/payslip_list_detail.dart';
@@ -9,6 +10,8 @@ import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/user.dart';
 
 import 'main_drawer.dart';
+
+var dateFormater = DateFormat('yyyy-MM-dd');
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -28,6 +31,7 @@ class _HomeState extends State<HomeScreen> {
   Map<OdooField, dynamic> _lastContract = {};
   Map<OdooField, dynamic> _lastPay = {};
   Map<OdooField, dynamic> _employee = {};
+  double _nbrWorkDay = 0.0;
   String activeScreenName = 'dashboard';
   int? activeObjectId;
   String? objectName;
@@ -68,6 +72,36 @@ class _HomeState extends State<HomeScreen> {
         }
       }
     });
+    _computeNbrWorkDayThisMonth().then((value) {
+      if (context.mounted) {
+        setState(() {
+          _nbrWorkDay = value;
+        });
+      } else {
+        _nbrWorkDay = value;
+      }
+    });
+  }
+  Future<double> _computeNbrWorkDayThisMonth() async {
+    var attModel = OdooModel('hr.attendance');
+    var now = DateTime.now();
+    var startDay = DateTime(now.year, now.month, 1);
+    var endDay = DateTime(now.year, now.month + 1, 1);
+    var domain = [
+      ['employee_id', '=', widget.user.employeeId],
+      ['check_in', '>=', dateFormater.format(startDay)],
+      ['check_out', '<', dateFormater.format(endDay)],
+    ];
+    var fields = ['check_in', 'check_out'];
+    var attendance = await attModel.searchRead(domain: domain, fieldNames: fields);
+    print(attendance);
+    var nbrWorkDay = 0.0;
+    for (var att in attendance) {
+      if (att['check_out'] != false) {
+        nbrWorkDay += 1;
+      }
+    }
+    return nbrWorkDay;
   }
 
   Future<List<Map<OdooField, dynamic>>> _loadLastPayslipInfo() {
@@ -141,6 +175,11 @@ class _HomeState extends State<HomeScreen> {
         allocationUsedCount = item.value;
       }
     }
+    double nbrWorkDayRatio = 0.0;
+    int nbrDayThisMonth = DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day;
+    if (_nbrWorkDay != 0.0) {
+      nbrWorkDayRatio = _nbrWorkDay / nbrDayThisMonth;
+    }
     return Scaffold(
       body: ListView(
         children: [
@@ -156,7 +195,8 @@ class _HomeState extends State<HomeScreen> {
                 suffix: 'Jours',
                 title: 'Nombre des jours travaillés',
                 // Valeur du nombre de jours travaillé
-                ratio: user.info['hours_last_month'] / 24,
+                ratio: nbrWorkDayRatio,
+                maxRatio: nbrDayThisMonth.toDouble(),
                 colorText: const Color.fromARGB(255, 112, 107, 168),
                 colorBackground: const Color.fromARGB(255, 191, 187, 248),
                 progressColor: const Color.fromARGB(255, 212, 212, 240),
@@ -165,8 +205,8 @@ class _HomeState extends State<HomeScreen> {
                 suffix: 'Jours',
                 title: 'Nombre des jours de congé',
                 // Valeur du nombre de jours de congé
-                ratio: user.info['allocation_used_count'],
-
+                ratio: (allocationCount == 0) ? 1 : allocationUsedCount / allocationCount,
+                maxRatio: (allocationCount == 0) ? 1 : allocationCount,
                 /// user.info['allocation_count'],
                 colorText: const Color.fromARGB(255, 165, 154, 104),
                 colorBackground: const Color.fromARGB(255, 248, 237, 187),
