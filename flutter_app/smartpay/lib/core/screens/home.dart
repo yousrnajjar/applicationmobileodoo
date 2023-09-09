@@ -135,10 +135,10 @@ class _HomeState extends State<HomeScreen> {
     for (var item in _employee.entries) {
 
       if (item.key.name == 'allocation_count') {
-        allocationCount = double.parse(item.value);
+        allocationCount = item.value;
       }
       if (item.key.name == 'allocation_used_count') {
-        allocationUsedCount = double.parse(item.value);
+        allocationUsedCount = item.value;
       }
     }
     return Scaffold(
