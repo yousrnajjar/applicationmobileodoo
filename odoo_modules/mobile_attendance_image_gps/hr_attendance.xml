@@ -1,51 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="hr_attendance_geo_location_view" model="ir.ui.view">
-        <field name="name">hr.attendance.geo.location</field>
+    <!-- inherit hr_attendance.view_attendance_tree to remove editable="bottom" -->
+    <record id="hr_attendance_view_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.tree</field>
         <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
         <field name="arch" type="xml">
-            <tree>
-                <field name="employee_id"/>
-                <field name="check_in"/>
-                <field name="check_out"/>
-            </tree>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="editable">top</attribute>
+            </xpath>
         </field>
     </record>
-    <!-- Form view for *Attendance With geo location* -->
-    <record id="hr_attendance_geo_location_form_view" model="ir.ui.view">
-        <field name="name">hr.attendance.geo.location.form</field>
+    <!-- inherit hr_attendance.hr_attendance_view_form to add geo location and image -->
+    <record id="hr_attendance_view_form" model="ir.ui.view">
+        <field name="name">hr.attendance.form</field>
         <field name="model">hr.attendance</field>
-        <field name="priority" eval="10"/>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
         <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <group string="Attendance">
-                        <field name="employee_id"/>
-                        <field name="check_in" string="Arrivé"/>
-                        <field name="check_out"/>
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">false</attribute>
+                <attribute name="edit">false</attribute>
+            </xpath>
+            <xpath expr="//group" position="after">
+                <group string="Information d'entrée">
+                    <group string="Localisation lors du pointage d'entré">
+                        <field name="check_in_geo_latitude"/>
+                        <field name="check_in_geo_longitude"/>
                     </group>
-                    <notebook>
-                        <page string="Information d'entrée">
-                            <group string="Localisation lors du pointage d'entré">
-                                <field name="check_in_geo_latitude"/>
-                                <field name="check_in_geo_longitude"/>
-                            </group>
-                            <group string="Image prise lors du pointage d'entrée">
-                                <field name="check_in_image" widget="image" class="oe_left oe_avatar"/>
-                            </group>
-                        </page>
-                        <page string="Information de sortie">
-                            <group string="Localisation lors du pointage de sortie">
-                                <field name="check_out_geo_latitude"/>
-                                <field name="check_out_geo_longitude"/>
-                            </group>
-                            <group string="Image prise lors du pointage de sortie">
-                                <field name="check_out_image" widget="image" class="oe_left oe_avatar"/>
-                            </group>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
+                    <group string="Image prise lors du pointage d'entrée">
+                        <field name="check_in_image" widget="image" class="oe_left oe_avatar"/>
+                    </group>
+                </group>
+                <group string="Information de sortie">
+                    <group string="Localisation lors du pointage de sortie">
+                        <field name="check_out_geo_latitude"/>
+                        <field name="check_out_geo_longitude"/>
+                    </group>
+                    <group string="Image prise lors du pointage de sortie">
+                        <field name="check_out_image" widget="image" class="oe_left oe_avatar"/>
+                    </group>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>
