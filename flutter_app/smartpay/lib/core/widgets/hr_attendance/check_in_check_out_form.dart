@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:smartpay/ir/data/themes.dart';
+import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/allocation.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
 import 'package:smartpay/ir/models/employee.dart';
 
+import '../utils/qr_bare_code.dart';
 import 'clock_animation.dart';
 import 'hr_attendance.dart';
 
@@ -91,7 +94,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                 if (kDebugMode) {
                   print('CheckInCheckOutForm build state: $state');
                 }
-                
+
                 // Jour aujourdhui si canCheckIn
                 if (state == CheckInCheckOutState.canCheckIn) {
                   day = dayFormatter.parse(dayFormatter.format(DateTime.now()));
@@ -156,7 +159,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                             height: 5 * heightRatio,
                           ),
                           // checkInButton
-                          if (haveCheckInButton) _buildCheckInButton(context),
+                          if (haveCheckInButton) _buildCheckInButtons(context),
                           // checkOutButton
                           if (haveCheckOutButton) _buildCheckOutButton(context),
                         ],
@@ -317,18 +320,18 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
               ),
             );
           },
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
+              SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   color: Colors.white,
                 ),
               ),
-              const Spacer(),
-              const Icon(
+              Spacer(),
+              Icon(
                 Icons.arrow_right_alt,
                 color: Colors.white,
               ),
@@ -343,7 +346,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       alignment: Alignment.center,
       child: Column(
         children: [
-            ElevatedButton(
+          ElevatedButton(
             onPressed: () async {
               setState(() {
                 _isCheckInButtonLoading = true;
@@ -410,6 +413,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   Future<Map<String, dynamic>> checkIn() async {
     return await attendance.getOrCheck(check: true);
   }
+
   Future<Map<String, dynamic>> checkOut() async {
     return await attendance.getOrCheck(check: true);
   }
@@ -419,7 +423,6 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   ///   - "CLÔTURER LA JOURNÉE"
 
   Widget _buildCheckOutButton(BuildContext context) {
-    
     const checkOutButtonText = "CLÔTURER LA JOURNÉE";
     var checkOutButtonTextStyle = TextStyle(
       fontSize: 12 * widthRatio,
@@ -429,7 +432,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     if (_isCheckOutButtonLoading) {
       return Container(
         width: 200 * widthRatio,
-        height: 50 * heightRatio,
+        height: 30 * heightRatio,
         alignment: Alignment.center,
         child: ElevatedButton(
           onPressed: () {
@@ -447,18 +450,18 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
               ),
             );
           },
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
+              SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   color: Colors.white,
                 ),
               ),
-              const Spacer(),
-              const Icon(
+              Spacer(),
+              Icon(
                 Icons.arrow_right_alt,
                 color: Colors.white,
               ),
@@ -469,12 +472,12 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     }
     return Container(
       width: 200 * widthRatio,
-      height: 50 * heightRatio,
+      height: 30 * heightRatio,
       alignment: Alignment.center,
       child: ElevatedButton(
         onPressed: () async {
           setState(() {
-            _isCheckOutButtonLoading = true;          
+            _isCheckOutButtonLoading = true;
           });
           try {
             await checkOut();
@@ -503,6 +506,326 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
         child: Text(
           checkOutButtonText,
           style: checkOutButtonTextStyle,
+        ),
+      ),
+    );
+  }
+
+  /// CheckInButtons
+
+  Widget _buildCheckInButtons(BuildContext context) {
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        _buildCheckInButton(context),
+        SizedBox(
+          height: 5 * heightRatio,
+        ),
+        _buildScanBareCodeButton(context),
+        SizedBox(
+          height: 5 * heightRatio,
+        ),
+        _buildEnterCodeButton(context),
+      ],
+    );
+  }
+
+  /// ScanBareCodeButton
+  /// Le contenu du bouton est :
+  ///   - "SCANNEZ LE CODE BARRE"
+  ///   - "Icone de scan"
+  /// Au clic sur le bouton, on ouvre la page de scan du Bare Code et attendons le résultat
+
+  Widget _buildScanBareCodeButton(BuildContext context) {
+    const scanBareCodeButtonText = "SCANNEZ LE CODE BARRE";
+    var scanBareCodeButtonTextStyle = TextStyle(
+      fontSize: 12 * widthRatio,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+    String scanBareCodeButtonIconPath = "assets/icons/barcode_scanner.png";
+    Color scanBareCodeButtonIconColor = Colors.white;
+    return Container(
+      width: 200 * widthRatio,
+      height: 30 * heightRatio,
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => QRViewWidget(
+                onScan: (code) {
+                  if (code != null) {
+                    Navigator.of(context).pop(code);
+                  }
+                },
+              ),
+            ),
+          );
+          if (result == null) {
+            return;
+          }
+          setState(() {
+            _isCheckInButtonLoading = true;
+          });
+          try {
+            // var attendance = await checkIn();
+            // Message de succès dans l'interface utilisateur
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    result,
+                    style: TextStyle(
+                      fontSize: 12 * widthRatio,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
+                    ),
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            // Message d'erreur dans l'interface utilisateur
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Erreur lors du démarrage de la journée: $e",
+                    style: TextStyle(
+                      fontSize: 12 * widthRatio,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
+                    ),
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          } finally {
+            // Activer le bouton
+            setState(() {
+              _isCheckInButtonLoading = false;
+            });
+          }
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              scanBareCodeButtonText,
+              style: scanBareCodeButtonTextStyle,
+            ),
+            const Spacer(),
+            Image.asset(
+              scanBareCodeButtonIconPath,
+              width: 20 * widthRatio,
+              height: 20 * heightRatio,
+              color: scanBareCodeButtonIconColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// EnterCodeButton
+  /// Le contenu du bouton est :
+  ///   - "ENTREZ LE CODE PIN
+  ///   - "Icone de Clé"
+  /// Au clic sur le bouton, on ouvre une boite de dialogue demandant le code et attendons le résultat
+
+  Widget _buildEnterCodeButton(BuildContext context) {
+    const enterCodeButtonText = "ENTREZ LE CODE PIN";
+    var enterCodeButtonTextStyle = TextStyle(
+      fontSize: 12 * widthRatio,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+    String enterCodeButtonIconPath = "assets/icons/vpn_key.png";
+    Color iconColor = Colors.white;
+    return Container(
+      width: 200 * widthRatio,
+      height: 30 * heightRatio,
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () async {
+          final result = await showDialog(
+            context: context,
+            builder: (context) => const EnterCodeDialog(),
+          );
+          if (result == null) {
+            return;
+          }
+          await _checkInWithCode(context, result);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              enterCodeButtonText,
+              style: enterCodeButtonTextStyle,
+            ),
+            const Spacer(),
+            Image.asset(
+              enterCodeButtonIconPath,
+              width: 20 * widthRatio,
+              height: 20 * heightRatio,
+              color: iconColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _checkInWithCode(BuildContext context, String code) async {
+    setState(() {
+      _isCheckInButtonLoading = true;
+    });
+    var emps = await OdooModel('hr.employee').searchRead(
+      domain: [['id', '=', widget.employee.id], ['pin', '=', code]],
+      fieldNames: ['pin'],
+    );
+    if (emps.isEmpty) {
+      if (context.mounted) {
+        // Message d'erreur dans l'interface utilisateur
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors du démarrage de la journée: Code PIN érroné",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+    try {
+      var attendance = await checkIn();
+    } catch (e) {
+      if (context.mounted) {
+        // Message d'erreur dans l'interface utilisateur
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors du démarrage de la journée: $e",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      // Activer le bouton
+      setState(() {
+        _isCheckInButtonLoading = false;
+      });
+    }
+  }
+}
+
+/// EnterCodeDialog
+/// Boite de dialogue demandant le code PIN
+/// Le contenu de la boite de dialogue est :
+///   - "Entrez le code PIN"
+///   - "Champ de saisie du code PIN"
+///   - "Bouton de validation"
+/// Au clic sur le bouton de validation, on retourne le code PIN saisi
+
+class EnterCodeDialog extends StatefulWidget {
+  const EnterCodeDialog({super.key});
+
+  @override
+  EnterCodeDialogState createState() => EnterCodeDialogState();
+}
+
+class EnterCodeDialogState extends State<EnterCodeDialog> {
+  final _pinCodeController = TextEditingController();
+  double widthRatio = 1;
+  double heightRatio = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    const enterCodeDialogText = "Entrez le code PIN";
+    var enterCodeDialogTextStyle = TextStyle(
+      fontSize: 12 * widthRatio,
+      fontWeight: FontWeight.bold,
+      color: Colors.black,
+    );
+    return AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            enterCodeDialogText,
+            style: enterCodeDialogTextStyle,
+          ),
+          SizedBox(
+            height: 10 * heightRatio,
+          ),
+          TextField(
+            controller: _pinCodeController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Code PIN',
+            ),
+          ),
+          SizedBox(
+            height: 10 * heightRatio,
+          ),
+          _buildValidationButton(context),
+        ],
+      ),
+    );
+  }
+
+  /// ValidationButton
+  /// Le contenu du bouton est :
+  ///   - "VALIDER"
+  /// Au clic sur le bouton, on retourne le code PIN saisi
+
+  Widget _buildValidationButton(BuildContext context) {
+    const validationButtonText = "VALIDER";
+    var validationButtonTextStyle = TextStyle(
+      fontSize: 12 * widthRatio,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+    return Container(
+      width: 200 * widthRatio,
+      height: 30 * heightRatio,
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pop(context, _pinCodeController.text);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              validationButtonText,
+              style: validationButtonTextStyle,
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.check,
+              size: 20,
+              color: Colors.white,
+            ),
+          ],
         ),
       ),
     );

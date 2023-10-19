@@ -50,6 +50,7 @@ dependencies:
   camera: ^0.10.5+2
   file_picker: ^5.3.2
   geolocator: ^10.0.0
+  qr_code_scanner: ^1.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,6 +82,8 @@ flutter:
     - assets/images/logo.jpeg
     - assets/images/admin.jpeg
     # Icons
+    - assets/icons/barcode_scanner.png
+    - assets/icons/vpn_key.png
     - assets/icons/menu.jpeg
     - assets/icons/notif.jpeg
     - assets/icons/menu.png
