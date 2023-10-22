@@ -6,13 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRViewWidget extends StatefulWidget {
-  final Function(String?) onScan;
-
-  const QRViewWidget({super.key, required this.onScan});
+  const QRViewWidget({super.key});
 
   @override
   State<StatefulWidget> createState() => _QRViewWidgetState();
-
 }
 
 class _QRViewWidgetState extends State<QRViewWidget> {
@@ -21,6 +18,8 @@ class _QRViewWidgetState extends State<QRViewWidget> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   bool _inPause = false;
+
+  bool qrCodeScanned = false;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -35,6 +34,9 @@ class _QRViewWidgetState extends State<QRViewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (qrCodeScanned && Navigator.canPop(context)) {
+      Navigator.pop(context, result!.code);
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan'),
@@ -51,8 +53,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                 children: <Widget>[
                   if (result != null)
                     Text(
-                        'Barcode Type: ${describeEnum(
-                            result!.format)}   Data: ${result!.code}')
+                        'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
                   else
                     const Text('Scan a code'),
                   Row(
@@ -89,8 +90,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                             builder: (context, snapshot) {
                               if (snapshot.data != null) {
                                 return Text(
-                                    'Camera facing ${describeEnum(
-                                        snapshot.data!)}');
+                                    'Camera facing ${describeEnum(snapshot.data!)}');
                               } else {
                                 return const Text('loading');
                               }
@@ -167,14 +167,8 @@ class _QRViewWidgetState extends State<QRViewWidget> {
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery
-        .of(context)
-        .size
-        .width < 400 ||
-        MediaQuery
-            .of(context)
-            .size
-            .height < 400)
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
         ? 150.0
         : 300.0;
     // To ensure the Scanner view is properly sizes after rotation
@@ -193,20 +187,6 @@ class _QRViewWidgetState extends State<QRViewWidget> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    setState(() {
-      this.controller = controller;
-    });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-        if (result!=null) {
-          widget.onScan(result!.code);
-        }
-      });
-    });
-  }
-
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
@@ -220,5 +200,17 @@ class _QRViewWidgetState extends State<QRViewWidget> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    setState(() {
+      this.controller = controller;
+    });
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        result = scanData;
+        qrCodeScanned = true;
+      });
+    });
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/allocation.dart';
@@ -32,14 +31,14 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
   double heightRatio = 1;
   DateTime now = DateTime.now();
   late HrAttendance attendance;
-  bool _isCheckOutButtonLoading = false;
-  bool _isCheckInButtonLoading = false;
 
   final Map<CheckInCheckOutState, String> _header = {
     CheckInCheckOutState.hourNotReached: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
     CheckInCheckOutState.canCheckIn: 'MERCI DE POINTER',
     CheckInCheckOutState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
   };
+
+  bool _enteringCode = false;
 
   @override
   void initState() {
@@ -161,7 +160,17 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                           // checkInButton
                           if (haveCheckInButton) _buildCheckInButtons(context),
                           // checkOutButton
-                          if (haveCheckOutButton) _buildCheckOutButton(context),
+                          if (haveCheckOutButton)
+                            CheckInButton(
+                              heightRatio: heightRatio,
+                              widthRatio: widthRatio,
+                              text: "CLÔTURER LA JOURNÉE",
+                              icon: const Icon(
+                                Icons.arrow_right_alt,
+                                color: Colors.white,
+                              ),
+                              onClick: checkOutAction,
+                            ),
                         ],
                       )
                     ]));
@@ -294,99 +303,6 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     );
   }
 
-  /// CheckInButtonwh
-  /// Le contenu du bouton est :
-  ///   - "DÉMARRER"
-  ///   - un icône de flèche vers la droite du style `>`
-  ///En dessous du bouton, il y a un texte : "Cliquer pour démarrer"
-
-  Widget _buildCheckInButton(BuildContext context) {
-    const checkInButtonText = "DÉMARRER";
-    var checkInButtonTextStyle = TextStyle(
-      fontSize: 18 * widthRatio,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    );
-    if (_isCheckInButtonLoading) {
-      return Container(
-        width: 200 * widthRatio,
-        height: 50 * heightRatio,
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Veuillez patienter..."),
-              ),
-            );
-          },
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-              Spacer(),
-              Icon(
-                Icons.arrow_right_alt,
-                color: Colors.white,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return Container(
-      width: 200 * widthRatio,
-      height: 50 * heightRatio,
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              setState(() {
-                _isCheckInButtonLoading = true;
-              });
-              await onCheckIn();
-              setState(() {
-                _isCheckInButtonLoading = false;
-              });
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  checkInButtonText,
-                  style: checkInButtonTextStyle,
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.arrow_right_alt,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 5 * heightRatio,
-          ),
-          Text(
-            "Cliquer pour démarrer",
-            style: TextStyle(
-              fontSize: 12 * widthRatio,
-              fontWeight: FontWeight.normal,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> onCheckIn() async {
     try {
       await checkIn();
@@ -418,97 +334,26 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     return await attendance.getOrCheck(check: true);
   }
 
-  /// CheckOutButton
-  /// Le contenu du bouton est :
-  ///   - "CLÔTURER LA JOURNÉE"
-
-  Widget _buildCheckOutButton(BuildContext context) {
-    const checkOutButtonText = "CLÔTURER LA JOURNÉE";
-    var checkOutButtonTextStyle = TextStyle(
-      fontSize: 12 * widthRatio,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    );
-    if (_isCheckOutButtonLoading) {
-      return Container(
-        width: 200 * widthRatio,
-        height: 30 * heightRatio,
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Veuillez patienter jusqu'à la fin du chargement",
-                  style: TextStyle(
-                    fontSize: 12 * widthRatio,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-          },
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-              Spacer(),
-              Icon(
-                Icons.arrow_right_alt,
-                color: Colors.white,
-              ),
-            ],
+  void checkOutAction() async {
+    try {
+      await checkOut();
+      setState(() {});
+    } catch (e) {
+      // Message d'erreur dans l'interface utilisateur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Erreur lors de la clôture de la journée: $e",
+            style: TextStyle(
+              fontSize: 12 * widthRatio,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
           ),
+          backgroundColor: Colors.red,
         ),
       );
     }
-    return Container(
-      width: 200 * widthRatio,
-      height: 30 * heightRatio,
-      alignment: Alignment.center,
-      child: ElevatedButton(
-        onPressed: () async {
-          setState(() {
-            _isCheckOutButtonLoading = true;
-          });
-          try {
-            await checkOut();
-          } catch (e) {
-            // Message d'erreur dans l'interface utilisateur
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Erreur lors de la clôture de la journée: $e",
-                  style: TextStyle(
-                    fontSize: 12 * widthRatio,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-          } finally {
-            // Activer le bouton
-            setState(() {
-              _isCheckOutButtonLoading = false;
-            });
-          }
-        },
-        child: Text(
-          checkOutButtonText,
-          style: checkOutButtonTextStyle,
-        ),
-      ),
-    );
   }
 
   /// CheckInButtons
@@ -517,176 +362,77 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildCheckInButton(context),
+        CheckInButton(
+          heightRatio: heightRatio,
+          widthRatio: widthRatio,
+          text: "POINTAGE MANUELLE",
+          icon: const Icon(
+            Icons.arrow_right_alt,
+            color: Colors.white,
+          ),
+          onClick: () async {
+            await checkIn();
+            setState(() {});
+          },
+        ),
         SizedBox(
           height: 5 * heightRatio,
         ),
-        _buildScanBareCodeButton(context),
+        CheckInButton(
+          heightRatio: heightRatio,
+          widthRatio: widthRatio,
+          text: "SCANNEZ LE CODE",
+          icon: Image.asset(
+            "assets/icons/barcode_scanner.png",
+            width: 20 * widthRatio,
+            height: 20 * heightRatio,
+            color: Colors.white,
+          ),
+          onClick: () async {
+            await checkInQRCode();
+            setState(() {});
+          },
+        ),
         SizedBox(
           height: 5 * heightRatio,
         ),
-        _buildEnterCodeButton(context),
+        CheckInButton(
+          heightRatio: heightRatio,
+          widthRatio: widthRatio,
+          text: "ENTREZ LE CODE PIN",
+          icon: Image.asset(
+            "assets/icons/vpn_key.png",
+            width: 20 * widthRatio,
+            height: 20 * heightRatio,
+            color: Colors.white,
+          ),
+          onClick: () async {
+            setState(() {
+              _enteringCode = true;
+            });
+            await checkInCode();
+            setState(() {
+              _enteringCode = false;
+            });
+          },
+        )
       ],
     );
   }
 
-  /// ScanBareCodeButton
-  /// Le contenu du bouton est :
-  ///   - "SCANNEZ LE CODE BARRE"
-  ///   - "Icone de scan"
-  /// Au clic sur le bouton, on ouvre la page de scan du Bare Code et attendons le résultat
-
-  Widget _buildScanBareCodeButton(BuildContext context) {
-    const scanBareCodeButtonText = "SCANNEZ LE CODE BARRE";
-    var scanBareCodeButtonTextStyle = TextStyle(
-      fontSize: 12 * widthRatio,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
+  Future<void> checkInCode() async {
+    final code = await showDialog(
+      context: context,
+      builder: (context) => const EnterCodeDialog(),
     );
-    String scanBareCodeButtonIconPath = "assets/icons/barcode_scanner.png";
-    Color scanBareCodeButtonIconColor = Colors.white;
-    return Container(
-      width: 200 * widthRatio,
-      height: 30 * heightRatio,
-      alignment: Alignment.center,
-      child: ElevatedButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (ctx) => QRViewWidget(
-                onScan: (code) {
-                  if (code != null) {
-                    Navigator.of(context).pop(code);
-                  }
-                },
-              ),
-            ),
-          );
-          if (result == null) {
-            return;
-          }
-          setState(() {
-            _isCheckInButtonLoading = true;
-          });
-          try {
-            // var attendance = await checkIn();
-            // Message de succès dans l'interface utilisateur
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    result,
-                    style: TextStyle(
-                      fontSize: 12 * widthRatio,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
-                  ),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-          } catch (e) {
-            // Message d'erreur dans l'interface utilisateur
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Erreur lors du démarrage de la journée: $e",
-                    style: TextStyle(
-                      fontSize: 12 * widthRatio,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
-                  ),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          } finally {
-            // Activer le bouton
-            setState(() {
-              _isCheckInButtonLoading = false;
-            });
-          }
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              scanBareCodeButtonText,
-              style: scanBareCodeButtonTextStyle,
-            ),
-            const Spacer(),
-            Image.asset(
-              scanBareCodeButtonIconPath,
-              width: 20 * widthRatio,
-              height: 20 * heightRatio,
-              color: scanBareCodeButtonIconColor,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// EnterCodeButton
-  /// Le contenu du bouton est :
-  ///   - "ENTREZ LE CODE PIN
-  ///   - "Icone de Clé"
-  /// Au clic sur le bouton, on ouvre une boite de dialogue demandant le code et attendons le résultat
-
-  Widget _buildEnterCodeButton(BuildContext context) {
-    const enterCodeButtonText = "ENTREZ LE CODE PIN";
-    var enterCodeButtonTextStyle = TextStyle(
-      fontSize: 12 * widthRatio,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    );
-    String enterCodeButtonIconPath = "assets/icons/vpn_key.png";
-    Color iconColor = Colors.white;
-    return Container(
-      width: 200 * widthRatio,
-      height: 30 * heightRatio,
-      alignment: Alignment.center,
-      child: ElevatedButton(
-        onPressed: () async {
-          final result = await showDialog(
-            context: context,
-            builder: (context) => const EnterCodeDialog(),
-          );
-          if (result == null) {
-            return;
-          }
-          await _checkInWithCode(context, result);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              enterCodeButtonText,
-              style: enterCodeButtonTextStyle,
-            ),
-            const Spacer(),
-            Image.asset(
-              enterCodeButtonIconPath,
-              width: 20 * widthRatio,
-              height: 20 * heightRatio,
-              color: iconColor,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _checkInWithCode(BuildContext context, String code) async {
-    setState(() {
-      _isCheckInButtonLoading = true;
-    });
+    if (code == null) {
+      return;
+    }
     var emps = await OdooModel('hr.employee').searchRead(
-      domain: [['id', '=', widget.employee.id], ['pin', '=', code]],
+      domain: [
+        ['id', '=', widget.employee.id],
+        ['pin', '=', code]
+      ],
       fieldNames: ['pin'],
     );
     if (emps.isEmpty) {
@@ -709,7 +455,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       return;
     }
     try {
-      var attendance = await checkIn();
+      await checkIn();
     } catch (e) {
       if (context.mounted) {
         // Message d'erreur dans l'interface utilisateur
@@ -727,11 +473,64 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
           ),
         );
       }
-    } finally {
-      // Activer le bouton
-      setState(() {
-        _isCheckInButtonLoading = false;
-      });
+    }
+  }
+
+  Future<void> checkInQRCode() async {
+    final String? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => const QRViewWidget(),
+      ),
+    );
+    if (result == null) {
+      return;
+    }
+    var emps = await OdooModel('hr.employee').searchRead(
+      domain: [
+        ['id', '=', widget.employee.id],
+        ['barcode', '=', result]
+      ],
+      fieldNames: ['barcode'],
+    );
+    if (emps.isEmpty) {
+      if (context.mounted) {
+        // Message d'erreur dans l'interface utilisateur
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors du démarrage de la journée: Code érroné",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+    try {
+      await checkIn();
+    } catch (e) {
+      // Message d'erreur dans l'interface utilisateur
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors du démarrage de la journée: $e",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
@@ -760,18 +559,30 @@ class EnterCodeDialogState extends State<EnterCodeDialog> {
   Widget build(BuildContext context) {
     const enterCodeDialogText = "Entrez le code PIN";
     var enterCodeDialogTextStyle = TextStyle(
-      fontSize: 12 * widthRatio,
+      fontSize: 16 * widthRatio,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0),
+      ),
+      backgroundColor: Colors.white,
+      title: const Text(enterCodeDialogText),
+      titleTextStyle: enterCodeDialogTextStyle,
+      actionsAlignment: MainAxisAlignment.center,
+      icon: Image.asset(
+        "assets/icons/vpn_key.png",
+        width: 30 * widthRatio,
+        height: 30 * heightRatio,
+        color: Colors.black,
+      ),
+      actions: [
+        _buildValidationButton(context),
+      ],
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            enterCodeDialogText,
-            style: enterCodeDialogTextStyle,
-          ),
           SizedBox(
             height: 10 * heightRatio,
           ),
@@ -782,11 +593,7 @@ class EnterCodeDialogState extends State<EnterCodeDialog> {
               border: OutlineInputBorder(),
               labelText: 'Code PIN',
             ),
-          ),
-          SizedBox(
-            height: 10 * heightRatio,
-          ),
-          _buildValidationButton(context),
+          )
         ],
       ),
     );
@@ -805,7 +612,7 @@ class EnterCodeDialogState extends State<EnterCodeDialog> {
       color: Colors.white,
     );
     return Container(
-      width: 200 * widthRatio,
+      width: double.infinity,
       height: 30 * heightRatio,
       alignment: Alignment.center,
       child: ElevatedButton(
@@ -827,6 +634,120 @@ class EnterCodeDialogState extends State<EnterCodeDialog> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CheckInButton extends StatefulWidget {
+  final double heightRatio;
+  final double widthRatio;
+  final String text;
+  final Function() onClick;
+  final Widget icon;
+
+  const CheckInButton({
+    super.key,
+    required this.heightRatio,
+    required this.widthRatio,
+    required this.onClick,
+    required this.text,
+    required this.icon,
+  });
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CheckInButtonState();
+  }
+}
+
+class _CheckInButtonState extends State<CheckInButton> {
+  bool _isCheckInButtonLoading = false;
+  final String _loadingText = "Veuillez patienter...";
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isCheckInButtonLoading) {
+      return _buildLoading(context);
+    }
+    return _buildCheckInButton(context);
+  }
+
+  Widget _buildLoading(BuildContext context) {
+    return Container(
+      width: widget.widthRatio * 200,
+      height: widget.heightRatio * 40,
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_loadingText),
+            ),
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            ),
+            const Spacer(),
+            widget.icon
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckInButton(BuildContext context) {
+    var checkInButtonTextStyle = TextStyle(
+      fontSize: widget.heightRatio * 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+
+    return Container(
+      height: widget.heightRatio * 40,
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 5 * widget.heightRatio,
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                _isCheckInButtonLoading = true;
+              });
+              try {
+                await widget.onClick();
+              } finally {
+                setState(() {
+                  _isCheckInButtonLoading = false;
+                });
+              }
+            },
+            child: SizedBox(
+              width: widget.widthRatio * 200,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.text,
+                    style: checkInButtonTextStyle,
+                  ),
+                  const Spacer(),
+                  widget.icon,
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
