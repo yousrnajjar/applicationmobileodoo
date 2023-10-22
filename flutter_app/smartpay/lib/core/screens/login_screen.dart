@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/core/providers/session_providers.dart';
@@ -17,10 +18,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _tokenController = TextEditingController();
-  final TextEditingController _databaseController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _tokenController =
+      TextEditingController(text: dotenv.env['ODOO_DEFAULT_TOKEN']);
+  final TextEditingController _databaseController =
+      TextEditingController(text: dotenv.env['ODOO_DATABASE_NAME']);
+  final TextEditingController _emailController =
+      TextEditingController(text: dotenv.env['ODOO_USER_EMAIL']);
+  final TextEditingController _passwordController =
+      TextEditingController(text: dotenv.env['ODOO_USER_PASSWORD']);
   bool _isLoading = false;
   bool _isTokenSend = false;
   User? _userInfo;
@@ -80,7 +85,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('An error occurred: $e'),
