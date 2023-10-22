@@ -20,7 +20,7 @@ class MainDrawer extends ConsumerStatefulWidget {
 
   final String? activePageName;
 
-  final Map<String,dynamic>? dataKwargs;
+  final Map<String, dynamic>? dataKwargs;
 
   const MainDrawer({
     required this.user,
@@ -71,12 +71,17 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       res = {"Pointage": InOutScreen(onTitleChanged: setTitle)};
     } else if (identifier == "leave") {
       res = {
-        "Congé": HolidayScreen(user: widget.user, onTitleChanged: setTitle, dataKwargs: widget.dataKwargs)
+        "Congé": HolidayScreen(
+            user: widget.user,
+            onTitleChanged: setTitle,
+            dataKwargs: widget.dataKwargs)
       };
     } else if (identifier == "expense") {
       res = {
-        "Note de frais":
-            ExpenseScreen(user: widget.user, onTitleChanged: setTitle, dataKwargs: widget.dataKwargs)
+        "Note de frais": ExpenseScreen(
+            user: widget.user,
+            onTitleChanged: setTitle,
+            dataKwargs: widget.dataKwargs)
       };
     }
     return res.entries.first;
@@ -156,8 +161,9 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
         title: Text(
           _title,
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.bold,
                 color: appBarForeground,
+                fontSize: 18,
               ),
         ),
         actions: [
