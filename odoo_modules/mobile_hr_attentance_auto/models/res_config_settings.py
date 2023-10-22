@@ -59,6 +59,12 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="mobile_hr_attentance_auto.app_check_in_auto_notification_message",
     )
 
+    app_attendance_created_days_difference = fields.Integer(
+        string="Nombre de jour limit pour afficher les pointages",
+        help="Nombre de jour limit pour afficher les pointages",
+        default=60,
+        config_parameter="mobile_hr_attentance_auto.app_attendance_created_days_difference",
+    )
     # @api.model
     # def get_values(self):
     #     """ Override to add attendance automation settings. """

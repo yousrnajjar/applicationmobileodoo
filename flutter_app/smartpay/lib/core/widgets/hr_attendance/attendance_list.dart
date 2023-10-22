@@ -21,16 +21,47 @@ class _AttendanceListState extends State<AttendanceList> {
     if (kDebugMode) {
       print("AttendanceList _getAttendances: ${widget.employeeId}");
     }
+    var daysDelta = await attendanceCreatedDaysDelta();
+    DateTime utcDate2MonthBefore =
+        DateTime.now().subtract(Duration(days: daysDelta));
+
     var attendanceData = await OdooModel("hr.attendance").searchRead(
       domain: [
-        ["employee_id", "=", widget.employeeId]
+        ["employee_id", "=", widget.employeeId],
+        ['create_date', '>', dateFormatter.format(utcDate2MonthBefore)]
       ],
       fieldNames: ["employee_id", "check_in", "check_out", "worked_hours"],
     );
     if (kDebugMode) {
       print("AttendanceList _getAttendances: $attendanceData");
     }
-    return attendanceData.map<Attendance>((json) => Attendance.fromJson(json)).toList();
+    return attendanceData
+        .map<Attendance>((json) => Attendance.fromJson(json))
+        .toList();
+  }
+
+  Future<int> attendanceCreatedDaysDelta() async {
+    try {
+      var fieldNames = ['key', 'value'];
+      var domain = [
+        [
+          'key',
+          'in',
+          ['mobile_hr_attentance_auto.app_attendance_created_days_difference']
+        ]
+      ];
+      var response = await OdooModel('ir.config_parameter')
+          .searchRead(domain: domain, order: 'id desc', fieldNames: fieldNames);
+      if (kDebugMode) {
+        print(response);
+      }
+      return int.parse(response[0]['value']);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return 60;
+    }
   }
 
   @override

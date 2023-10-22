@@ -21,6 +21,9 @@
                                 <field name="check_out_start_time"/>
                                 <field name="check_out_end_time"/>
                             </group>
+                            <group>
+                                <field name="app_attendance_created_days_difference"/>
+                            </group>
                         </group>
                         <group>
                             <field name="app_check_out_forget_notification_message"/>
