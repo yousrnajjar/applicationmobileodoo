@@ -98,6 +98,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     'hr.leave': 'assets/icons/holiday.jpeg'
   };
 
+  List<Map<String, dynamic>>? notifications;
+
   void onNotificationTap(String model, int resId) {
     String page = 'dashboard';
     Map<String, dynamic> dataKwargs = {
@@ -129,33 +131,38 @@ class _NotificationScreenState extends State<NotificationScreen> {
       appBar: AppBar(
         title: const Text('Notifications'),
       ),
+      floatingActionButton: CircleAvatar(
+        child: IconButton(
+          onPressed: markAllRead,
+          icon: const Icon(Icons.clear_all),
+        ),
+      ),
       body: FutureBuilder(
         future: getNotifications(widget.user.partnerId),
         builder: (context, snapshot) {
           if (kDebugMode) {
             print(snapshot);
           }
+          notifications = snapshot.data;
           if (snapshot.hasError) {
             return Center(
               child: Text('Erreur de connexion ${snapshot.error}'),
             );
           } else if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data == null) {
+              notifications == null) {
             return const Center(
               child: Text('Pas de notifications'),
             );
-          } else if (snapshot.hasData && snapshot.data != null) {
+          } else if (snapshot.hasData && notifications != null) {
             return ListView.builder(
-              itemCount: snapshot.data!.length,
+              itemCount: notifications!.length,
               itemBuilder: (context, index) {
-                Map<String, dynamic> notification = snapshot.data![index];
+                Map<String, dynamic> notification = notifications![index];
                 if (notification['mail_message'] == null) {
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundImage:
-                      Image
-                          .asset('assets/icons/notif.jpeg')
-                          .image,
+                          Image.asset('assets/icons/notif.jpeg').image,
                     ),
                     title: const Text('Notification'),
                     subtitle: const Text('Notification'),
@@ -199,5 +206,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
         },
       ),
     );
+  }
+
+  Future<void> markAllRead() async {
+    if (notifications == null) {
+      return;
+    }
+    var ids = notifications!.map((e) => e["id"]).toList();
+    OdooModel.session.write('mail.notification', ids, {'is_read': true});
+    setState(() {});
   }
 }
