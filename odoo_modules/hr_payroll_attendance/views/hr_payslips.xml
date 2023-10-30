@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <record id="action_view_attendance" model="ir.actions.act_window">
+            <field name="name">Pointages</field>
+            <field name="res_model">hr.attendance</field>
+            <field name="view_mode">tree,form</field>
+            <field name="binding_view_types">list</field>
+            <field name="domain">[('payslips_id', '=', active_id)]</field>
+            <field name="context">{'search_default_employee_id': [employee_id]}</field>
+        </record>
+        <record id="view_hr_payslip_form" model="ir.ui.view">
+            <field name="name">hr.payslip.action.view.attendance</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="om_hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <button name="%(action_view_attendance)d"
+                            type="action"
+                            context="{'employee_id': employee_id}"
+                            string="Voir les pointages"
+                            class="oe_highlight"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

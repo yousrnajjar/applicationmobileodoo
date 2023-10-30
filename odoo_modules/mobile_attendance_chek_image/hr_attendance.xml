@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--    Ajoute les couleurs en fonction du status
+    invalid
+    check_in_image_valid
+    check_out_image_valid
+    valid
+    -->
+    <record id="hr_attendance_view_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.tree</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <field name="worked_hours" position="after">
+                <field name="state"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_attendance_view_form" model="ir.ui.view">
+        <field name="name">hr.attendance.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="mobile_attendance_image_gps.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="invalid,check_in_image_invalid,check_out_image_invalid,valid"
+                           statusbar_colors='{"invalid": "red", "check_in_image_invalid": "orange", "check_out_image_invalid": "orange", "valid": "green"}'/>
+                </header>
+            </xpath>
+            <field name="check_in_image" position="after">
+                <field name="is_check_in_image_valid"/>
+                <span class="badge badge-pill badge-warning"
+                      attrs="{'invisible': [('is_check_in_image_valid', '=', True)]}">
+                    Non valide
+                </span>
+                <span class="badge badge-pill badge-success"
+                      attrs="{'invisible': [('is_check_in_image_valid', '=', False)]}">
+                    Valide
+                </span>
+            </field>
+            <field name="check_out_image" position="after">
+                <field name="is_check_out_image_valid"/>
+                <span class="badge badge-pill badge-warning"
+                      attrs="{'invisible': [('is_check_out_image_valid', '=', True)]}">
+                    Non valide
+                </span>
+                <span class="badge badge-pill badge-success"
+                      attrs="{'invisible': [('is_check_out_image_valid', '=', False)]}">
+                    Valide
+                </span>
+            </field>
+        </field>
+    </record>
+</odoo>
+    
