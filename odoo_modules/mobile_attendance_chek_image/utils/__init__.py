@@ -6,5 +6,5 @@
 @Time 06:40
 
 """
-from .face_recognition import compare_faces
+from .face_recognition import compare_faces_using_service
 

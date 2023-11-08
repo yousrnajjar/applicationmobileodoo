@@ -11,7 +11,6 @@ Permet de vérifier l'image lors du pointage
     """,
 
     'author': "@jp-sft",
-    'website': "http://www.yourcompany.com",
 
     'category': 'Mobile',
     'version': '0.1',
@@ -19,8 +18,4 @@ Permet de vérifier l'image lors du pointage
     'data': [
         'hr_attendance.xml'
     ],
-    # dependence pip install face_recognition
-    'external_dependencies': {
-        'python': ['face_recognition'],
-    },
 }
