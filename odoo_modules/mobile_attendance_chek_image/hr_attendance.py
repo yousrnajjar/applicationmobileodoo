@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import binascii
 import logging
 
 from odoo import models, fields, api
@@ -90,7 +90,7 @@ class HrAttendance(models.Model):
                     attendance.is_check_in_image_valid = compare_faces_using_service(
                         employee_images, check_in_image
                     )
-                except Exception as e:
+                except binascii.Error as e:
                     _logger.error('Error: %s', e)
                     attendance.is_check_in_image_valid = False
             else:
@@ -113,7 +113,7 @@ class HrAttendance(models.Model):
                     attendance.is_check_out_image_valid = compare_faces_using_service(
                         employee_images, check_out_image
                     )
-                except Exception as e:
+                except binascii.Error as e:
                     _logger.error('Error: %s', e)
                     attendance.is_check_out_image_valid = False
             else:
