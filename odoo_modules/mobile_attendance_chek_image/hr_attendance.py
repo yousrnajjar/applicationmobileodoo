@@ -82,7 +82,6 @@ class HrAttendance(models.Model):
         res_config = self.env['res.config.settings'].sudo().get_values()
         if not res_config.get('mobile_attendance_chek_image.face_verification_service_path'):
             _logger.warning('No face verification service path')
-            return
         face_verification_service_path = res_config.get(
             'mobile_attendance_chek_image.face_verification_service_path'
         )
@@ -107,7 +106,6 @@ class HrAttendance(models.Model):
         res_config = self.env['res.config.settings'].sudo().get_values()
         if not res_config.get('mobile_attendance_chek_image.face_verification_service_path'):
             _logger.warning('No face verification service path')
-            return
         face_verification_service_path = res_config.get(
             'mobile_attendance_chek_image.face_verification_service_path'
         )
