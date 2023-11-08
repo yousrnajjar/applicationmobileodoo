@@ -30,6 +30,7 @@ def compare_faces_using_service(
     """
     Permet de comparer les images
     """
+    _logger.info("Compare faces using service: %s", check_image)
     with tempfile.TemporaryDirectory() as temp_dir:
         check_image_base64 = check_image.decode("utf-8")
         check_image_base64 += "=" * ((4 - len(check_image_base64) % 4) % 4)
