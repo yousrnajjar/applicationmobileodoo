@@ -61,13 +61,13 @@ def compare_faces_using_service(
             files=files,
         )
 
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError:
-            _logger.error("Response: %s", response.json())
-            _logger.exception("Bad thing happened")
-            return False
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        _logger.error("Response: %s", response.json())
+        _logger.exception("Bad thing happened")
+        return False
 
-        resulat = response.json()
-        _logger.info("Resultat: %s", resulat)
-        return resulat["is_verified"]
+    resulat = response.json()
+    _logger.info("Resultat: %s", resulat)
+    return resulat["is_verified"]

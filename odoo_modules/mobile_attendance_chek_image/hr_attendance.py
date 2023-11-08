@@ -86,9 +86,13 @@ class HrAttendance(models.Model):
                 _logger.warning('No employee image: %s', attendance.id)
                 continue
             if check_in_image:
-                attendance.is_check_in_image_valid = compare_faces_using_service(
-                    employee_images, check_in_image
-                )
+                try:
+                    attendance.is_check_in_image_valid = compare_faces_using_service(
+                        employee_images, check_in_image
+                    )
+                except Exception as e:
+                    _logger.error('Error: %s', e)
+                    attendance.is_check_in_image_valid = False
             else:
                 _logger.warning('No check in image: %s', attendance.id)
 
@@ -105,9 +109,13 @@ class HrAttendance(models.Model):
                 _logger.warning('No employee image: %s', attendance.id)
                 continue
             if check_out_image:
-                attendance.is_check_out_image_valid = compare_faces_using_service(
-                    employee_images, check_out_image
-                )
+                try:
+                    attendance.is_check_out_image_valid = compare_faces_using_service(
+                        employee_images, check_out_image
+                    )
+                except Exception as e:
+                    _logger.error('Error: %s', e)
+                    attendance.is_check_out_image_valid = False
             else:
                 _logger.warning('No check out image: %s', attendance.id)
 
