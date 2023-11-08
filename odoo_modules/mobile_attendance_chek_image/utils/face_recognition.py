@@ -24,7 +24,7 @@ SERVICE_URL = "http://localhost:8000/verify"
 
 def compare_faces_using_service(
         employee_images: typing.List[bytes],
-        check_image: typing.Bytes,
+        check_image: bytes,
         service_url = SERVICE_URL
 ) -> bool:
     """
