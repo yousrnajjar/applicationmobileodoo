@@ -31,13 +31,19 @@ def compare_faces_using_service(
     Permet de comparer les images
     """
     with tempfile.TemporaryDirectory() as temp_dir:
-        img = Image.open(io.BytesIO(base64.b64decode(check_image)))
+        check_image_base64 = check_image.decode("utf-8")
+        check_image_base64 += "=" * ((4 - len(check_image_base64) % 4) % 4)
+        decode = base64.b64decode(check_image_base64)
+        img = Image.open(io.BytesIO(decode))
         ext = img.format.lower()
         check_image_path = os.path.join(temp_dir, f"{uuid.uuid4()}.{ext}")
         img.save(check_image_path)
         employee_image_paths = []
         for employee_image in employee_images:
-            img = Image.open(io.BytesIO(base64.b64decode(employee_image)))
+            employee_image_base64 = employee_image.decode("utf-8")
+            employee_image_base64 += "=" * ((4 - len(employee_image_base64) % 4) % 4)
+            decode = base64.b64decode(employee_image_base64)
+            img = Image.open(io.BytesIO(decode))
             ext = img.format.lower()
             employee_image_path = os.path.join(temp_dir, f"{uuid.uuid4()}.{ext}")
             employee_image_paths.append(employee_image_path)

@@ -74,7 +74,7 @@ class HrAttendance(models.Model):
             else:
                 attendance.state = 'invalid'
 
-    @api.depends('employee_image', 'check_in_image')
+    @api.depends('employee_id', 'employee_image', 'check_in_image')
     def _check_in_image_valid(self):
         """
         Permet de vérifier l'image lors du pointage
@@ -92,7 +92,7 @@ class HrAttendance(models.Model):
             else:
                 _logger.warning('No check in image: %s', attendance.id)
 
-    @api.depends('employee_image', "check_out_image")
+    @api.depends('employee_id', 'employee_image', "check_out_image")
     def _check_out_image_valid(self):
         """
         Permet de vérifier l'image lors du pointage
