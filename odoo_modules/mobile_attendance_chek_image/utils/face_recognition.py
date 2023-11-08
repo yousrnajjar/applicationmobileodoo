@@ -6,7 +6,7 @@
 @Time 06:38
 
 """
-
+import typing
 import base64
 import io
 import logging
@@ -23,9 +23,9 @@ SERVICE_URL = "http://localhost:8000/verify"
 
 
 def compare_faces_using_service(
-        employee_images: list[bytes],
-        check_image: bytes,
-        service_url: str = SERVICE_URL
+        employee_images: typing.List[bytes],
+        check_image: typing.Bytes,
+        service_url = SERVICE_URL
 ) -> bool:
     """
     Permet de comparer les images
