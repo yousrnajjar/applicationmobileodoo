@@ -79,12 +79,6 @@ class HrAttendance(models.Model):
         """
         Permet de vérifier l'image lors du pointage
         """
-        res_config = self.env['res.config.settings'].sudo().get_values()
-        if not res_config.get('mobile_attendance_chek_image.face_verification_service_path'):
-            _logger.warning('No face verification service path')
-        face_verification_service_path = res_config.get(
-            'mobile_attendance_chek_image.face_verification_service_path'
-        )
         for attendance in self:
             check_in_image = attendance.check_in_image
             employee_images = attendance.get_know_employee_images(use_check_in=True)
@@ -93,7 +87,7 @@ class HrAttendance(models.Model):
                 continue
             if check_in_image:
                 attendance.is_check_in_image_valid = compare_faces_using_service(
-                    employee_images, check_in_image, service_url=face_verification_service_path
+                    employee_images, check_in_image
                 )
             else:
                 _logger.warning('No check in image: %s', attendance.id)
@@ -103,12 +97,6 @@ class HrAttendance(models.Model):
         """
         Permet de vérifier l'image lors du pointage
         """
-        res_config = self.env['res.config.settings'].sudo().get_values()
-        if not res_config.get('mobile_attendance_chek_image.face_verification_service_path'):
-            _logger.warning('No face verification service path')
-        face_verification_service_path = res_config.get(
-            'mobile_attendance_chek_image.face_verification_service_path'
-        )
         for attendance in self:
             employee_images = attendance.get_know_employee_images(use_check_in=False)
             check_out_image = attendance.check_out_image
@@ -118,7 +106,7 @@ class HrAttendance(models.Model):
                 continue
             if check_out_image:
                 attendance.is_check_out_image_valid = compare_faces_using_service(
-                    employee_images, check_out_image, service_url=face_verification_service_path
+                    employee_images, check_out_image
                 )
             else:
                 _logger.warning('No check out image: %s', attendance.id)

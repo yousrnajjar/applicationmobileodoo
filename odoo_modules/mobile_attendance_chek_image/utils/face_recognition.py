@@ -19,7 +19,7 @@ from PIL import Image
 
 _logger = logging.getLogger(__name__)
 
-SERVICE_URL = "http://localhost:8000/verify"
+SERVICE_URL = "http://127.0.0.1:8000/verify"
 
 
 def compare_faces_using_service(
