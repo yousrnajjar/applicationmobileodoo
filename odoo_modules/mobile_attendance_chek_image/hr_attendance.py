@@ -98,10 +98,10 @@ class HrAttendance(models.Model):
         )
 
     def doc_check_out_image_valid(self):
-        self.do_check_image_valid(image_field_name='check_out_image')
+        self.is_check_out_image_valid = self.do_check_image_valid(image_field_name='check_out_image')
 
     def do_check_in_image_valid(self):
-        self.do_check_image_valid(image_field_name='check_in_image')
+        self.is_check_in_image_valid = self.do_check_image_valid(image_field_name='check_in_image')
 
     def action_check_image(self):
         for record in self:
