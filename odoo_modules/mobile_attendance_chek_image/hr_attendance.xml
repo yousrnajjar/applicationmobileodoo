@@ -25,6 +25,7 @@
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="before">
                 <header>
+                    <button name="action_check_image" string="Vérifier" type="object"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="invalid,check_in_image_invalid,check_out_image_invalid,valid"
                            statusbar_colors='{"invalid": "red", "check_in_image_invalid": "orange", "check_out_image_invalid": "orange", "valid": "green"}'/>

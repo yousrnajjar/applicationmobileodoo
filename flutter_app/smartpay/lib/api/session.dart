@@ -312,7 +312,7 @@ class Session implements AuthInterface, CallInterface {
   DateTime toLocalTime(DateTime dateTimeUtc) {
     var now = DateTime.now();
     var localOffset = now.timeZoneOffset;
-    var diff = localOffset - Duration(hours: 0, minutes: 0);
+    var diff = localOffset - const Duration(hours: 0, minutes: 0);
     return dateTimeUtc.add(diff);
   }
 }

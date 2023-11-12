@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/allocation.dart';
@@ -12,6 +13,8 @@ import 'hr_attendance.dart';
 
 // Base size
 var baseSize = const Size(319, 512);
+
+enum CheckInType { manual, qrCode, code }
 
 class CheckInCheckOutForm extends StatefulWidget {
   final EmployeeAllInfo employee;
@@ -40,6 +43,8 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
 
   bool _enteringCode = false;
 
+  String? check_error;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +53,13 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
 
   @override
   Widget build(BuildContext context) {
+    if (check_error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(check_error!),
+        ),
+      );
+    }
     var size = MediaQuery.of(context).size;
     var width = size.width;
     var height = size.height;
@@ -158,7 +170,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
                             height: 5 * heightRatio,
                           ),
                           // checkInButton
-                          if (haveCheckInButton) _buildCheckInButtons(context),
+                          if (haveCheckInButton) _buildCheckInButtons(),
                           // checkOutButton
                           if (haveCheckOutButton)
                             CheckInButton(
@@ -326,18 +338,41 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     }
   }
 
-  Future<Map<String, dynamic>> checkIn() async {
+  Future<Map<String, dynamic>?> _check() async {
     return await attendance.getOrCheck(check: true);
   }
 
-  Future<Map<String, dynamic>> checkOut() async {
-    return await attendance.getOrCheck(check: true);
+  Future<Map<String, dynamic>?> checkIn() async {
+    return await _check();
+  }
+
+  Future<Map<String, dynamic>?> checkOut() async {
+    return await _check();
+  }
+
+  Future<void> checkInAction(CheckInType type) async {
+    bool canCheckIn = true;
+    if (type == CheckInType.qrCode) {
+      canCheckIn = await checkInQRCodeValid();
+    } else if (type == CheckInType.code) {
+      canCheckIn = await checkCodeValid();
+    }
+    if (canCheckIn) {
+      try {
+        await checkIn();
+      } on OdooErrorException catch (e) {
+        onCheckError(e);
+      }
+    }
+    setState(() {});
   }
 
   void checkOutAction() async {
     try {
       await checkOut();
       setState(() {});
+    } on OdooErrorException catch (e) {
+      onCheckError(e);
     } catch (e) {
       // Message d'erreur dans l'interface utilisateur
       ScaffoldMessenger.of(context).showSnackBar(
@@ -356,9 +391,29 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     }
   }
 
+  void onCheckError(OdooErrorException e) {
+    if (e.errorType != 'user_error') {
+      throw e;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          e.message,
+          style: TextStyle(
+            fontSize: 12 * widthRatio,
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.orangeAccent,
+      ),
+    );
+    setState(() {});
+  }
+
   /// CheckInButtons
 
-  Widget _buildCheckInButtons(BuildContext context) {
+  Widget _buildCheckInButtons() {
     return ListView(
       shrinkWrap: true,
       children: [
@@ -371,8 +426,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
             color: Colors.white,
           ),
           onClick: () async {
-            await checkIn();
-            setState(() {});
+            await checkInAction(CheckInType.manual);
           },
         ),
         SizedBox(
@@ -389,8 +443,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
             color: Colors.white,
           ),
           onClick: () async {
-            await checkInQRCode();
-            setState(() {});
+            await checkInAction(CheckInType.qrCode);
           },
         ),
         SizedBox(
@@ -407,26 +460,26 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
             color: Colors.white,
           ),
           onClick: () async {
-            setState(() {
-              _enteringCode = true;
-            });
-            await checkInCode();
-            setState(() {
-              _enteringCode = false;
-            });
+            await checkInAction(CheckInType.code);
           },
         )
       ],
     );
   }
 
-  Future<void> checkInCode() async {
+  Future<bool> checkCodeValid() async {
+    setState(() {
+      _enteringCode = true;
+    });
     final code = await showDialog(
       context: context,
       builder: (context) => const EnterCodeDialog(),
     );
+    setState(() {
+      _enteringCode = false;
+    });
     if (code == null) {
-      return;
+      return false;
     }
     var emps = await OdooModel('hr.employee').searchRead(
       domain: [
@@ -452,31 +505,12 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
           ),
         );
       }
-      return;
+      return false;
     }
-    try {
-      await checkIn();
-    } catch (e) {
-      if (context.mounted) {
-        // Message d'erreur dans l'interface utilisateur
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Erreur lors du démarrage de la journée: $e",
-              style: TextStyle(
-                fontSize: 12 * widthRatio,
-                fontWeight: FontWeight.normal,
-                color: Colors.black,
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    return true;
   }
 
-  Future<void> checkInQRCode() async {
+  Future<bool> checkInQRCodeValid() async {
     final String? result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -484,7 +518,7 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       ),
     );
     if (result == null) {
-      return;
+      return false;
     }
     var emps = await OdooModel('hr.employee').searchRead(
       domain: [
@@ -510,28 +544,9 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
           ),
         );
       }
-      return;
+      return false;
     }
-    try {
-      await checkIn();
-    } catch (e) {
-      // Message d'erreur dans l'interface utilisateur
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Erreur lors du démarrage de la journée: $e",
-              style: TextStyle(
-                fontSize: 12 * widthRatio,
-                fontWeight: FontWeight.normal,
-                color: Colors.black,
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    return true;
   }
 }
 

@@ -150,8 +150,8 @@ class ContractDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Row(
-                  children: [
+                Row(
+                  children: const [
                     Text(
                       'Type de contrat : ',
                       style: TextStyle(

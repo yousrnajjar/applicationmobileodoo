@@ -22,7 +22,7 @@ class CheckInCheckOutFormWithPicture extends CheckInCheckOutForm {
 
 class _CheckInCheckOutFormWithPictureState extends CheckInCheckOutFormState {
   @override
-  Future<Map<String, dynamic>> checkIn() async {
+  Future<Map<String, dynamic>?> checkIn() async {
     final Uint8List bytes = await takePicture();
     Position position = await getPosition();
     var att = await super.checkIn();
@@ -40,7 +40,7 @@ class _CheckInCheckOutFormWithPictureState extends CheckInCheckOutFormState {
   }
 
   @override
-  Future<Map<String, dynamic>> checkOut() async {
+  Future<Map<String, dynamic>?> checkOut() async {
     final Uint8List bytes = await takePicture();
     Position position = await getPosition();
     var att = await super.checkOut();

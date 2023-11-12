@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-import binascii
+import requests
+import io
+import uuid
+
+import typing
+
+import base64
+
 import logging
 
-from odoo import models, fields, api
-
-from .utils import compare_faces_using_service
+from odoo import models, fields, api, exceptions
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -32,16 +38,16 @@ class HrAttendance(models.Model):
     # Check In
     is_check_in_image_valid = fields.Boolean(
         string='Check In Image Valid',
-        compute='_check_in_image_valid',
-        store=True,
+        # compute='_check_in_image_valid',
+        # store=True,
         help="Check In Image Valid",
         readonly=False,
     )
     # Check Out
     is_check_out_image_valid = fields.Boolean(
         string='Check Out Image Valid',
-        compute='_check_out_image_valid',
-        store=True,
+        # compute='_check_out_image_valid',
+        # store=True,
         help="Check Out Image Valid",
         readonly=False,
     )
@@ -74,52 +80,35 @@ class HrAttendance(models.Model):
             else:
                 attendance.state = 'invalid'
 
-    @api.depends('employee_id', 'employee_image', 'check_in_image')
-    def _check_in_image_valid(self):
+    def do_check_image_valid(self, image_field_name, use_check_in=False):
         """
         Permet de vérifier l'image lors du pointage
         """
-        for attendance in self:
-            check_in_image = attendance.check_in_image
-            employee_images = attendance.get_know_employee_images(use_check_in=True)
-            if not employee_images:
-                _logger.warning('No employee image: %s', attendance.id)
-                continue
-            if check_in_image:
-                try:
-                    attendance.is_check_in_image_valid = compare_faces_using_service(
-                        employee_images, check_in_image
-                    )
-                except binascii.Error as e:
-                    _logger.error('Error: %s', e)
-                    attendance.is_check_in_image_valid = False
-            else:
-                _logger.warning('No check in image: %s', attendance.id)
+        self.ensure_one()
+        image = getattr(self, image_field_name)  # type: fields.Image
+        if not image:
+            raise exceptions.UserError(f'Pointage non valide: {self}')
 
-    @api.depends('employee_id', 'employee_image', "check_out_image")
-    def _check_out_image_valid(self):
-        """
-        Permet de vérifier l'image lors du pointage
-        """
-        for attendance in self:
-            employee_images = attendance.get_know_employee_images(use_check_in=False)
-            check_out_image = attendance.check_out_image
+        employee_images = self._get_know_employee_images(use_check_in=use_check_in)
+        if not employee_images:
+            raise exceptions.UserError(f'No employee image: {self}')
+        check_out_image = self._read_image(image_field_name)
+        return self._compare_faces_using_service(
+            employee_images, check_out_image
+        )
 
-            if not employee_images:
-                _logger.warning('No employee image: %s', attendance.id)
-                continue
-            if check_out_image:
-                try:
-                    attendance.is_check_out_image_valid = compare_faces_using_service(
-                        employee_images, check_out_image
-                    )
-                except binascii.Error as e:
-                    _logger.error('Error: %s', e)
-                    attendance.is_check_out_image_valid = False
-            else:
-                _logger.warning('No check out image: %s', attendance.id)
+    def doc_check_out_image_valid(self):
+        self.do_check_image_valid(image_field_name='check_out_image')
 
-    def get_know_employee_images(self, use_check_in=False, limit=10):
+    def do_check_in_image_valid(self):
+        self.do_check_image_valid(image_field_name='check_in_image')
+
+    def action_check_image(self):
+        for record in self:
+            record.doc_check_out_image_valid()
+            record.do_check_in_image_valid()
+
+    def _get_know_employee_images(self, use_check_in=False, limit=10):
         """
         Permet de récupérer les images de l'employé qui sont connues et qui sont valides
         """
@@ -127,14 +116,80 @@ class HrAttendance(models.Model):
         res = []
         profil = self.employee_image
         if profil:
-            res.append(profil)
+            res.append(self._read_image('employee_image'))
         domain = [
             ('employee_id', '=', self.employee_id.id),
             ('state', '=', 'valid'),
         ]
         if use_check_in:
-            images = self.search(domain, order='check_in desc', limit=limit).mapped('check_in_image')
+            images = self.search(domain, order='check_in desc', limit=limit).mapped(
+                lambda x: self._read_image('check_in_image')
+            )
+
         else:
-            images = self.search(domain, order='check_out desc', limit=limit).mapped('check_out_image')
+            images = self.search(domain, order='check_out desc', limit=limit).mapped(
+                lambda x: self._read_image('check_out_image')
+            )
         res.extend(images)
+        return res
+
+    def _read_image(self, field):
+        status, headers, image_base64 = request.env['ir.http'].binary_content(
+            xmlid=None, model=self._name, id=self.id, field=field, unique=None, filename="employee.png",
+            filename_field=None, default_mimetype='image/png')
+        return image_base64, [v for k, v in headers if k == 'Content-Type'][0]
+
+    @api.model
+    def _compare_faces_using_service(
+            self,
+            employee_images: typing.List[typing.Tuple[bytes, str]],
+            check_image: typing.Tuple[bytes, str],
+            raise_error: bool = True
+    ) -> bool:
+        """
+        Permet de comparer les images
+        """
+        service_url = "http://127.0.0.1:8000/verify"
+        image_file, context_type = check_image
+        ext = context_type.split('/')[1]
+        files = [("image_file", (f"{uuid.uuid4()}.{ext}", io.BytesIO(base64.b64decode(image_file))))]
+        for known_image_file, context_type in employee_images:
+            ext = context_type.split('/')[1]
+            files.append(
+                ("known_image_files",
+                 (f"{uuid.uuid4()}.{ext}", io.BytesIO(base64.b64decode(known_image_file)), f'image/{ext}'))
+            )
+
+        response = requests.post(
+            service_url,
+            files=files,
+        )
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            _logger.error("Response: %s", response.json())
+            raise exceptions.UserError(response.json())
+
+        results = response.json()
+        is_verified = results["is_verified"]
+        if not is_verified and raise_error:
+            raise exceptions.UserError(results['reason'])
+        return is_verified
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'check_in_image' in vals:
+            self.do_check_in_image_valid()
+        if 'check_out_image' in vals:
+            self.doc_check_out_image_valid()
+        return res
+
+    @api.model
+    def create(self, vals_list):
+        res = super().create(vals_list)
+        if res.check_in_image:
+            self.do_check_in_image_valid()
+        if res.check_out_image:
+            self.doc_check_out_image_valid()
         return res

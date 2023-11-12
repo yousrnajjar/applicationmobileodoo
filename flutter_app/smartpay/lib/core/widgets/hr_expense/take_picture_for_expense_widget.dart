@@ -521,11 +521,11 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
   ///
   Widget _buildStarted(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.all(30),
-        child: const Column(
+        padding: const EdgeInsets.all(30),  
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
             Text('Prendre une photo de la note de frais',
                 style: TextStyle(fontSize: 20, color: Colors.white)),
             Text(''),
