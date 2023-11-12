@@ -168,8 +168,8 @@ class HrAttendance(models.Model):
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError:
-            _logger.error("Response: %s", response.json())
-            raise exceptions.UserError(response.json())
+            _logger.error("Response: %s", response.status_code)
+            raise exceptions.UserError("Problème dans le serveur de reconnaissance d'image")
 
         results = response.json()
         is_verified = results["is_verified"]
