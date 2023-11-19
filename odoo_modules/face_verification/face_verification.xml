@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="group_face_verification" model="res.groups">
+            <field name="name">Face Vérification Manager</field>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record id="service_localhost" model="face_verification.service">
+            <field name="name">Localhost 8000</field>
+            <field name="raise_for_service_status" eval="False"/>
+            <field name="verif_service_url">http://127.0.0.1:8000/verify</field>
+            <field name="model_name">VGG-Face</field>
+            <field name="detector_backend">opencv</field>
+            <field name="distance_metric">cosine</field>
+            <field name="distance_metric">cosine</field>
+            <field name="align" eval="True"/>
+            <field name="enforce_detection" eval="False"/>
+        </record>
+
+        <record id="face_verification_service_view_form" model="ir.ui.view">
+            <field name="name">face_verification.service.form</field>
+            <field name="model">face_verification.service</field>
+            <field name="groups_id" eval="[(4,ref('face_verification.group_face_verification'))]"/>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="verif_service_url"/>
+                        </group>
+
+                        <group string="Gestion d'erreur">
+                            <field name="raise_for_service_status"/>
+                            <field name="raise_for_connection_error"/>
+                        </group>
+                        <group string="Paramètre du service">
+                            <field name="model_name"/>
+                            <field name="detector_backend"/>
+                            <field name="distance_metric"/>
+                            <field name="align"/>
+                            <field name="enforce_detection"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="face_verification_service_view_tree" model="ir.ui.view">
+            <field name="name">face_verification.service.form</field>
+            <field name="model">face_verification.service</field>
+            <field name="groups_id" eval="[(4,ref('face_verification.group_face_verification'))]"/>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="verif_service_url"/>
+                    <field name="raise_for_service_status"/>
+                    <field name="model_name"/>
+                    <field name="detector_backend"/>
+                    <field name="distance_metric"/>
+                    <field name="align"/>
+                    <field name="enforce_detection"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="face_verification_service_action">
+            <field name="name">Services de vérification</field>
+            <field name="res_model">face_verification.service</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="face_verification_service_view_tree"/>
+        </record>
+    </data>
+</odoo>

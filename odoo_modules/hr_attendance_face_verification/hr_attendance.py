@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import requests
 import io
 import uuid
@@ -63,6 +64,12 @@ class HrAttendance(models.Model):
         store=True,
     )
 
+    face_verification_service_id = fields.Many2one(
+        comodel_name='face_verification.service',
+        string='Service de vérification',
+        default=lambda self: self.env['face_verification.service'].search([], limit=1)[0].id
+    )
+
     @api.depends('is_check_in_image_valid', 'is_check_out_image_valid')
     def _compute_state(self):
         """
@@ -87,28 +94,34 @@ class HrAttendance(models.Model):
         self.ensure_one()
         image = getattr(self, image_field_name)  # type: fields.Image
         if not image:
-            raise exceptions.UserError(f'Pointage non valide: {self}')
+            raise exceptions.UserError(f'{image_field_name} non présent: {self}')
 
         employee_images = self._get_know_employee_images(use_check_in=use_check_in)
         if not employee_images:
             raise exceptions.UserError(f'No employee image: {self}')
         check_out_image = self._read_image(image_field_name)
-        return self._compare_faces_using_service(
+        return self.face_verification_service_id.compare_faces(
             employee_images, check_out_image
         )
 
     def doc_check_out_image_valid(self):
-        self.is_check_out_image_valid = self.do_check_image_valid(image_field_name='check_out_image')
+        if self.check_out_image:
+            self.is_check_out_image_valid = self.do_check_image_valid(image_field_name='check_out_image')
+        else:
+            self.is_check_out_image_valid = False
 
     def do_check_in_image_valid(self):
-        self.is_check_in_image_valid = self.do_check_image_valid(image_field_name='check_in_image')
+        if self.check_in_image:
+            self.is_check_in_image_valid = self.do_check_image_valid(image_field_name='check_in_image')
+        else:
+            self.is_check_in_image_valid = False
 
     def action_check_image(self):
         for record in self:
             record.doc_check_out_image_valid()
             record.do_check_in_image_valid()
 
-    def _get_know_employee_images(self, use_check_in=False, limit=10):
+    def _get_know_employee_images(self, use_check_in=False, limit=5):
         """
         Permet de récupérer les images de l'employé qui sont connues et qui sont valides
         """
@@ -138,44 +151,6 @@ class HrAttendance(models.Model):
             xmlid=None, model=self._name, id=self.id, field=field, unique=None, filename="employee.png",
             filename_field=None, default_mimetype='image/png')
         return image_base64, [v for k, v in headers if k == 'Content-Type'][0]
-
-    @api.model
-    def _compare_faces_using_service(
-            self,
-            employee_images: typing.List[typing.Tuple[bytes, str]],
-            check_image: typing.Tuple[bytes, str],
-            raise_error: bool = True
-    ) -> bool:
-        """
-        Permet de comparer les images
-        """
-        service_url = "http://127.0.0.1:8000/verify"
-        image_file, context_type = check_image
-        ext = context_type.split('/')[1]
-        files = [("image_file", (f"{uuid.uuid4()}.{ext}", io.BytesIO(base64.b64decode(image_file))))]
-        for known_image_file, context_type in employee_images:
-            ext = context_type.split('/')[1]
-            files.append(
-                ("known_image_files",
-                 (f"{uuid.uuid4()}.{ext}", io.BytesIO(base64.b64decode(known_image_file)), f'image/{ext}'))
-            )
-
-        response = requests.post(
-            service_url,
-            files=files,
-        )
-
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError:
-            _logger.error("Response: %s", response.status_code)
-            raise exceptions.UserError("Problème dans le serveur de reconnaissance d'image")
-
-        results = response.json()
-        is_verified = results["is_verified"]
-        if not is_verified and raise_error:
-            raise exceptions.UserError(results['reason'])
-        return is_verified
 
     def write(self, vals):
         res = super().write(vals)

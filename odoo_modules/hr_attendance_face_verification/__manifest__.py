@@ -11,10 +11,9 @@ Permet de vérifier l'image lors du pointage
     """,
 
     'author': "@jp-sft",
-
-    'category': 'Mobile',
+    'category': 'hr, AI',
     'version': '0.1',
-    'depends': ['base', 'mobile_attendance_image_gps'],
+    'depends': ['base', 'hr_attendance', 'mobile_attendance_image_gps', 'face_verification'],
     'data': [
         'hr_attendance.xml'
     ],

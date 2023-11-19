@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!--    Ajoute les couleurs en fonction du status
-    invalid
-    check_in_image_valid
-    check_out_image_valid
-    valid
-    -->
+    <record id="hr_attendance.group_hr_attendance_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('face_verification.group_face_verification'))]"/>
+    </record>
+
     <record id="hr_attendance_view_tree" model="ir.ui.view">
         <field name="name">hr.attendance.tree</field>
         <field name="model">hr.attendance</field>
         <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="groups_id" eval="[(4,ref('hr_attendance.group_hr_attendance_manager'))]"/>
         <field name="arch" type="xml">
             <field name="worked_hours" position="after">
                 <field name="state"/>
@@ -22,6 +21,7 @@
         <field name="name">hr.attendance.form</field>
         <field name="model">hr.attendance</field>
         <field name="inherit_id" ref="mobile_attendance_image_gps.hr_attendance_view_form"/>
+        <field name="groups_id" eval="[(4,ref('hr_attendance.group_hr_attendance_manager'))]"/>
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="before">
                 <header>
@@ -53,7 +53,17 @@
                     Valide
                 </span>
             </field>
+            <xpath expr="//sheet" position="inside">
+                <group>
+                    <field name="face_verification_service_id"/>
+                </group>
+            </xpath>
         </field>
     </record>
+
+    <menuitem id="menu_hr_attendance_face_verification_services"
+              name="Services de vérification" parent="hr_attendance.menu_hr_attendance_manage_attendances"
+              sequence="11" groups="hr_attendance.group_hr_attendance_manager"
+              action="face_verification.face_verification_service_action"/>
 </odoo>
     
