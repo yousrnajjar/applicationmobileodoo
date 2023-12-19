@@ -2,10 +2,11 @@
 ///
 /// Les notifications sont affichées dans un [ListView] et sont récupérées
 /// depuis la base de données odoo grace à la fonction [getNotifications]
+library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/model.dart';
-import 'package:smartpay/ir/models/user.dart'; // OdooModel
+import 'package:smartpay/ir/models/user.dart'; /// OdooModel
 
 import 'main_drawer.dart';
 

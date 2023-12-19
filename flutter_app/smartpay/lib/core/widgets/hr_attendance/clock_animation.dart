@@ -1,4 +1,5 @@
 /// Purpose: Clock animation widget that changes time every second
+library;
 
 import 'dart:async';
 import 'dart:math';

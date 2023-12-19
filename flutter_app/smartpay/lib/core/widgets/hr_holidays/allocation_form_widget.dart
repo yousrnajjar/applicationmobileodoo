@@ -18,11 +18,9 @@ class _FormulaireDemandeAllocationState
     extends State<FormulaireDemandeAllocation> {
   final _formKey = GlobalKey<FormState>();
 
-  String _nom = '';
-  String _idStatutConge = '';
-  String _affichageNombreJours = '';
-  String _affichageNombreHeures = '';
-  String _notes = '';
+  // String _nom = '';
+  // String _affichageNombreJours = '';
+  // String _notes = '';
   HolidayType? _selectedHolidayType;
 
   final bool _estUniteRequeteHeureVisible = false;
@@ -43,7 +41,7 @@ class _FormulaireDemandeAllocationState
                 return null;
               },
               onSaved: (value) {
-                _nom = value!;
+                // _nom = value!;
               },
             ),
             Padding(
@@ -74,10 +72,12 @@ class _FormulaireDemandeAllocationState
                       decoration: const InputDecoration(label: Text("Durée")),
                       keyboardType: TextInputType.number,
                       validator: (value) {
+                        return null;
+
                         // Logique de validation pour le champ Affichage du nombre de jours
                       },
                       onSaved: (value) {
-                        _affichageNombreJours = value!;
+                        // _affichageNombreJours = value!;
                       },
                     ),
                   ),
@@ -99,7 +99,7 @@ class _FormulaireDemandeAllocationState
               minLines: 5,
               maxLines: 8,
               onSaved: (value) {
-                _notes = value!;
+                // _notes = value!;
               },
             ),
             const SizedBox(height: 30),

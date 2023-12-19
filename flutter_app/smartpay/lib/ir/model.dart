@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smartpay/api/session.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
@@ -151,7 +152,7 @@ class OdooModel {
   static final List<String> defaultFields = [];*/
 
   /// Odoo session
-  static Session session = Session("", "", "");
+  static Session session = Session(password: '', email: '');
 
   /// Unique name of the model (e.g. "hr.leave")
   final String modelName;
@@ -288,7 +289,9 @@ class OdooModel {
       }
     }
     int id = await session.create(modelName, valuesMap);
-    print("OdooModel.create: id = $id");
+    if (kDebugMode) {
+      print("OdooModel.create: id = $id");
+    }
     List<dynamic> datas = await session.searchRead(
         modelName,
         [
@@ -430,7 +433,6 @@ class OdooModel {
       'kwargs': {'res_ids': resourceIds}
     });
     // print type of data
-    print("Type of data: ${result[1]}");
     if (result[1] != 'pdf') {
       throw Exception("PDF Report $reportName not found");
     }

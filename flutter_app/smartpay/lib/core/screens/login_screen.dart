@@ -18,10 +18,11 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _dbPortController = TextEditingController();
   final TextEditingController _tokenController =
       TextEditingController(text: dotenv.env['ODOO_DEFAULT_TOKEN']);
-  final TextEditingController _databaseController =
-      TextEditingController(text: dotenv.env['ODOO_DATABASE_NAME']);
+  // final TextEditingController _dbNameController =
+  //     TextEditingController(text: dotenv.env['ODOO_DATABASE_NAME']);
   final TextEditingController _emailController =
       TextEditingController(text: dotenv.env['ODOO_USER_EMAIL']);
   final TextEditingController _passwordController =
@@ -85,11 +86,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred: $e'),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $e'),
+          ),
+        );
+      }
       rethrow;
     }
 
@@ -99,12 +102,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _sendToken(
-      String database, String email, String password) async {
+      {required String email,
+      required String password,
+      String? dbName,
+      int? dbPort}) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-      OdooModel.session = Session(database, email, password);
+      OdooModel.session = Session(
+          email: email, password: password, dbPort: dbPort, dbName: dbName);
       bool isTokenSend = false;
       try {
         isTokenSend = await OdooModel.session.sendToken();
@@ -113,11 +120,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An error occurred, please contact admin: $e'),
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('An error occurred, please contact admin: $e'),
+            ),
+          );
+        }
       }
       if (!isTokenSend) {
         setState(() {
@@ -143,9 +152,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // Les champs pour l'authentifications
     var loginFields = [
       TextFormField(
-        controller: _databaseController,
+        controller: _dbPortController,
+        keyboardType: TextInputType.number,
         decoration: const InputDecoration(
-          labelText: 'Base de donné',
+          labelText: 'Serveur',
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -261,14 +271,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
                                     // Perform login action here using the values from the text fields
-                                    final hostUrl = _databaseController.text;
+                                    // final dbName = _dbNameController.text;
+                                    final dbPort = int.parse(_dbPortController.text);
                                     final email = _emailController.text;
                                     final password = _passwordController.text;
                                     if (_isTokenSend) {
                                       final token = _tokenController.text;
                                       _confirmToken(token);
                                     } else {
-                                      _sendToken(hostUrl, email, password);
+                                      _sendToken(
+                                        password: password,
+                                        email: email,
+                                        dbName: null,
+                                        dbPort: dbPort,
+                                      );
                                     }
                                   }
                                 },

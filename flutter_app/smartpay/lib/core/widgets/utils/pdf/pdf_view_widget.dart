@@ -137,7 +137,7 @@ class _AppPDFViewState extends State<AppPDFView> {
               ElevatedButton(
                 child: const Text('Télécharger'),
                 onPressed: () {
-                  var file = FileStorage.saveFile(
+                  var _ = FileStorage.saveFile(
                       bytes: _pdfBytes!, fileName: widget.reportName);
                   // Show toast
                   ScaffoldMessenger.of(context).showSnackBar(

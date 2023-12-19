@@ -41,7 +41,6 @@ Color hoverMenuColor = const Color.fromARGB(255, 67, 160, 71);
 const normalText =
     TextStyle(fontSize: 13, color: Color.fromARGB(255, 88, 88, 88));
 final smartpayTheme = ThemeData().copyWith(
-    useMaterial3: true,
     colorScheme: kColorSchema,
     textTheme: GoogleFonts.robotoTextTheme().copyWith(
         titleLarge: menuText,
@@ -63,7 +62,7 @@ final smartpayTheme = ThemeData().copyWith(
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        primary: kColorSchema.primary,
+        foregroundColor: kColorSchema.primary,
         backgroundColor: Colors.white,
         side: BorderSide(color: kColorSchema.primary),
         shape: RoundedRectangleBorder(

@@ -1,12 +1,14 @@
 /// This module contains the [AppForm] Widget.
 /// It is used to display a form based on a [OdooModel].
 /// [AppForm] is a [StatefulWidget] that uses [AppFormState] as its state.
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartpay/exceptions/api_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
+
 // smartpay
 import 'package:smartpay/ir/model.dart';
 
@@ -182,7 +184,7 @@ class AppFormState extends State<AppForm> {
     setState(() {
       isSending = true;
     });
-    var newValues;
+    dynamic newValues;
     try {
       if (kDebugMode) {
         print(
@@ -216,11 +218,11 @@ class AppFormState extends State<AppForm> {
         values = newValues;
       });
     }
-    if (resMessage != null) {
-      if (kDebugMode) {
-        print(
-            "===========================================Res Message===========================================");
-      }
+    if (kDebugMode) {
+      print(
+          "===========================================Res Message===========================================");
+    }
+    if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(resMessage),
@@ -376,18 +378,13 @@ class AppFormState extends State<AppForm> {
         .firstWhere((element) => element.name == fieldName)
         .selectionOptions;
 
-    if (options == null) {
-      return '';
-    } else {
-      //.firstWhere((element) => element['id'] == valId);
-      for (var option in options) {
-        if (option['id'] == valId) {
-          return option['name'];
-        }
+    for (var option in options) {
+      if (option['id'] == valId) {
+        return option['name'];
       }
-      return '';
     }
-    //return valName != null ? valName['name'] : '';
+    return '';
+      //return valName != null ? valName['name'] : '';
   }
 
   /// Build a list of form fields based on the defaultGet of the model
@@ -846,7 +843,7 @@ class AppFormState extends State<AppForm> {
     var selectionOptions = field.selectionOptions;
     return DropdownButtonFormField(
       value: values[field],
-      disabledHint: Text(values[field].toString() ?? ''),
+      disabledHint: Text(values[field].toString()),
       decoration: InputDecoration(
         labelText: field.fieldDescription,
       ),

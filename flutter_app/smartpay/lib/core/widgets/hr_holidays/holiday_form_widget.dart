@@ -31,7 +31,6 @@ class _HolidayFormState extends State<HolidayForm> {
   String? _description;
 
   bool _isSending = false;
-  
 
   void _presentDatePicker(String dataContext) async {
     final now = DateTime.now();
@@ -94,11 +93,13 @@ class _HolidayFormState extends State<HolidayForm> {
         "kwargs": {}
       });
     } on OdooValidationError catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+          ),
+        );
+      }
     } finally {
       setState(() {
         _isSending = false;
@@ -120,7 +121,8 @@ class _HolidayFormState extends State<HolidayForm> {
             padding: const EdgeInsets.only(bottom: 10),
             child: DropdownButtonFormField(
                 value: _selectedHolidayType,
-                decoration: const InputDecoration(label: Text("Type de congés")),
+                decoration:
+                    const InputDecoration(label: Text("Type de congés")),
                 items: [
                   for (var type in widget.holidaysStatus)
                     DropdownMenuItem(

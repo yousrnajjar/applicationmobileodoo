@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -53,7 +52,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                 children: <Widget>[
                   if (result != null)
                     Text(
-                        'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
+                        'Barcode Type: ${result!.format.name}   Data: ${result!.code}')
                   else
                     const Text('Scan a code'),
                   Row(
@@ -90,7 +89,7 @@ class _QRViewWidgetState extends State<QRViewWidget> {
                             builder: (context, snapshot) {
                               if (snapshot.data != null) {
                                 return Text(
-                                    'Camera facing ${describeEnum(snapshot.data!)}');
+                                    'Camera facing ${snapshot.data!.name}');
                               } else {
                                 return const Text('loading');
                               }

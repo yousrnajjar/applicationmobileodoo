@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smartpay/ir/data/themes.dart';
 
 
 String parseMany2One(dynamic many2one) {
@@ -32,12 +31,12 @@ String parse(dynamic value) {
 ///
 class ExpenseDetail extends StatelessWidget {
   const ExpenseDetail({
-    Key? key,
+    super.key,
     required this.expense,
     required this.onEdit,
     required this.onDelete,
     required this.onAttachment,
-  }) : super(key: key);
+  });
 
   final Map<String, dynamic> expense;
   final Function(BuildContext, Map<String, dynamic>) onEdit;
@@ -60,7 +59,7 @@ class ExpenseDetail extends StatelessWidget {
               Expanded(
                 child: Text(
                   parse(expense['name']),
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               //IconButton(

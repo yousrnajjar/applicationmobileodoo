@@ -8,9 +8,7 @@ import '../utils/month_card.dart';
 
 class ContractDetail extends StatelessWidget {
   final Map<OdooField, dynamic> contract;
-  double itemHeight = 0;
-  double itemWidth = 0;
-  Color backgroundColor = Colors.white;
+
   final Function? onPrintPdf;
 
   ContractDetail({
@@ -19,7 +17,7 @@ class ContractDetail extends StatelessWidget {
     this.onPrintPdf,
   });
 
-  Map<String, Color> stateColor = {
+  final Map<String, Color> stateColor = {
     'draft': kGrey,
     'open': kGreen,
     'close': kPink,
@@ -32,12 +30,9 @@ class ContractDetail extends StatelessWidget {
     contract.forEach((k, v) {
       lastContact[k.name] = v;
     });
-    var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    itemHeight = (86 / baseHeightDesign) * height;
-    itemWidth = (60 / baseWidthDesign) * width;
-    backgroundColor = stateColor[lastContact['state']] ?? kGreen;
-    var montBgColor = kPink;
+    var itemHeight = (86 / baseHeightDesign) * height;
+
 
     // Si aucune fiche de pay n'est disponible
     if (contract.isEmpty) {
@@ -54,10 +49,10 @@ class ContractDetail extends StatelessWidget {
       );
     }
     var date = DateTime.now();
-    var footer = buildFooter(context);
+    var footer = buildFooter(context, itemHeight);
     return Row(children: [
       buildMonth(date, kLightPink, textColor: Colors.black),
-      buildBody(context, DateTime.now(), lastContact),
+      buildBody(context, DateTime.now(), lastContact, itemHeight),
       if (footer != null)
         // footer, --> Add vertical line
         Container(
@@ -75,7 +70,7 @@ class ContractDetail extends StatelessWidget {
   }
 
   Widget buildBody(
-      BuildContext context, DateTime date, Map<String, dynamic> lastContract) {
+      BuildContext context, DateTime date, Map<String, dynamic> lastContract, double itemHeight) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     String numberOfMonthInContractString = '';
@@ -150,8 +145,8 @@ class ContractDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Text(
                       'Type de contrat : ',
                       style: TextStyle(
@@ -192,126 +187,11 @@ class ContractDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Row(
-                //   children: [
-                //     const Text(
-                //       '+ ',
-                //       style: TextStyle(
-                //         color: kGrey,
-                //         // FixME: Get right color with status
-                //         fontWeight: FontWeight.bold,
-                //         fontSize: 11,
-                //       ),
-                //     ),
-                //     TextButton(
-                //         style: TextButton.styleFrom(
-                //           foregroundColor: kGreen,
-                //           minimumSize: Size.zero,
-                //           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                //           padding: const EdgeInsets.all(5),
-                //           shape: const BeveledRectangleBorder(
-                //               borderRadius:
-                //                   BorderRadius.all(Radius.circular(0))),
-                //           textStyle: const TextStyle(
-                //             fontSize: 11,
-                //           ),
-                //         ),
-                //         child: const Text('Consulter le contrat'),
-                //         onPressed: () {
-                //           // Modal to display contract
-                //           // state , wage, name, date_start, date_end, trial_date_end, resource_calendar_id, hr_responsible_id.
-
-                //           var state = lastContract['state'];
-                //           var stateString = contract.keys
-                //               .firstWhere((element) => element.name == 'state')
-                //               .selectionOptions
-                //               .firstWhere((element) =>
-                //                   element['value'] == state)['display_name'];
-                //           var wage = lastContract['wage'];
-                //           var name = lastContract['name'];
-                //           var dateStart = lastContract['date_start'];
-                //           var dateEnd = lastContract['date_end'];
-                //           var trialDateEnd = lastContract['trial_date_end'];
-                //           var resourceCalendarName =
-                //               lastContract['resource_calendar_id'][1];
-                //           var hrResponsibleName =
-                //               lastContract['hr_responsible_id'] == false
-                //                   ? ''
-                //                   : lastContract['hr_responsible_id'][1];
-
-                //           showDialog(
-                //             context: context,
-                //             builder: (BuildContext context) {
-                //               return AlertDialog(
-                //                 title: Text(name),
-                //                 content: SingleChildScrollView(
-                //                   child: ListBody(
-                //                     children: <Widget>[
-                //                       Text('État : $stateString'),
-                //                       Text('Salaire : $wage'),
-                //                       Text('Nom : $name'),
-                //                       Text('Date de début : $dateStart'),
-                //                       Text('Date de fin : $dateEnd'),
-                //                       Text(
-                //                           'Date de fin d\'essai : $trialDateEnd'),
-                //                       Text(
-                //                           'Heure de travail : $resourceCalendarName'),
-                //                       Text(
-                //                           'Responsable RH : $hrResponsibleName'),
-                //                     ],
-                //                   ),
-                //                 ),
-                //                 actions: <Widget>[
-                //                   TextButton(
-                //                     child: const Text('Fermer'),
-                //                     onPressed: () {
-                //                       Navigator.of(context).pop();
-                //                     },
-                //                   ),
-                //                 ],
-                //               );
-                //             },
-                //           );
-                //         })
-                //   ],
-                // ),
               ],
             )));
   }
 
-  // Widget? buildFooter(BuildContext context) {
-  //   return Container(
-  //       height: itemHeight,
-  //       width: (93 / baseWidthDesign) * MediaQuery.of(context).size.width,
-  //       // Ligne de séparation noire
-  //       decoration: const BoxDecoration(
-  //         color: Color.fromARGB(255, 230, 229, 225),
-  //         border: Border(
-  //           left: BorderSide(
-  //             color: Colors.black,
-  //             width: 1,
-  //           ),
-  //         ),
-  //       ),
-  //       child: Center(
-  //         child: TextButton(
-  //             style: TextButton.styleFrom(
-  //               foregroundColor: kGrey,
-  //               minimumSize: Size.zero,
-  //               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-  //               padding: const EdgeInsets.all(5),
-  //               shape: const BeveledRectangleBorder(
-  //                   borderRadius: BorderRadius.all(Radius.circular(0))),
-  //               textStyle: const TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.w500,
-  //               ),
-  //             ),
-  //             child: const Text('Consulter le contrat'),
-  //             onPressed: () {}),
-  //       ));
-  // }
-  Widget? buildFooter(BuildContext context) {
+  Widget? buildFooter(BuildContext context, double itemHeight) {
     var id = contract.keys.firstWhere((k) => k.name == 'id');
 
     return Container(

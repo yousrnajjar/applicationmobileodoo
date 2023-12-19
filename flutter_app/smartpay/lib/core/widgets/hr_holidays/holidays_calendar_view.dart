@@ -32,7 +32,7 @@ class _MyHomePageState extends State<HolidayCalendar> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      viewHeaderStyle: ViewHeaderStyle(
+      viewHeaderStyle: const ViewHeaderStyle(
         dayTextStyle: TextStyle(
           color: kGrey,
           fontSize: 13,

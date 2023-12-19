@@ -62,8 +62,8 @@ class CircularRatioIndicator extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: indicatorWidth + 5,
-          height: indicatorWidth + 5,
+          width: indicatorWidth,
+          height: indicatorWidth,
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
             color: progressColor,

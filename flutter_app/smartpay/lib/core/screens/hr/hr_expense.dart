@@ -112,7 +112,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         },
       );
     } else {
-      var body;
+      Widget body;
       if (_selectedIndex == 0) {
         body = _buildBody();
       } else {

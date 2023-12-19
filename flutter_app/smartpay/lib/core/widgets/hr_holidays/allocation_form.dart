@@ -1,4 +1,5 @@
 /// Extend AppForm to create a form. and  customize it _setFormFields() method
+library;
 
 import 'package:flutter/material.dart';
 import 'package:smartpay/ir/views/form.dart';

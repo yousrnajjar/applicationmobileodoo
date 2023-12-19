@@ -13,6 +13,7 @@
 ///          Also, if the user is a manager, the [Card] contains a [Button] to approve or refuse the holiday.
 ///          All this is shifted to left of preceding
 ///          Odoo admin have all rights to approve or refuse holidays.
+library;
 
 /// For now we just create a widget with dummy data withowt using Odoo API
 
@@ -115,16 +116,16 @@ List<Map<String, dynamic>> holidays = List.generate(
 
 /// function to generate a user data with fields [name], [is_manager], [is_admin]
 Map<String, dynamic> generateRandomUser() {
-  List<bool> isManagers = [true, false];
+  /*List<bool> isManagers = [true, false];*/
   List<bool> isAdmins = [true, false];
   // generate random index for each list
   int nameIndex =
       (names.length * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000)
           .floor();
-  int isManagerIndex = (isManagers.length *
+  /*int isManagerIndex = (isManagers.length *
           (DateTime.now().millisecondsSinceEpoch % 1000) /
           1000)
-      .floor();
+      .floor();*/
   int isAdminIndex =
       (isAdmins.length * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000)
           .floor();
@@ -517,11 +518,13 @@ class _HolidayListState extends State<HolidayList> {
                           res = await Holiday.refuse(id);
                         }
                       } on OdooErrorException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.message),
-                          ),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.message),
+                            ),
+                          );
+                        }
                         return;
                       }
                       if (res) {
@@ -574,10 +577,10 @@ class _HolidayScreenState extends State<HolidayScreen> {
   late int _selectedIndex;
 
   // The current holiday id
-  int? _holidayId = null;
+  int? _holidayId;
 
   // The current allocation id
-  int? _allocationId = null;
+  int? _allocationId;
 
   // List of pages
   final List<Widget> _pages = [];
@@ -631,7 +634,7 @@ class _HolidayScreenState extends State<HolidayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;
+    /*var appBarForeground = Theme.of(context).appBarTheme.foregroundColor;*/
     return Scaffold(
       body: Container(
           margin: const EdgeInsets.only(top: 30, left: 15, right: 15),
@@ -664,18 +667,20 @@ class _HolidayScreenState extends State<HolidayScreen> {
     Widget? content;
     try {
       if (index == 1) {
-        content = (await buildHolidayForm(id: _holidayId)) as Widget?;
+        content = (await buildHolidayForm(id: _holidayId));
         _holidayId = null;
       } else if (index == 2) {
-        content = (await buildAllocationForm(id: _allocationId)) as Widget?;
+        content = await buildAllocationForm(id: _allocationId);
         _allocationId = null;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+          ),
+        );
+      }
       setState(() {
         _pages[index] = Center(
             child: Text(
@@ -718,8 +723,7 @@ Future<HolidayForm> buildHolidayForm({bool? editable, int? id}) async {
     editable: id != null ? false : editable,
     id: id,
     model: model,
-    editableFields: id != null ? []:
-      Holiday().editableFields,
+    editableFields: id != null ? [] : Holiday().editableFields,
     onSaved: (Map<OdooField, dynamic> values) async {
       return await model.create(values);
     },
@@ -753,8 +757,7 @@ Future<AllocationForm> buildAllocationForm({bool? editable, int? id}) async {
     editable: id != null ? false : editable,
     model: model,
     id: id,
-    editableFields: id != null ? []:
-      Allocation().editableFields,
+    editableFields: id != null ? [] : Allocation().editableFields,
     onSaved: (Map<OdooField, dynamic> values) async {
       return await model.create(values);
     },

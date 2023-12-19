@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:cross_file/src/types/interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+
+
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/check_in_check_out_state.dart';
 
@@ -114,7 +113,6 @@ class HrAttendance {
     }
   }
 
-
   /// Ccréer un pointage
   Future<List<Map<String, dynamic>>> _createAttendance(
       {bool withCkeck = true}) async {
@@ -198,11 +196,13 @@ class HrAttendance {
     try {
       //var checkIn = DateTime.parse(attendance['check_in']);
       checkIn = attendance['check_in'] != false
-          ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
+          ? OdooModel.session
+              .toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
           : null;
       //var checkOut = attendance['check_out'] != false ? DateTime.parse(attendance['check_out']) : null;
       checkOut = attendance['check_out'] != false
-          ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
+          ? OdooModel.session
+              .toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
           : null;
       day = checkIn != null
           ? dateFormatter.parse(dateFormatter.format(checkIn))
@@ -239,12 +239,18 @@ class HrAttendance {
     try {
       var fieldNames = ['key', 'value'];
       var domain = [
-        ['key', 'in', ['mobile_hr_attentance_auto.work_end_time', 'mobile_hr_attentance_auto.work_start_time']]
+        [
+          'key',
+          'in',
+          [
+            'mobile_hr_attentance_auto.work_end_time',
+            'mobile_hr_attentance_auto.work_start_time'
+          ]
+        ]
       ];
-      response = await OdooModel('ir.config_parameter').searchRead(
-          domain: domain, order: 'id desc', fieldNames: fieldNames
-      );
-      if (kDebugMode){
+      response = await OdooModel('ir.config_parameter')
+          .searchRead(domain: domain, order: 'id desc', fieldNames: fieldNames);
+      if (kDebugMode) {
         print(response);
       }
     } catch (e) {
@@ -256,8 +262,10 @@ class HrAttendance {
     if (response.isEmpty) {
       return [const Duration(hours: 8), const Duration(hours: 17)];
     }
-    var timeStart = response.firstWhere((element) => element['key'] == 'mobile_hr_attentance_auto.work_start_time')['value'];
-    var timeEnd = response.firstWhere((element) => element['key'] == 'mobile_hr_attentance_auto.work_end_time')['value'];
+    var timeStart = response.firstWhere((element) =>
+        element['key'] == 'mobile_hr_attentance_auto.work_start_time')['value'];
+    var timeEnd = response.firstWhere((element) =>
+        element['key'] == 'mobile_hr_attentance_auto.work_end_time')['value'];
     return [
       Duration(
         hours: int.parse(timeStart.split(":")[0]),
@@ -307,13 +315,16 @@ class HrAttendance {
     var attendance = response;
     CheckInCheckOutState? state;
     DateTime? day = attendance['check_in'] != false
-        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session
+            .toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? startTime = attendance['check_in'] != false
-        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session
+            .toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     DateTime? endTime = attendance['check_out'] != false
-        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
+        ? OdooModel.session
+            .toLocalTime(dateTimeFormatter.parse(attendance['check_out']))
         : null;
 
     // DateTime? endTime = attendance['check_out'] != false
@@ -322,7 +333,6 @@ class HrAttendance {
     Duration workTime = getWorkingHours(attendance);
 
     var now = DateTime.now();
-    print('now: $now, day: $day');
     // if current time in 08:00 - 18:00
     if (!isWorkingHour) {
       state = CheckInCheckOutState.hourNotReached;
@@ -360,7 +370,8 @@ class HrAttendance {
 
   static Duration getWorkingHours(Map<String, dynamic> attendance) {
     DateTime? startTime = attendance['check_in'] != false
-        ? OdooModel.session.toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
+        ? OdooModel.session
+            .toLocalTime(dateTimeFormatter.parse(attendance['check_in']))
         : null;
     Duration workTime;
     if (attendance['check_out'] != false) {
@@ -394,7 +405,7 @@ class HrAttendance {
   }
 
   Future<void> addImageAndPosition(Uint8List imageBytes, Position position,
-    {bool isCheckOut = false}) async {
+      {bool isCheckOut = false}) async {
     List<Map<String, dynamic>> atts = [];
     Map<String, dynamic> data = {};
     if (!isCheckOut) {
@@ -405,21 +416,23 @@ class HrAttendance {
         'check_in_geo_longitude': position.longitude,
         'check_in_geo_altitude': position.altitude,
         'check_in_geo_accuracy': position.accuracy,
-        'check_in_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now().toUtc()),
+        'check_in_geo_time': dateTimeFormatter
+            .format(position.timestamp),
       };
     } else {
       atts = await _getLatestCheckIn();
-      data = {        
+      data = {
         'check_out_image': base64Encode(imageBytes),
         'check_out_geo_latitude': position.latitude,
         'check_out_geo_longitude': position.longitude,
         'check_out_geo_altitude': position.altitude,
         'check_out_geo_accuracy': position.accuracy,
-        'check_out_geo_time': dateTimeFormatter.format(position.timestamp ?? DateTime.now().toUtc()),
+        'check_out_geo_time': dateTimeFormatter
+            .format(position.timestamp),
       };
     }
     //atts = await _getLatestCheckInWithNoCheckOut();
-    var res = await OdooModel.session.write(
+    var _ = await OdooModel.session.write(
       "hr.attendance",
       [atts[0]['id']],
       data,

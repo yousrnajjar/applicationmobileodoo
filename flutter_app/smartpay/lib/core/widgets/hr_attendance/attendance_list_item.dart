@@ -59,9 +59,9 @@ class AttendanceItem extends StatelessWidget {
         direction: Axis.vertical,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("De ${checkIn}", style: smallText),
+          Text("De $checkIn", style: smallText),
           if (attendance.checkOut != false)
-            Text("À ${checkOut}", style: smallText)
+            Text("À $checkOut", style: smallText)
         ],
       ),
       trailing: Text(

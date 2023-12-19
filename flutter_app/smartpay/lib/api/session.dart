@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,7 +27,14 @@ class Session implements AuthInterface, CallInterface {
   String? url = dotenv.env['ODOO_INSTANCE_HOST'];
 
   /// The name of the database to authenticate against.
-  String dbName;
+  String? dbName;
+
+  ///The db port
+  int? dbPort=8000;
+
+  get serverUrl{
+    return "$url:$dbPort";
+  }
 
   /// The email address of the user to authenticate with.
   String email;
@@ -40,7 +48,10 @@ class Session implements AuthInterface, CallInterface {
   String? sessionId;
 
   String? serverTimezoneName;
-  String? serverTimeZoneOffset; // '+0200'
+  String? serverTimeZoneOffset;
+
+  bool? isAdmin;
+  String? serverVersion;
 
   /// Get the language from current platform
   String get lang {
@@ -60,7 +71,12 @@ class Session implements AuthInterface, CallInterface {
   }
 
   /// Creates a new session object with the given parameters.
-  Session(this.dbName, this.email, this.password);
+  Session({
+    this.dbName,
+    this.dbPort,
+    required this.email,
+    required this.password
+  });
 
   @override
   Future<dynamic> callEndpoint(String path, Map<String, dynamic> data) async {
@@ -72,7 +88,7 @@ class Session implements AuthInterface, CallInterface {
     //FixMe: add context to data
     // Envoie la requête à Odoo
     final response = await http.post(
-      Uri.parse('$url/$path'),
+      Uri.parse('$serverUrl/$path'),
       headers: headers,
       body: jsonEncode({'jsonrpc': '2.0', 'params': data}),
     );
@@ -131,11 +147,14 @@ class Session implements AuthInterface, CallInterface {
   Future<bool> sendToken() async {
     const String path = "web/session/authenticate2";
     try {
-      await callEndpoint(path, {
+      dynamic result = await callEndpoint(path, {
         "login": email,
         "password": password,
         "db": dbName,
       });
+      dbName ??= result['db'];
+      isAdmin = result['is_admin'] as bool;
+      serverVersion = result['server_version'];
     } on OdooAuthentificationError {
       return false;
     }
@@ -148,7 +167,7 @@ class Session implements AuthInterface, CallInterface {
       'Content-Type': 'application/json',
       'Cookie': 'session_id=$sessionId'
     };
-    var request = http.Request('POST', Uri.parse('$url/web/dataset/call_kw'));
+    var request = http.Request('POST', Uri.parse('$serverUrl/web/dataset/call_kw'));
     request.body = json.encode({"jsonrpc": "2.0", "params": data});
 
     request.headers.addAll(headers);

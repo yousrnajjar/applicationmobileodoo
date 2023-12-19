@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartpay/api/session.dart';
 
 class SessionNotifier extends StateNotifier<Session> {
-  SessionNotifier() : super(Session("", "", ""));
+  SessionNotifier() : super(Session(password: '', email: ''));
 
   void setSession(Session newSession) {
     state = newSession;

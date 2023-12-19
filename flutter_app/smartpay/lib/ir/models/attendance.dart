@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class Attendance {
   int? id;

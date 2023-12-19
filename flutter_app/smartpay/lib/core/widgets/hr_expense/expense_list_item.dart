@@ -49,8 +49,6 @@ class ExpenseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // cut the string to 20 characters
-    var categoryDisplay =
-    category.length > 20 ? '${category.substring(0, 20)}...' : category;
     var titleDisplay =
     title.length > 20 ? '${title.substring(0, 20)}...' : title;
     var textSmall = Theme.of(context).textTheme.bodySmall!.copyWith(

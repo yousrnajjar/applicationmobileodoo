@@ -7,13 +7,10 @@ import '../utils/month_card.dart';
 
 class PayslipDetail extends StatelessWidget {
   final Map<OdooField, dynamic> pay;
-  double itemHeight = 0;
-  double itemWidth = 0;
-  Color backgroundColor = Colors.white;
 
   PayslipDetail({super.key, required this.pay});
 
-  Map<String, Color> stateColor = {
+  final Map<String, Color> stateColor = {
     'draft': kGrey,
     'done': kGreen,
     'verify': kPink,
@@ -27,11 +24,8 @@ class PayslipDetail extends StatelessWidget {
       lastPay[k.name] = v;
     });
 
-    var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    itemHeight = (86 / baseHeightDesign) * height;
-    itemWidth = (60 / baseWidthDesign) * width;
-    backgroundColor = stateColor[lastPay['state']] ?? kGreen;
+    var itemHeight = (86 / baseHeightDesign) * height;
 
     // Si aucune fiche de pay n'est disponible
     if (pay.isEmpty) {
@@ -50,11 +44,11 @@ class PayslipDetail extends StatelessWidget {
     var dateFormatter = DateFormat('yyyy-MM-dd');
     var date = dateFormatter.parse(lastPay['date_from']);
 
-    var footer = buildFooter(context);
+    var footer = buildFooter(context, itemHeight);
     return Row(
       children: [
         buildMonth(date, kLightGreen, textColor: Colors.black),
-        buildBody(context, date, lastPay),
+        buildBody(context, date, lastPay, itemHeight ),
         if (footer != null)
           // footer, --> Add vertical line
           Container(
@@ -68,7 +62,7 @@ class PayslipDetail extends StatelessWidget {
   }
 
   Widget buildBody(
-      BuildContext context, DateTime date, Map<String, dynamic> lastPay) {
+      BuildContext context, DateTime date, Map<String, dynamic> lastPay, double itemHeight) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var stateDisplay = pay.keys
@@ -169,7 +163,7 @@ class PayslipDetail extends StatelessWidget {
         date: date, backgroundColor: backgroundColor, textColor: textColor);
   }
 
-  Widget? buildFooter(BuildContext context) {
+  Widget? buildFooter(BuildContext context, double itemHeight) {
     return null;
   }
 }

@@ -94,7 +94,6 @@ class _HomeState extends State<HomeScreen> {
     ];
     var fields = ['check_in', 'check_out'];
     var attendance = await attModel.searchRead(domain: domain, fieldNames: fields);
-    print(attendance);
     var nbrWorkDay = 0.0;
     for (var att in attendance) {
       if (att['check_out'] != false) {
@@ -246,7 +245,7 @@ class _HomeState extends State<HomeScreen> {
                       ? 0
                       : allocationUsedCount / allocationCount,
                   backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(
+                  valueColor: const AlwaysStoppedAnimation<Color>(
                     Colors.green,
                   ),
                 ),

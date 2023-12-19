@@ -17,7 +17,9 @@ class InOutScreen extends StatefulWidget {
 
 class _InOutScreenState extends State<InOutScreen> {
   late EmployeeAllInfo _employee;
-  Widget _activePage = const Text("Hello");
+  Widget _activePage = const Center(
+    child: CircularProgressIndicator(),
+  );
   int _selectedPageIndex = 0;
   Future<EmployeeAllInfo> _getEmployee() async {
     var employeeData = await OdooModel("hr.employee").searchRead(

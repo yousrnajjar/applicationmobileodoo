@@ -5,9 +5,9 @@ class MonthCard extends StatelessWidget {
   final DateTime date;
   final Color backgroundColor;
 
-  Color? textColor;
+  final Color? textColor;
 
-  MonthCard(
+  const MonthCard(
       {super.key,
       required this.date,
       required this.backgroundColor,

@@ -11,8 +11,8 @@ class PayslipListDetail extends PayslipDetail {
   PayslipListDetail({super.key, required super.pay, this.onPrintPdf});
 
   @override
-  Widget buildBody(
-      BuildContext context, DateTime date, Map<String, dynamic> lastPay) {
+  Widget buildBody(BuildContext context, DateTime date,
+      Map<String, dynamic> lastPay, double itemHeight) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var stateDisplay = pay.keys
@@ -84,10 +84,7 @@ class PayslipListDetail extends PayslipDetail {
   }
 
   @override
-  Widget? buildFooter(BuildContext context) {
-    // pay.keys.forEach((element) {
-    //   print(element.name);
-    // });
+  Widget? buildFooter(BuildContext context, double itemHeight) {
     var id = pay.keys.firstWhere((k) => k.name == 'id');
 
     return Container(

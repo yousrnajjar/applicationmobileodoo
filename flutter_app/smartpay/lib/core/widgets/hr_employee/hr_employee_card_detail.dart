@@ -9,17 +9,17 @@ import 'package:transparent_image/transparent_image.dart';
 class EmployeeCardDetail extends StatelessWidget {
   final Map<OdooField, dynamic> employee;
   final User? user;
-  final showDetails;
+  final bool showDetails;
   const EmployeeCardDetail({
     super.key,
     required this.employee,
     this.user,
-    this.showDetails,
+    required this.showDetails,
   });
 
   @override
   Widget build(BuildContext context) {
-    var showInfo = (showDetails == null) ? true : showDetails;
+    var showInfo = showDetails;
     Map<String, dynamic> employeeKeyAsString = {};
     employee.forEach((key, value) {
       employeeKeyAsString[key.name] = value;
@@ -100,7 +100,7 @@ class EmployeeCardDetail extends StatelessWidget {
                       ),
                     ],
                   ),
-                if (!showInfo) Spacer(),
+                if (!showInfo) const Spacer(),
                 // blank space
                 //Container(
                 //width: smallCircleDiameter,
@@ -186,7 +186,7 @@ class EmployeeCardDetail extends StatelessWidget {
                       ),
                     ],
                   ),
-                if (!showInfo) Spacer(),
+                if (!showInfo) const Spacer(),
                 // blank space
                 //Container(
                 //width: smallCircleDiameter,
@@ -231,12 +231,12 @@ class EmployeeCard extends StatelessWidget {
   final Map<OdooField, dynamic> employee;
 
   final User? user;
-  final showDetails;
+  final bool showDetails;
   const EmployeeCard({
     required this.employee,
     this.user,
     super.key,
-    this.showDetails,
+    required this.showDetails,
   });
 
   @override
@@ -267,7 +267,7 @@ class EmployeeCard extends StatelessWidget {
           // Informations de l'employé
           EmployeeCardDetail(
             employee: employee,
-            user: user ?? null,
+            user: user,
             showDetails: showDetails,
           ),
         ],

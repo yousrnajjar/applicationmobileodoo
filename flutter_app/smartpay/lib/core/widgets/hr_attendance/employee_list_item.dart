@@ -17,7 +17,7 @@ class EmployeeItem extends ConsumerWidget {
     var smallText = theme.textTheme.titleSmall;
     var titleLarge = titleLargeBold(theme); 
     return ListTile(
-      leading: employee.imageFrom(session.url!),
+      leading: employee.imageFrom(session.serverUrl!),
       title: Text(
         employee.name!,
         style: titleLarge,

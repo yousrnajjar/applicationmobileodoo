@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:smartpay/core/screens/main_drawer.dart';
 import 'package:smartpay/core/widgets/hr_expense/expense_list_item.dart';
 import 'package:smartpay/core/widgets/hr_expense/take_picture_for_expense_worflow.dart';
-import 'package:smartpay/exceptions/core_exceptions.dart';
 import 'package:smartpay/ir/data/themes.dart';
 import 'package:smartpay/ir/model.dart';
 import 'package:smartpay/ir/models/expense.dart';
@@ -15,7 +14,6 @@ import 'package:smartpay/ir/models/user.dart';
 
 import 'expense_detail.dart';
 import 'expense_form.dart';
-import 'select_expense_widget.dart';
 import 'take_picture_for_expense_widget.dart';
 
 class ExpenseList extends StatefulWidget {
@@ -172,7 +170,7 @@ class _ExpenseListState extends State<ExpenseList> {
               ),
             ),
           ),
-        if (_showDetailExpenseWidget == true && _expenseWidget != null)
+        if (_showDetailExpenseWidget == true)
           Positioned(
             bottom: 0,
             left: 0,
@@ -454,7 +452,6 @@ class _ExpenseListState extends State<ExpenseList> {
     } else {
       return null;
     }
-    return null;
   }
 
   /// Post Picture
@@ -468,7 +465,7 @@ class _ExpenseListState extends State<ExpenseList> {
     var bytes = await file.readAsBytes();
     var base64Document = base64Encode(bytes);
     late Expense expense;
-    
+
     // expense = await _selectedExpense();
     Widget createdForm = await ExpenseFormWidget.buildExpenseForm(
       onCancel: () {
@@ -478,16 +475,19 @@ class _ExpenseListState extends State<ExpenseList> {
         Navigator.pop(context, expense);
       },
     );
-    expense = await Navigator.push(context, MaterialPageRoute(builder: (ctx) => 
-        Scaffold(
-          appBar: AppBar(
-            title: Text('Créer une expense'),
+    if (context.mounted) {
+      expense = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Créer une expense'),
+            ),
+            body: createdForm,
           ),
-          body: createdForm,
         ),
-      ),
-    );
-    print("expense: {$expense}, expense.info: ${expense.info}");
+      );
+    }
     Map<String, dynamic> attachment = {
       'name': file.name,
       'datas': base64Document,
@@ -502,65 +502,5 @@ class _ExpenseListState extends State<ExpenseList> {
 
 // Create Expense from attachment
 // Permet de créer une expense depuis un document
-  Future<int> _createExpenseFromAttachment(XFile file) async {
-    var bytes = await file.readAsBytes();
-    var base64Document = base64Encode(bytes);
-    Map<String, dynamic> attachment = {
-      'name': file.name,
-      'datas': base64Document,
-      'res_model': 'hr.expense',
-      'mimetype': file.mimeType,
-      'type': 'binary',
-    };
-    print("_createExpenseFromAttachment: create attachment");
-    var attachmentId =
-        await OdooModel.session.create('ir.attachment', attachment);
-    print("_createExpenseFromAttachment: create expense");
-    var res = await OdooModel.session.callKw({
-      'model': 'hr.expense',
-      'method': 'create_expense_from_attachments',
-      'args': [
-        "",
-        [attachmentId]
-      ],
-      'kwargs': {
-        'context': OdooModel.session.defaultContext,
-      },
-    });
-    print(res);
-    try {
-      return res['res_id'];
-    } catch (e) {
-      throw Exception('Impossible de créer une expense depuis le document');
-    }
-  }
 
-  /// Selected Expense
-  /// Permet de choisir une expense
-  /// Fonctionnement:
-  /// 1. On affiche la liste des expenses
-  /// 2. On attend le choix de l'utilisateur
-  /// 3. On retourne l'expense choisie
-  ///
-  Future<Expense> _selectedExpense() async {
-    var expenses = await listenForExpenses();
-    Expense? expense;
-    if (context.mounted) {
-      expense = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => SelectExpenseWidget(
-            expenses: expenses,
-            onSelect: (selectedExpenseContext, expense) {
-              Navigator.of(selectedExpenseContext).pop(expense);
-            },
-          ),
-        ),
-      );
-    }
-    if (expense == null) {
-      throw NoExpenseSelectedException('Aucune dépense n\'a été choisie');
-    } else {
-      return expense;
-    }
-  }
 }

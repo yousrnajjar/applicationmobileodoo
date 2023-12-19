@@ -39,7 +39,7 @@ class _MyHolidaysWidgetState extends State<HolidaysWidget> {
     if (!widget.user.isAdmin) {
       _loadEmployee();
     }
-    String imgUrl = widget.user.getImageUrl(OdooModel.session.url!);
+    String imgUrl = widget.user.getImageUrl(OdooModel.session.serverUrl!);
     return Container(
       padding: const EdgeInsets.all(10),
       child: (widget.list.isEmpty)

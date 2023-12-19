@@ -17,10 +17,13 @@ import 'expense_form.dart';
 class TakePictureExpenseWidget extends StatefulWidget {
   /// Perform an action when the picture is validated (may be stop the workflow and save picture as attachment)
   final Function(XFile)? onPictureValidated;
+
   /// Workflow state (notStarted, started, cameraShowed, pictureTaken, pictureValidated, pictureNotValidated, pictureCanceled)
   final TakePictureForExpenseWorkflow workflow;
+
   /// List of expenses to select one to attach the picture to
   final List<Expense> expenses;
+
   /// onWorkFlowChanged is a callback function to change the workflow state (notStarted, started, cameraShowed, pictureTaken, pictureValidated, pictureNotValidated, pictureCanceled)
   final Function(TakePictureForExpenseWorkflow) onWorkFlowChanged;
 
@@ -56,7 +59,6 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
 
   @override
   Widget build(BuildContext context) {
-    print('TakePictureExpenseWidget.build: _workflow=$_workflow');
     return Column(
       children: [
         _buildMessageOnTop(context),
@@ -237,15 +239,15 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                 ),
                 ElevatedButton(
                   onPressed: () {
-                      if (widget.onPictureValidated != null) {
-                        widget.onPictureValidated!(_imageFile!);
-                      } else {
+                    if (widget.onPictureValidated != null) {
+                      widget.onPictureValidated!(_imageFile!);
+                    } else {
                       setState(() {
-                      _workflow =
-                          TakePictureForExpenseWorkflow.pictureValidated;
+                        _workflow =
+                            TakePictureForExpenseWorkflow.pictureValidated;
                         widget.onWorkFlowChanged(_workflow!);
                       });
-                      }
+                    }
                   },
                   child: const Text('Valider'),
                 ),
@@ -272,7 +274,10 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                         context,
                         MaterialPageRoute(builder: (ctx) => createdForm),
                       ).then((dynamic expense) {
-                        print('TakePictureForExpenseWidget: expense created: $expense');
+                        if (kDebugMode) {
+                          print(
+                            'TakePictureForExpenseWidget: expense created: $expense');
+                        }
                         Expense? newExpense = expense as Expense?;
                         if (newExpense != null) {
                           setState(() {
@@ -284,8 +289,9 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                           });
                         } else {
                           setState(() {
-                            _workflow = TakePictureForExpenseWorkflow.pictureValidated;
-                                //TakePictureForExpenseWorkflow.expenseCanceled;
+                            _workflow =
+                                TakePictureForExpenseWorkflow.pictureValidated;
+                            //TakePictureForExpenseWorkflow.expenseCanceled;
                             widget.onWorkFlowChanged(_workflow!);
                           });
                         }
@@ -350,8 +356,9 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
                       });
                     } else {
                       setState(() {
-                        _workflow = TakePictureForExpenseWorkflow.pictureValidated;
-                            //TakePictureForExpenseWorkflow.expenseCanceled;
+                        _workflow =
+                            TakePictureForExpenseWorkflow.pictureValidated;
+                        //TakePictureForExpenseWorkflow.expenseCanceled;
                         widget.onWorkFlowChanged(_workflow!);
                       });
                     }
@@ -521,11 +528,11 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
   ///
   Widget _buildStarted(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.all(30),  
-        child: Column(
+        padding: const EdgeInsets.all(30),
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text('Prendre une photo de la note de frais',
                 style: TextStyle(fontSize: 20, color: Colors.white)),
             Text(''),
@@ -565,12 +572,14 @@ class _TakePictureExpenseWidgetState extends State<TakePictureExpenseWidget>
   /// Affiche la photo prise
   ///
   Widget _buildPictureTaken(BuildContext context) {
-    /// Les boutons permettent de valider ou d'annuler la photo sont affichés dans la fonction _buildButtons
+    /// Les boutons permettent de valider ou d'annuler la photo sont affichés
+    /// dans la fonction _buildButtons
     return Image.file(File(_imageFile!.path), width: double.infinity);
   }
 
   /// Build Picture Validated
-  /// Affiche la liste des notes de frais pour sélectionner celle dans laquelle la photo doit être enregistrée
+  /// Affiche la liste des notes de frais pour sélectionner celle dans laquelle
+  /// la photo doit être enregistrée
   ///
   Widget _buildPictureValidated(BuildContext context) {
     return Image.file(File(_imageFile!.path), width: double.infinity);

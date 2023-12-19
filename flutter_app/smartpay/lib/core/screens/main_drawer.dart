@@ -127,7 +127,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
       });
     } else if (identifier == "login") {
       ref.read(userInfoProvider.notifier).setUserInfo(User({}));
-      ref.watch(sessionProvider.notifier).setSession(Session("", "", ""));
+      ref.watch(sessionProvider.notifier).setSession(Session(email: '', password: ''));
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => const LoginScreen(),

@@ -41,9 +41,9 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
     CheckInCheckOutState.canCheckOut: 'DURÉE DE LA JOURNÉE DU TRAVAIL',
   };
 
-  bool _enteringCode = false;
+  // bool _enteringCode = false;
 
-  String? check_error;
+  String? checkError;
 
   @override
   void initState() {
@@ -53,10 +53,10 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (check_error != null) {
+    if (checkError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(check_error!),
+          content: Text(checkError!),
         ),
       );
     }
@@ -321,19 +321,21 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       setState(() {});
     } catch (e) {
       // Message d'erreur dans l'interface utilisateur
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Erreur lors du démarrage de la journée: $e",
-            style: TextStyle(
-              fontSize: 12 * widthRatio,
-              fontWeight: FontWeight.normal,
-              color: Colors.black,
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors du démarrage de la journée: $e",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
             ),
+            backgroundColor: Colors.red,
           ),
-          backgroundColor: Colors.red,
-        ),
-      );
+        );
+      }
       rethrow;
     }
   }
@@ -375,19 +377,21 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
       onCheckError(e);
     } catch (e) {
       // Message d'erreur dans l'interface utilisateur
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Erreur lors de la clôture de la journée: $e",
-            style: TextStyle(
-              fontSize: 12 * widthRatio,
-              fontWeight: FontWeight.normal,
-              color: Colors.black,
+      if (context.mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur lors de la clôture de la journée: $e",
+              style: TextStyle(
+                fontSize: 12 * widthRatio,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
             ),
+            backgroundColor: Colors.red,
           ),
-          backgroundColor: Colors.red,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -469,14 +473,14 @@ class CheckInCheckOutFormState extends State<CheckInCheckOutForm> {
 
   Future<bool> checkCodeValid() async {
     setState(() {
-      _enteringCode = true;
+      // _enteringCode = true;
     });
     final code = await showDialog(
       context: context,
       builder: (context) => const EnterCodeDialog(),
     );
     setState(() {
-      _enteringCode = false;
+      // _enteringCode = false;
     });
     if (code == null) {
       return false;

@@ -2,7 +2,6 @@
 // Widget qui permet de prendre une photo avec la caméra de la face de l'utilisateur et de le retourné
 // à la page précédente
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:smartpay/core/widgets/utils/camera/take_picture.dart';
